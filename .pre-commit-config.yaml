@@ -1,0 +1,121 @@
+---
+default_install_hook_types: [pre-commit, commit-msg]
+
+default_language_version:
+    python: python3.12
+
+repos:
+    - repo: https://github.com/python-jsonschema/check-jsonschema
+      rev: 0.29.0
+      hooks:  # yamllint disable-line rule:key-ordering
+          - id: check-github-workflows
+            stages: [pre-commit, pre-merge-commit, manual]
+
+    - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+      rev: v1.3.3
+      hooks:  # yamllint disable-line rule:key-ordering
+          - id: python-safety-dependencies-check
+            # yamllint disable-line rule:key-ordering
+            args: ["--groups=dev,main", --short-report]
+            files: pyproject.toml  # yamllint disable-line rule:key-ordering
+            stages: [manual]
+
+    - repo: https://github.com/jorisroovers/gitlint
+      rev: v0.19.1
+      hooks:  # yamllint disable-line rule:key-ordering
+          - id: gitlint
+          - id: gitlint-ci
+
+    - repo: https://github.com/gitleaks/gitleaks
+      rev: v8.18.4
+      hooks:  # yamllint disable-line rule:key-ordering
+          -  # noinspection SpellCheckingInspection
+              id: gitleaks
+              stages: [pre-commit, pre-merge-commit, manual]
+
+    - repo: https://github.com/python-poetry/poetry
+      rev: 1.8.0
+      hooks:  # yamllint disable-line rule:key-ordering
+          - id: poetry-check
+            name: check poetry config in pyproject.toml is valid
+            args: [--no-interaction]  # yamllint disable-line rule:key-ordering
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: poetry-check
+            name: check poetry.lock file is valid
+            args: [--lock, --no-interaction]  # yamllint disable-line rule:key-ordering
+            stages: [pre-commit, pre-merge-commit, manual]
+
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.6.0
+      hooks:  # yamllint disable-line rule:key-ordering
+          - id: check-added-large-files
+          - id: trailing-whitespace
+          - id: check-executables-have-shebangs
+          - id: end-of-file-fixer
+
+          - id: check-json
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: check-yaml
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: check-toml
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: check-xml
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: check-symlinks
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: check-merge-conflict
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: check-vcs-permalinks
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: destroyed-symlinks
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: check-case-conflict
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: check-ast
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: detect-private-key
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: fix-byte-order-marker
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: fix-encoding-pragma
+            args: [--remove]  # yamllint disable-line rule:key-ordering
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: name-tests-test
+            args: [--unittest]  # yamllint disable-line rule:key-ordering
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: pretty-format-json
+            args: [--autofix]  # yamllint disable-line rule:key-ordering
+            stages: [pre-commit, pre-merge-commit, manual]
+
+    - repo: https://github.com/pre-commit/pygrep-hooks
+      rev: v1.10.0
+      hooks:  # yamllint disable-line rule:key-ordering
+          - id: python-check-blanket-noqa
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: python-check-blanket-type-ignore
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: python-no-eval
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: python-no-log-warn
+            stages: [pre-commit, pre-merge-commit, manual]
+
+          - id: python-use-type-annotations
+            stages: [pre-commit, pre-merge-commit, manual]
