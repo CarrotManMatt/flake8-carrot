@@ -27,13 +27,15 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.plugins."flake8.extension"]
-#B = "C:D"
+CAR = "flake8_carrot:CarrotPlugin"
+TXB = "flake8_carrot:TeXBotPlugin"
 
 
 [tool.poetry.dependencies]
 python = "^3.12"
 setuptools = "^71.1"
 flake8 = "^7.1"
+classproperties = {git = "https://github.com/hottwaj/classproperties.git"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3"
@@ -78,7 +80,6 @@ extend-exclude = [
     "venv/",
     ".vscode",
     ".idea",
-    ".pytest_cache",
     ".mypy_cache",
     ".ruff_cache",
     "__pycache__",
@@ -138,6 +139,7 @@ ignore = [
     "N806",
     "S603",
     "ANN101",
+    "ANN102",
     "UP040",  # NOTE: mypy does not currently support PEP 695 type aliases, so they should not be used
 ]
 task-tags = [
