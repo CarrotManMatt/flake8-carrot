@@ -8,6 +8,20 @@ name: Tests
         branches: [main]
 
 jobs:  # yamllint disable-line rule:key-ordering
+    asciidoctor:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v4
+
+            - name: Install Asciidoctor
+              run: sudo apt-get update -y &&
+                   sudo apt-get install -y --no-install-recommends asciidoctor
+
+            - name: Run Asciidoctor
+              run: asciidoctor -v --failure-level=WARNING -w -o /dev/null README.adoc
+
     mypy:
         runs-on: ubuntu-latest
 
