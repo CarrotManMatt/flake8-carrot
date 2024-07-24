@@ -21,4 +21,4 @@ image:https://img.shields.io/badge/validated-brightgreen?logo=yaml&label=yamllin
 
 == Rules
 
-`CAR001`:: Missing `+__all__+` export at the top of module
+`+CAR001+` - `+missing-all-export+`:: Missing `+__all__+` export at the top of the module

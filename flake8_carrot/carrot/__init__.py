@@ -1,16 +1,18 @@
+
 """"""
 
 from collections.abc import Sequence
 
-__all__: Sequence[str] = ("CarrotPlugin",)
+__all__: Sequence[str] = ("CarrotPlugin", "RuleCAR001")
 
 
-from collections.abc import Generator
 from typing import override
 
 from classproperties import classproperty
 
-from .base import BasePlugin
+from flake8_carrot.utils import BasePlugin, BaseRule
+
+from .CAR001 import RuleCAR001
 
 
 class CarrotPlugin(BasePlugin):
@@ -22,6 +24,8 @@ class CarrotPlugin(BasePlugin):
     def name(cls) -> str:  # noqa: N805
         return cls._name(__name__)
 
+    # noinspection PyMethodParameters,PyPep8Naming
+    @classproperty
     @override
-    def run(self) -> Generator[tuple[int, int, str, type[BasePlugin]], None, None]:
-        yield 1, 0, "CAR100 always error", type(self)
+    def RULES(cls) -> frozenset[type[BaseRule]]:  # noqa: N805
+        return frozenset({RuleCAR001})
