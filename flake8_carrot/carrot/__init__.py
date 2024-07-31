@@ -15,6 +15,7 @@ from flake8_carrot.utils import BasePlugin, BaseRule
 from .CAR001 import RuleCAR001
 from .CAR002 import RuleCAR002
 from .CAR003 import RuleCAR003
+from .CAR004 import RuleCAR004
 
 
 class CarrotPlugin(BasePlugin):
@@ -30,4 +31,4 @@ class CarrotPlugin(BasePlugin):
     @classproperty
     @override
     def RULES(cls) -> frozenset[type[BaseRule]]:  # noqa: N805
-        return frozenset({RuleCAR001, RuleCAR002, RuleCAR003})
+        return frozenset({RuleCAR001, RuleCAR002, RuleCAR003, RuleCAR004})

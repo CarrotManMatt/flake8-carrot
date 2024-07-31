@@ -8,7 +8,6 @@ import ast
 from collections.abc import Iterable
 from typing import Final, override
 
-import astpretty
 from classproperties import classproperty
 
 from flake8_carrot.utils import BaseRule
