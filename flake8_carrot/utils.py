@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-__all__: Sequence[str] = ("BasePlugin", "BaseRule")
+__all__: Sequence[str] = ("BasePlugin", "BaseRule", "ProblemsContainer")
 
 import abc
 import ast
@@ -54,8 +54,17 @@ class BasePlugin(abc.ABC):
 
             line_number: int
             column_number: int
-            for line_number, column_number in rule.problems:
-                yield line_number, column_number, rule.ERROR_MESSAGE, type(self)
+            ctx: dict[str, object]
+            for (line_number, column_number), ctx in rule.problems.items():
+                yield line_number, column_number, rule.format_error_message(ctx), type(self)
+
+
+class ProblemsContainer(dict[tuple[int, int], dict[str, object]]):
+    """"""
+
+    def add_without_ctx(self, problem_location: tuple[int, int]) -> None:
+        """"""
+        self[problem_location] = {}
 
 
 class BaseRule(ast.NodeVisitor, abc.ABC):
@@ -63,7 +72,7 @@ class BaseRule(ast.NodeVisitor, abc.ABC):
 
     @override
     def __init__(self) -> None:
-        self.problems: set[tuple[int, int]] = set()
+        self.problems: ProblemsContainer = ProblemsContainer()
 
         super().__init__()
 
@@ -71,8 +80,7 @@ class BaseRule(ast.NodeVisitor, abc.ABC):
         """"""
         self.visit(tree)
 
-    # noinspection PyMethodParameters,PyPep8Naming
-    @classproperty
+    @classmethod
     @abc.abstractmethod
-    def ERROR_MESSAGE(cls) -> str:  # noqa: N802, N805
+    def format_error_message(cls, ctx: dict[str, object]) -> str:
         """"""

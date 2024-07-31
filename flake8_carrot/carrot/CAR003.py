@@ -5,10 +5,7 @@ from collections.abc import Sequence
 __all__: Sequence[str] = ("RuleCAR003",)
 
 import ast
-from collections.abc import Iterable
 from typing import Final, override
-
-from classproperties import classproperty
 
 from flake8_carrot.utils import BaseRule
 
@@ -22,19 +19,29 @@ class RuleCAR003(BaseRule):
 
         super().__init__()
 
-    # noinspection PyMethodParameters,PyPep8Naming
-    @classproperty
+    @classmethod
     @override
-    def ERROR_MESSAGE(cls) -> str:  # noqa: N805
+    def format_error_message(cls, ctx: dict[str, object]) -> str:
         return "CAR003 `__all__` export should be annotated as `Sequence[str]`"
 
     @override
     def visit_Assign(self, node: ast.Assign) -> None:
-        all_assignment_targets: Iterable[ast.Name] = (target for target in node.targets if isinstance(target, ast.Name) and target.id == "__all__")
-        if all_assignment_targets:
+        all_assignment: ast.Name | None = next(
+            (
+                target
+                for target in node.targets
+                if isinstance(target, ast.Name) and target.id == "__all__"
+            ),
+            None,
+        )
+        if all_assignment is not None:
             if self.all_found_count == 0:
-                all_assignment: ast.Name = next(iter(all_assignment_targets))
-                self.problems.add((all_assignment.lineno, all_assignment.end_col_offset - 1))
+                self.problems.add_without_ctx(
+                    (
+                        all_assignment.lineno,
+                        (all_assignment.end_col_offset or all_assignment.col_offset) - 1,
+                    ),
+                )
 
             self.all_found_count += 1
 
@@ -55,11 +62,11 @@ class RuleCAR003(BaseRule):
                 and node.annotation.slice.id == "str"  # noqa: COM812
             )
             if self.all_found_count == 0 and not CORRECT_ANNOTATION:
-                self.problems.add(
+                self.problems.add_without_ctx(
                     (
                         node.annotation.lineno,
                         (
-                            node.annotation.end_col_offset - 1
+                            (node.annotation.end_col_offset or node.annotation.col_offset) - 1
                             if isinstance(node.annotation, ast.Name) and node.annotation.id == "Sequence"
                             else node.annotation.col_offset
                         ),

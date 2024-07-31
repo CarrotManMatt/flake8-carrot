@@ -11,8 +11,6 @@ from enum import Enum
 from tokenize import TokenInfo
 from typing import Final, override
 
-from classproperties import classproperty
-
 from flake8_carrot.utils import BaseRule
 
 
@@ -34,10 +32,9 @@ class RuleCAR001(BaseRule):
 
         super().__init__()
 
-    # noinspection PyMethodParameters,PyPep8Naming
-    @classproperty
+    @classmethod
     @override
-    def ERROR_MESSAGE(cls) -> str:  # noqa: N805
+    def format_error_message(cls, ctx: dict[str, object]) -> str:
         return "CAR001 Missing `__all__` export at the top of the module"
 
     @classmethod
@@ -75,7 +72,7 @@ class RuleCAR001(BaseRule):
                 if not lines[first_child_end_lineno - 1].endswith("\n"):
                     return (
                         first_child_end_lineno,
-                        (first_child_node.end_col_offset or first_child_node.col_offset),
+                        (first_child_node.end_col_offset or first_child_node.col_offset),  # type: ignore[attr-defined]
                     )
 
                 return (
@@ -113,8 +110,8 @@ class RuleCAR001(BaseRule):
                         return (
                             second_child_end_lineno,
                             (
-                                second_child_node.end_col_offset
-                                or second_child_node.col_offset
+                                second_child_node.end_col_offset  # type: ignore[attr-defined]
+                                or second_child_node.col_offset  # type: ignore[attr-defined]
                             ),
                         )
 
@@ -184,12 +181,14 @@ class RuleCAR001(BaseRule):
             error_column_number: int
             error_line_number, error_column_number = self.get_error_position(tree, lines)
 
-            self.problems.add((max(error_line_number, 1), max(error_column_number, 0)))
+            self.problems.add_without_ctx(
+                (max(error_line_number, 1), max(error_column_number, 0)),
+            )
 
     @override
     def visit_Module(self, node: ast.Module) -> None:
         if not node.body:
-            self.problems.add((1, 0))
+            self.problems.add_without_ctx((1, 0))
             self.missing_all_export_flag = self.MissingAllExportFlag.BODY_WAS_EMPTY
             return
 

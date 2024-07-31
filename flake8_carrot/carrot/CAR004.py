@@ -7,8 +7,6 @@ __all__: Sequence[str] = ("RuleCAR004",)
 import ast
 from typing import Final, override
 
-from classproperties import classproperty
-
 from flake8_carrot.utils import BaseRule
 
 
@@ -21,10 +19,9 @@ class RuleCAR004(BaseRule):
 
         super().__init__()
 
-    # noinspection PyMethodParameters,PyPep8Naming
-    @classproperty
+    @classmethod
     @override
-    def ERROR_MESSAGE(cls) -> str:  # noqa: N805
+    def format_error_message(cls, ctx: dict[str, object]) -> str:
         return "CAR004 Simple `__all__` export should be of type `tuple`, not `list`"
 
     @override
@@ -35,7 +32,7 @@ class RuleCAR004(BaseRule):
         )
         if ALL_EXPORT_FOUND:
             if self.all_found_count == 0 and isinstance(node.value, ast.List):
-                self.problems.add((node.value.lineno, node.value.col_offset))
+                self.problems.add_without_ctx((node.value.lineno, node.value.col_offset))
 
             self.all_found_count += 1
 
@@ -49,7 +46,7 @@ class RuleCAR004(BaseRule):
         )
         if ALL_EXPORT_FOUND:
             if self.all_found_count == 0 and isinstance(node.value, ast.List):
-                self.problems.add((node.value.lineno, node.value.col_offset))
+                self.problems.add_without_ctx((node.value.lineno, node.value.col_offset))
 
             self.all_found_count += 1
 
