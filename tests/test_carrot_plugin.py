@@ -30,7 +30,7 @@ class TestRuleCAR001:
 
     # noinspection PyPep8Naming
     @pytest.mark.parametrize(
-        "RAW_TEST_AST_AND_EXPECTED_ERROR_POSITION",
+        ("RAW_TEST_AST", "EXPECTED_ERROR_POSITION"),
         (
             ("", (1, 1)),
             (" ", (1, 1)),
@@ -40,28 +40,99 @@ class TestRuleCAR001:
             ("class Foo:\n    pass\n", (1, 1)),
             ("\"\"\"This is a docstring.\"\"\"", (1, 27)),
             ("\"\"\"This is a docstring.\"\"\"\n", (2, 1)),
-            *((f"\"\"\"This is a docstring.\"\"\"\n{"\n" * count}", (3, 1)) for count in range(1, 4)),
-            ("\"\"\"\nThis is a docstring.\nwow!\n\"\"\"", (4, 1)),
+            *(
+                (
+                    f"\"\"\"This is a docstring.\"\"\"\n{"\n" * count}",
+                    (3, 1),
+                ) for count in range(1, 5)
+            ),
+            ("\"\"\"\nThis is a docstring.\nwow!\n\"\"\"", (4, 4)),
             ("\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n", (5, 1)),
-            *((f"\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n{"\n" * count}", (6, 1)) for count in range(1, 4)),
-            *((f"\"\"\"This is a docstring.\"\"\"{"\n" * count}x=3\n", (2, 1)) for count in range(1, 4)),
-            *((f"\"\"\"This is a docstring.\"\"\"\n\n\n{"\n" * count}x=3\n", (3, 1)) for count in range(1, 3)),
-            *((f"\"\"\"\nThis is a docstring.\nwow!\n\"\"\"{"\n" * count}x=3\n", (5, 1)) for count in range(1, 4)),
-            *((f"\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n\n\n{"\n" * count}x=3\n", (6, 1)) for count in range(1, 3)),
-            ("\"\"\"This is a docstring.\"\"\"\n\nfrom collections.abc import Sequence", (3, 37)),
-            ("\"\"\"This is a docstring.\"\"\"\n\nfrom collections.abc import Sequence\n", (4, 1)),
-            *((f"\"\"\"This is a docstring.\"\"\"\n\nfrom collections.abc import Sequence\n{"\n" * count}", (5, 1)) for count in range(1, 4)),
-            ("\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n\nfrom collections.abc import Sequence", (6, 37)),
-            *((f"\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n\nfrom collections.abc import Sequence\n{"\n" * count}", (7, 1)) for count in range(1, 4)),
-            *((f"\"\"\"This is a docstring.\"\"\"\n\nfrom collections.abc import Sequence{"\n" * count}x=3\n", (4, 1)) for count in range(1, 4)),
-            *((f"\"\"\"This is a docstring.\"\"\"\n\nfrom collections.abc import Sequence\n\n\n{"\n" * count}x=3\n", (5, 1)) for count in range(1, 3)),
-            *((f"\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n\nfrom collections.abc import Sequence{"\n" * count}x=3\n", (7, 1)) for count in range(1, 4)),
-            *((f"\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n\nfrom collections.abc import Sequence\n\n\n{"\n" * count}x=3\n", (8, 1)) for count in range(1, 3)),
+            *(
+                (
+                    f"\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n{"\n" * count}",
+                    (6, 1),
+                ) for count in range(1, 5)
+            ),
+            *(
+                (
+                    f"\"\"\"This is a docstring.\"\"\"{"\n" * count}x=3\n",
+                    (2, 1),
+                ) for count in range(1, 4)
+            ),
+            *(
+                (
+                    f"\"\"\"This is a docstring.\"\"\"\n\n\n{"\n" * count}x=3\n",
+                    (3, 1),
+                ) for count in range(1, 4)
+            ),
+            *(
+                (
+                    f"\"\"\"\nThis is a docstring.\nwow!\n\"\"\"{"\n" * count}x=3\n",
+                    (5, 1),
+                ) for count in range(1, 4)
+            ),
+            *(
+                (
+                    f"\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n\n\n{"\n" * count}x=3\n",
+                    (6, 1),
+                ) for count in range(1, 4)
+            ),
+            (
+                "\"\"\"This is a docstring.\"\"\"\n\nfrom collections.abc import Sequence",
+                (3, 37),
+            ),
+            (
+                "\"\"\"This is a docstring.\"\"\"\n\nfrom collections.abc import Sequence\n",
+                (4, 1),
+            ),
+            *(
+                (
+                    f"\"\"\"This is a docstring.\"\"\"\n\nfrom collections.abc import Sequence\n{"\n" * count}",  # noqa: E501
+                    (5, 1),
+                ) for count in range(1, 5)
+            ),
+            (
+                "\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n\nfrom collections.abc import Sequence",  # noqa: E501
+                (6, 37),
+            ),
+            *(
+                (
+                    f"\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n\nfrom collections.abc import Sequence\n{"\n" * count}",  # noqa: E501
+                    (8, 1),
+                ) for count in range(1, 5)
+            ),
+            *(
+                (
+                    f"\"\"\"This is a docstring.\"\"\"\n\nfrom collections.abc import Sequence{"\n" * count}x=3\n",  # noqa: E501
+                    (4, 1),
+                ) for count in range(1, 4)
+            ),
+            *(
+                (
+                    f"\"\"\"This is a docstring.\"\"\"\n\nfrom collections.abc import Sequence\n\n\n{"\n" * count}x=3\n",  # noqa: E501
+                    (5, 1),
+                ) for count in range(1, 4)
+            ),
+            *(
+                (
+                    f"\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n\nfrom collections.abc import Sequence{"\n" * count}x=3\n",  # noqa: E501
+                    (7, 1),
+                ) for count in range(1, 4)
+            ),
+            *(
+                (
+                    f"\"\"\"\nThis is a docstring.\nwow!\n\"\"\"\n\nfrom collections.abc import Sequence\n\n\n{"\n" * count}x=3\n",  # noqa: E501
+                    (8, 1),
+                ) for count in range(1, 3)
+            ),
         ),
     )
-    def test_missing_all_export(self, RAW_TEST_AST_AND_EXPECTED_ERROR_POSITION: tuple[str, tuple[int, int]]) -> None:  # noqa: N803
+    def test_missing_all_export(self, RAW_TEST_AST: str, EXPECTED_ERROR_POSITION: tuple[int, int]) -> None:  # noqa: N803, E501
         """"""
-        assert self._get_message(RAW_TEST_AST_AND_EXPECTED_ERROR_POSITION[1][0], RAW_TEST_AST_AND_EXPECTED_ERROR_POSITION[1][1]) in _apply_carrot_plugin_to_ast(RAW_TEST_AST_AND_EXPECTED_ERROR_POSITION[0])
+        assert self._get_message(*EXPECTED_ERROR_POSITION) in _apply_carrot_plugin_to_ast(
+            RAW_TEST_AST,
+        )
 
     # noinspection PyPep8Naming
     @pytest.mark.parametrize(

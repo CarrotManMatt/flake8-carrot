@@ -8,8 +8,8 @@ import ast
 import enum
 from collections.abc import Iterator
 from enum import Enum
-from typing import Final, override
 from tokenize import TokenInfo
+from typing import Final, override
 
 from classproperties import classproperty
 
@@ -38,44 +38,142 @@ class RuleCAR001(BaseRule):
     @classproperty
     @override
     def ERROR_MESSAGE(cls) -> str:  # noqa: N805
-        return (
-            f"{cls.__name__.removeprefix("Rule")} "
-            "Missing `__all__` export at the top of the module"
-        )
+        return "CAR001 Missing `__all__` export at the top of the module"
 
     @classmethod
-    def get_error_position(cls, tree: ast.AST, lines: Sequence[str]) -> tuple[int, int]:
+    def get_error_position(cls, tree: ast.AST, lines: Sequence[str]) -> tuple[int, int]:  # NOTE: I'm sorry to whoever has to work out what is going on here
+        """"""
         child_nodes: Iterator[ast.AST] = ast.iter_child_nodes(tree)
-        print(repr(lines))
 
         try:
             first_child_node: ast.AST = next(child_nodes)
         except StopIteration:
             return 1, 0
 
-        if isinstance(first_child_node, ast.Expr) and isinstance(first_child_node.value, ast.Constant):
+        first_child_end_lineno: object = (
+            getattr(
+                first_child_node,
+                "end_lineno",
+                None,
+            ) or getattr(  # noqa: B009
+                first_child_node,
+                "lineno",
+            )
+        )
+        if not isinstance(first_child_end_lineno, int):
+            raise TypeError
+
+        FIRST_CHILD_NODE_IS_DOCSTRING: Final[bool] = bool(
+            isinstance(first_child_node, ast.Expr)
+            and isinstance(first_child_node.value, ast.Constant)  # noqa: COM812
+        )
+
+        if FIRST_CHILD_NODE_IS_DOCSTRING:
             try:
                 second_child_node: ast.AST = next(child_nodes)
             except StopIteration:
-                if not lines[(first_child_node.end_lineno or first_child_node.lineno) - 1].endswith("\n"):
-                    return (first_child_node.end_lineno or first_child_node.lineno), (first_child_node.end_col_offset or first_child_node.col_offset)
+                if not lines[first_child_end_lineno - 1].endswith("\n"):
+                    return (
+                        first_child_end_lineno,
+                        (first_child_node.end_col_offset or first_child_node.col_offset),
+                    )
 
-                return (first_child_node.end_lineno or first_child_node.lineno) + 1, 0
+                return (
+                    min(
+                        first_child_end_lineno + 2,
+                        len(lines[first_child_end_lineno:]) + first_child_end_lineno + 1,
+                    ),
+                    0,
+                )
 
-            if isinstance(second_child_node, ast.ImportFrom) and second_child_node.module == "collections.abc" and len(second_child_node.names) == 1 and second_child_node.names[0].name == "Sequence":
+            second_child_end_lineno: object = (
+                getattr(
+                    second_child_node,
+                    "end_lineno",
+                    None,
+                ) or getattr(  # noqa: B009
+                    second_child_node,
+                    "lineno",
+                )
+            )
+            if not isinstance(second_child_end_lineno, int):
+                raise TypeError
+
+            SECOND_CHILD_NODE_IS_SEQUENCE_IMPORT: Final[bool] = bool(
+                isinstance(second_child_node, ast.ImportFrom)
+                and second_child_node.module == "collections.abc"
+                and len(second_child_node.names) == 1
+                and second_child_node.names[0].name == "Sequence"  # noqa: COM812
+            )
+            if SECOND_CHILD_NODE_IS_SEQUENCE_IMPORT:
                 try:
                     third_child_node: ast.AST = next(child_nodes)
                 except StopIteration:
-                    return (second_child_node.end_lineno or second_child_node.lineno), 0
+                    if not lines[second_child_end_lineno - 1].endswith("\n"):
+                        return (
+                            second_child_end_lineno,
+                            (
+                                second_child_node.end_col_offset
+                                or second_child_node.col_offset
+                            ),
+                        )
 
-                return (third_child_node.end_lineno or third_child_node.lineno), 0
+                    return (
+                         min(
+                             second_child_end_lineno + 2,
+                             (
+                                 len(lines[second_child_end_lineno:])
+                                 + second_child_end_lineno + 1
+                             ),
+                         ),
+                         0,
+                    )
 
-            return (first_child_node.end_lineno or first_child_node.lineno), 0
+                third_child_end_lineno: object = (
+                    getattr(
+                        third_child_node,
+                        "end_lineno",
+                        None,
+                    ) or getattr(  # noqa: B009
+                        third_child_node,
+                        "lineno",
+                    )
+                )
+                if not isinstance(third_child_end_lineno, int):
+                    raise TypeError
+
+                if len(lines[second_child_end_lineno:third_child_end_lineno - 1]) in (1, 2):
+                    return second_child_end_lineno + 1, 0
+
+                return (
+                    min(
+                        second_child_end_lineno + 2,
+                        (
+                            len(lines[second_child_end_lineno:third_child_end_lineno - 1])
+                            + second_child_end_lineno + 1
+                        ),
+                    ),
+                    0,
+                )
+
+            if len(lines[first_child_end_lineno:second_child_end_lineno - 1]) in (1, 2):
+                return first_child_end_lineno + 1, 0
+
+            return (
+                min(
+                    first_child_end_lineno + 2,
+                    (
+                        len(lines[first_child_end_lineno:second_child_end_lineno - 1])
+                        + first_child_end_lineno + 1
+                    ),
+                ),
+                0,
+            )
 
         return 1, 0
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         if self.missing_all_export_flag is not self.MissingAllExportFlag.UNKNOWN:
             raise RuntimeError  # TODO: Message here
 
@@ -87,38 +185,6 @@ class RuleCAR001(BaseRule):
             error_line_number, error_column_number = self.get_error_position(tree, lines)
 
             self.problems.add((max(error_line_number, 1), max(error_column_number, 0)))
-
-            # child_nodes: Sequence[ast.AST] = list(ast.iter_child_nodes(tree))
-            #
-            # best_line_number: int = 0
-            #
-            # if isinstance(child_nodes[0])
-            #
-            # node: ast.AST
-            # index: int
-            # for index, node in enumerate(ast.iter_child_nodes(tree)):
-            #     print(node.end_lineno, index)
-            #     FOUND_BETTER_IMPORT_LINE_NUMBER: bool = bool(
-            #         isinstance(node, ast.ImportFrom)
-            #         and node.module == "collections.abc"
-            #         and ast.alias(name="Sequence", asname=None) in node.names
-            #         and ((node.end_lineno or node.lineno) > best_line_number)  # noqa: COM812
-            #     )
-            #     if FOUND_BETTER_IMPORT_LINE_NUMBER:
-            #         best_line_number = node.end_lineno or node.lineno
-            #         continue
-            #
-            #     FOUND_BETTER_DOCSTRING_LINE_NUMBER: bool = bool(
-            #         isinstance(node, ast.Expr)
-            #         and isinstance(node.value, ast.Constant)
-            #         and node.value.kind is None
-            #         and ((node.end_lineno or node.lineno) > best_line_number)  # noqa: COM812
-            #     )
-            #     if FOUND_BETTER_DOCSTRING_LINE_NUMBER:
-            #         best_line_number = node.end_lineno or node.lineno
-            #         continue
-            #
-            #     break
 
     @override
     def visit_Module(self, node: ast.Module) -> None:

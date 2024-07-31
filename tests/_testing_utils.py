@@ -6,8 +6,8 @@ __all__: Sequence[str] = ("apply_plugin_to_ast",)
 
 import ast
 import tokenize
-from io import StringIO
 from collections.abc import Set
+from io import StringIO
 
 from flake8_carrot.utils import BasePlugin
 
@@ -18,7 +18,10 @@ def apply_plugin_to_ast(raw_testing_ast: str, plugin_class: type[BasePlugin]) ->
     if not converted_lines[-1]:
         converted_lines = [f"{line}\n" for line in converted_lines[:-1]]
     else:
-        converted_lines = [f"{line}\n" for line in converted_lines[:-1]] + [converted_lines[-1]]
+        converted_lines = (
+            [f"{line}\n" for line in converted_lines[:-1]]
+            + [converted_lines[-1]]
+        )
 
     return {
         f"{line}:{column + 1} {message}"

@@ -1,6 +1,6 @@
 """"""
 
-from collections.abc import Iterator, Sequence
+from collections.abc import Sequence
 
 __all__: Sequence[str] = ("BasePlugin", "BaseRule")
 
@@ -8,8 +8,8 @@ import abc
 import ast
 import importlib.metadata
 from collections.abc import Generator
-from typing import Final, override
 from tokenize import TokenInfo
+from typing import Final, override
 
 from classproperties import classproperty
 
@@ -39,7 +39,7 @@ class BasePlugin(abc.ABC):
     def RULES(cls) -> frozenset[type["BaseRule"]]:  # noqa: N802,N805
         """"""
 
-    def __init__(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+    def __init__(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         """"""
         self._tree: ast.AST = tree
         self._file_tokens: Sequence[TokenInfo] = file_tokens
@@ -67,7 +67,7 @@ class BaseRule(ast.NodeVisitor, abc.ABC):
 
         super().__init__()
 
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: ARG002, E501
         """"""
         self.visit(tree)
 
