@@ -5,7 +5,7 @@ from typing import Final
 
 __all__: Final[Sequence[str]] = ("TestRuleCAR001",)
 
-from collections.abc import Set
+from collections.abc import Set as AbstractSet
 
 import pytest
 
@@ -13,7 +13,7 @@ from flake8_carrot import CarrotPlugin
 from tests._testing_utils import apply_plugin_to_ast
 
 
-def _apply_carrot_plugin_to_ast(raw_testing_ast: str) -> Set[str]:
+def _apply_carrot_plugin_to_ast(raw_testing_ast: str) -> AbstractSet[str]:
     """"""
     return apply_plugin_to_ast(raw_testing_ast, CarrotPlugin)
 

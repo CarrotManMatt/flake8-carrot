@@ -175,7 +175,7 @@ class RuleCAR001(BaseRule):
     @override
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         if self.missing_all_export_flag is not self.MissingAllExportFlag.UNKNOWN:
-            raise RuntimeError  # TODO: Message here
+            raise RuntimeError
 
         super().run_check(tree=tree, file_tokens=file_tokens, lines=lines)
 
@@ -214,7 +214,8 @@ class RuleCAR001(BaseRule):
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         ALL_EXPORT_FOUND: Final[bool] = bool(
             self.missing_all_export_flag is self.MissingAllExportFlag.UNKNOWN
-            and isinstance(node.target, ast.Name) and node.target.id == "__all__"  # noqa: COM812
+            and isinstance(node.target, ast.Name)
+            and node.target.id == "__all__"  # noqa: COM812
         )
         if ALL_EXPORT_FOUND:
             self.missing_all_export_flag = self.MissingAllExportFlag.FOUND_ALL

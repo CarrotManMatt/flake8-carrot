@@ -6,13 +6,13 @@ __all__: Sequence[str] = ("apply_plugin_to_ast",)
 
 import ast
 import tokenize
-from collections.abc import Set
+from collections.abc import Set as AbstractSet
 from io import StringIO
 
 from flake8_carrot.utils import BasePlugin
 
 
-def apply_plugin_to_ast(raw_testing_ast: str, plugin_class: type[BasePlugin]) -> Set[str]:
+def apply_plugin_to_ast(raw_testing_ast: str, plugin_class: type[BasePlugin]) -> AbstractSet[str]:  # noqa: E501
     """"""
     converted_lines: Sequence[str] = raw_testing_ast.split("\n")
     if not converted_lines[-1]:
