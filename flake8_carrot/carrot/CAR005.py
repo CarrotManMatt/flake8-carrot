@@ -1,4 +1,5 @@
 """"""  # noqa: N999
+
 from collections.abc import Sequence
 
 __all__: Sequence[str] = ("RuleCAR005",)

@@ -18,6 +18,7 @@ from .CAR003 import RuleCAR003
 from .CAR004 import RuleCAR004
 from .CAR005 import RuleCAR005
 from .CAR006 import RuleCAR006
+from .CAR007 import RuleCAR007
 
 
 class CarrotPlugin(BasePlugin):
@@ -34,5 +35,13 @@ class CarrotPlugin(BasePlugin):
     @override
     def RULES(cls) -> frozenset[type[BaseRule]]:  # noqa: N805
         return frozenset(
-            {RuleCAR001, RuleCAR002, RuleCAR003, RuleCAR004, RuleCAR005, RuleCAR006},
+            {
+                RuleCAR001,
+                RuleCAR002,
+                RuleCAR003,
+                RuleCAR004,
+                RuleCAR005,
+                RuleCAR006,
+                RuleCAR007,
+            },
         )
