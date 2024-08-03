@@ -4,6 +4,7 @@ from collections.abc import Sequence
 
 __all__: Sequence[str] = ("RuleCAR106",)
 
+
 import abc
 import ast
 from collections.abc import Mapping

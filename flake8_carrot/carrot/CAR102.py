@@ -4,6 +4,7 @@ from collections.abc import Sequence
 
 __all__: Sequence[str] = ("RuleCAR102",)
 
+
 import ast
 from collections.abc import Mapping
 from typing import Final, override

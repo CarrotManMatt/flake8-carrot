@@ -4,6 +4,7 @@ from collections.abc import Sequence
 
 __all__: Sequence[str] = ("RuleCAR101",)
 
+
 import ast
 import enum
 from collections.abc import Iterator, Mapping

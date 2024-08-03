@@ -1,9 +1,9 @@
 """"""
 
 from collections.abc import Sequence
-from typing import Final
 
-__all__: Final[Sequence[str]] = ("TestRuleCAR001",)
+__all__: Sequence[str] = ("TestRuleCAR001",)
+
 
 from collections.abc import Set as AbstractSet
 

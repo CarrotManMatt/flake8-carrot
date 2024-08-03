@@ -4,6 +4,7 @@ from collections.abc import Sequence
 
 __all__: Sequence[str] = ()
 
+
 from collections.abc import Set as AbstractSet
 
 from flake8_carrot import TeXBotPlugin

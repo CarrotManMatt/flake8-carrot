@@ -4,6 +4,7 @@ from collections.abc import Sequence
 
 __all__: Sequence[str] = ("BasePlugin", "BaseRule", "ProblemsContainer")
 
+
 import abc
 import ast
 import importlib.metadata

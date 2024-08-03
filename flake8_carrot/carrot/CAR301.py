@@ -4,6 +4,7 @@ from collections.abc import Sequence
 
 __all__: Sequence[str] = ("RuleCAR301",)
 
+
 import abc
 import ast
 from collections.abc import Mapping
@@ -243,42 +244,48 @@ class RuleCAR301(BaseRule):
 
         self.generic_visit(node)
 
+    @classmethod
+    def _node_id_slash_command_group_assignment(cls, node: ast.Assign | ast.AnnAssign) -> bool:
+        return bool(
+            bool(
+                isinstance(node.value, ast.Call)
+                and isinstance(node.value.func, ast.Name)
+                and node.value.func.id == "SlashCommandGroup"  # noqa: COM812
+            )
+            or bool(
+                isinstance(node.value, ast.Call)
+                and isinstance(node.value.func, ast.Attribute)
+                and isinstance(node.value.func.value, ast.Name)
+                and node.value.func.value.id == "discord"
+                and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
+            )
+            or bool(
+                isinstance(node.value, ast.Call)
+                and isinstance(node.value.func, ast.Attribute)
+                and isinstance(node.value.func.value, ast.Attribute)
+                and isinstance(node.value.func.value.value, ast.Name)
+                and node.value.func.value.value.id == "discord"
+                and node.value.func.value.attr == "commands"
+                and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
+            )
+            or bool(
+                isinstance(node.value, ast.Call)
+                and isinstance(node.value.func, ast.Attribute)
+                and isinstance(node.value.func.value, ast.Attribute)
+                and isinstance(node.value.func.value.value, ast.Attribute)
+                and isinstance(node.value.func.value.value.value, ast.Name)
+                and node.value.func.value.value.value.id == "discord"
+                and node.value.func.value.value.attr == "commands"
+                and node.value.func.value.attr == "core"
+                and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
+            )  # noqa: COM812
+        )
+
     @override
     def visit_Assign(self, node: ast.Assign) -> None:
         if isinstance(self.visit_pass_flag, self.FirstVisitPassFlag):
-            SLASH_COMMAND_GROUP_FOUND: Final[bool] = bool(
-                bool(
-                    isinstance(node.value, ast.Call)
-                    and isinstance(node.value.func, ast.Name)
-                    and node.value.func.id == "SlashCommandGroup"  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.value, ast.Call)
-                    and isinstance(node.value.func, ast.Attribute)
-                    and isinstance(node.value.func.value, ast.Name)
-                    and node.value.func.value.id == "discord"
-                    and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.value, ast.Call)
-                    and isinstance(node.value.func, ast.Attribute)
-                    and isinstance(node.value.func.value, ast.Attribute)
-                    and isinstance(node.value.func.value.value, ast.Name)
-                    and node.value.func.value.value.id == "discord"
-                    and node.value.func.value.attr == "commands"
-                    and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.value, ast.Call)
-                    and isinstance(node.value.func, ast.Attribute)
-                    and isinstance(node.value.func.value, ast.Attribute)
-                    and isinstance(node.value.func.value.value, ast.Attribute)
-                    and isinstance(node.value.func.value.value.value, ast.Name)
-                    and node.value.func.value.value.value.id == "discord"
-                    and node.value.func.value.value.attr == "commands"
-                    and node.value.func.value.attr == "core"
-                    and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
-                )  # noqa: COM812
+            SLASH_COMMAND_GROUP_FOUND: Final[bool] = (  # NOTE: `if` statements should not be combined because the `_node_id_slash_command_group_assignment()` function is expensive to run
+                self._node_id_slash_command_group_assignment(node)
             )
             if SLASH_COMMAND_GROUP_FOUND:
                 target: ast.expr
@@ -291,67 +298,8 @@ class RuleCAR301(BaseRule):
     @override
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         if isinstance(self.visit_pass_flag, self.FirstVisitPassFlag):
-            SLASH_COMMAND_GROUP_FOUND: Final[bool] = bool(
-                bool(
-                    isinstance(node.value, ast.Call)
-                    and isinstance(node.value.func, ast.Name)
-                    and node.value.func.id == "SlashCommandGroup"  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.value, ast.Call)
-                    and isinstance(node.value.func, ast.Attribute)
-                    and isinstance(node.value.func.value, ast.Name)
-                    and node.value.func.value.id == "discord"
-                    and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.value, ast.Call)
-                    and isinstance(node.value.func, ast.Attribute)
-                    and isinstance(node.value.func.value, ast.Attribute)
-                    and isinstance(node.value.func.value.value, ast.Name)
-                    and node.value.func.value.value.id == "discord"
-                    and node.value.func.value.attr == "commands"
-                    and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.value, ast.Call)
-                    and isinstance(node.value.func, ast.Attribute)
-                    and isinstance(node.value.func.value, ast.Attribute)
-                    and isinstance(node.value.func.value.value, ast.Attribute)
-                    and isinstance(node.value.func.value.value.value, ast.Name)
-                    and node.value.func.value.value.value.id == "discord"
-                    and node.value.func.value.value.attr == "commands"
-                    and node.value.func.value.attr == "core"
-                    and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.annotation, ast.Name)
-                    and node.annotation.id == "SlashCommandGroup"  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.annotation, ast.Attribute)
-                    and isinstance(node.annotation.value, ast.Name)
-                    and node.annotation.value.id == "discord"
-                    and node.annotation.attr == "SlashCommandGroup"  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.annotation, ast.Attribute)
-                    and isinstance(node.annotation.value, ast.Attribute)
-                    and isinstance(node.annotation.value.value, ast.Name)
-                    and node.annotation.value.value.id == "discord"
-                    and node.annotation.value.attr == "commands"
-                    and node.annotation.attr == "SlashCommandGroup"  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.annotation, ast.Attribute)
-                    and isinstance(node.annotation.value, ast.Attribute)
-                    and isinstance(node.annotation.value.value, ast.Attribute)
-                    and isinstance(node.annotation.value.value.value, ast.Name)
-                    and node.annotation.value.value.value.id == "discord"
-                    and node.annotation.value.value.attr == "commands"
-                    and node.annotation.value.attr == "core"
-                    and node.annotation.attr == "SlashCommandGroup"  # noqa: COM812
-                )  # noqa: COM812
+            SLASH_COMMAND_GROUP_FOUND: Final[bool] = (  # NOTE: `if` statements should not be combined because the `_node_id_slash_command_group_assignment()` function is expensive to run
+                self._node_id_slash_command_group_assignment(node)
             )
             if isinstance(node.target, ast.Name) and SLASH_COMMAND_GROUP_FOUND:
                 self.visit_pass_flag.add_slash_command_group_name(node.target.id)

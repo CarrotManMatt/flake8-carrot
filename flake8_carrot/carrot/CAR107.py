@@ -4,6 +4,7 @@ from collections.abc import Sequence
 
 __all__: Sequence[str] = ("RuleCAR107",)
 
+
 import ast
 from collections.abc import Iterator, Mapping
 from tokenize import TokenInfo

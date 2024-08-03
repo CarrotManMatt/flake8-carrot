@@ -4,6 +4,7 @@ from collections.abc import Sequence
 
 __all__: Sequence[str] = ("apply_plugin_to_ast",)
 
+
 import ast
 import tokenize
 from collections.abc import Set as AbstractSet
