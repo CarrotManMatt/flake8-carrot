@@ -44,7 +44,7 @@ class RuleCAR201(BaseRule):
                     )
                 )  # noqa: COM812
             )
-            or len(targets) == 1 and "logger" in targets[0].id
+            or len(targets) == 1 and "logger" in targets[0].id  # noqa: COM812
         )
         if LOGGER_ASSIGNMENT_FOUND:
             self.problems.add_without_ctx(

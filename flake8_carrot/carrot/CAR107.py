@@ -65,7 +65,7 @@ class RuleCAR107(BaseRule):
     def visit_Assign(self, node: ast.Assign) -> None:
         ALL_EXPORT_FOUND: Final[bool] = any(
             isinstance(target, ast.Name) and target.id == "__all__"
-            for target in node.targets  # noqa: COM812
+            for target in node.targets
         )
         if ALL_EXPORT_FOUND and self.first_all_end_line_number is None:
             self.first_all_end_line_number = node.end_lineno or node.lineno

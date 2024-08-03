@@ -36,8 +36,8 @@ class RuleCAR202(BaseRule):
                 or bool(
                     isinstance(node.value.func, ast.Name)
                     and node.value.func.id == "getLogger"  # noqa: COM812
-                )  # noqa: COM812
-            )
+                )
+            )  # noqa: COM812
         )
         if LOGGER_ASSIGNMENT_FOUND:
             targets: list[ast.Name] = [
@@ -70,8 +70,8 @@ class RuleCAR202(BaseRule):
                             isinstance(node.value.func, ast.Name)
                             and node.value.func.id == "getLogger"  # noqa: COM812
                         )
-                    )
-                )
+                    )  # noqa: COM812
+                )  # noqa: COM812
             )
             or bool(
                 isinstance(node.annotation, ast.Name)
