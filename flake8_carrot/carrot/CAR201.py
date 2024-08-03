@@ -48,7 +48,7 @@ class RuleCAR201(BaseRule):
         if LOGGER_ASSIGNMENT_FOUND:
             self.problems.add_without_ctx(
                 (
-                    node.lineno,
+                    targets[0].lineno if len(targets) == 1 else node.lineno,
                     (
                         (targets[0].end_col_offset or targets[0].col_offset)
                         if len(targets) == 1
