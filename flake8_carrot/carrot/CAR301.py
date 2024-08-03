@@ -12,30 +12,12 @@ from collections.abc import Set as AbstractSet
 from tokenize import TokenInfo
 from typing import Final, Literal, override
 
+from flake8_carrot import utils
 from flake8_carrot.utils import BaseRule
 
 
 class RuleCAR301(BaseRule):
     """"""
-
-    PYCORD_COMMAND_NAMES: AbstractSet[str] = frozenset(
-        {
-            "application_command",
-            "command",
-            "slash_command",
-            "user_command",
-            "message_command",
-            "ApplicationCommand",
-            "SlashCommand",
-            "SlashCommandGroup",
-            "UserCommand",
-            "MessageCommand",
-            "option",
-            "Option",
-            "ThreadOption",
-            "OptionChoice",
-        },
-    )
 
     @classmethod
     @override
@@ -69,7 +51,6 @@ class RuleCAR301(BaseRule):
             f"{f" `{positional_argument}`" if positional_argument else "s"} "
             "(use named keyword arguments instead)"
         )
-    """"""
 
     class _BaseVisitPassFlag(abc.ABC):
         """"""
@@ -189,37 +170,7 @@ class RuleCAR301(BaseRule):
         positional_argument: ast.expr
 
         if isinstance(self.visit_pass_flag, self.FirstVisitPassFlag):
-            PYCORD_CALL_FOUND: Final[bool] = bool(
-                bool(
-                    isinstance(node.func, ast.Name)
-                    and node.func.id in self.PYCORD_COMMAND_NAMES  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.func, ast.Attribute)
-                    and isinstance(node.func.value, ast.Name)
-                    and node.func.value.id == "discord"
-                    and node.func.attr in self.PYCORD_COMMAND_NAMES  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.func, ast.Attribute)
-                    and isinstance(node.func.value, ast.Attribute)
-                    and isinstance(node.func.value.value, ast.Name)
-                    and node.func.value.value.id == "discord"
-                    and node.func.value.attr == "commands"
-                    and node.func.attr in self.PYCORD_COMMAND_NAMES  # noqa: COM812
-                )
-                or bool(
-                    isinstance(node.func, ast.Attribute)
-                    and isinstance(node.func.value, ast.Attribute)
-                    and isinstance(node.func.value.value, ast.Attribute)
-                    and isinstance(node.func.value.value.value, ast.Name)
-                    and node.func.value.value.value.id == "discord"
-                    and node.func.value.value.attr == "commands"
-                    and node.func.value.attr in ("core", "options")
-                    and node.func.attr in self.PYCORD_COMMAND_NAMES  # noqa: COM812
-                )  # noqa: COM812
-            )
-            if PYCORD_CALL_FOUND:
+            if utils.function_call_is_pycord_function_call(node):
                 for positional_argument in node.args:
                     # noinspection PyTypeChecker
                     self.problems[(positional_argument.lineno, positional_argument.col_offset)] = {  # noqa: E501
@@ -232,7 +183,7 @@ class RuleCAR301(BaseRule):
                 isinstance(node.func, ast.Attribute)
                 and isinstance(node.func.value, ast.Name)
                 and node.func.value.id in self.visit_pass_flag.slash_command_group_names
-                and node.func.attr in self.PYCORD_COMMAND_NAMES  # noqa: COM812
+                and node.func.attr in utils.PYCORD_COMMAND_NAMES  # noqa: COM812
             )
             if SLASH_GROUP_CALL_FOUND:
                 for positional_argument in node.args:

@@ -2,12 +2,19 @@
 
 from collections.abc import Sequence
 
-__all__: Sequence[str] = ("BasePlugin", "BaseRule", "ProblemsContainer")
+__all__: Sequence[str] = (
+    "BasePlugin",
+    "BaseRule",
+    "ProblemsContainer",
+    "PYCORD_COMMAND_NAMES",
+    "function_call_is_pycord_function_call",
+)
 
 
 import abc
 import ast
 import importlib.metadata
+from collections.abc import Set as AbstractSet
 from collections.abc import Generator, Mapping
 from tokenize import TokenInfo
 from typing import Final, override
@@ -17,6 +24,26 @@ from classproperties import classproperty
 if __name__ == "__main__":
     CANNOT_RUN_AS_SCRIPT_MESSAGE: Final[str] = "This module cannot be run as a script."
     raise RuntimeError(CANNOT_RUN_AS_SCRIPT_MESSAGE)
+
+
+PYCORD_COMMAND_NAMES: Final[AbstractSet[str]] = frozenset(
+    {
+        "application_command",
+        "command",
+        "slash_command",
+        "user_command",
+        "message_command",
+        "ApplicationCommand",
+        "SlashCommand",
+        "SlashCommandGroup",
+        "UserCommand",
+        "MessageCommand",
+        "option",
+        "Option",
+        "ThreadOption",
+        "OptionChoice",
+    },
+)
 
 
 class BasePlugin(abc.ABC):
@@ -85,3 +112,36 @@ class BaseRule(ast.NodeVisitor, abc.ABC):
     @abc.abstractmethod
     def format_error_message(cls, ctx: Mapping[str, object]) -> str:
         """"""
+
+
+def function_call_is_pycord_function_call(node: ast.Call) -> bool:
+    return bool(
+        bool(
+            isinstance(node.func, ast.Name)
+            and node.func.id in PYCORD_COMMAND_NAMES  # noqa: COM812
+        )
+        or bool(
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "discord"
+            and node.func.attr in PYCORD_COMMAND_NAMES  # noqa: COM812
+        )
+        or bool(
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Attribute)
+            and isinstance(node.func.value.value, ast.Name)
+            and node.func.value.value.id == "discord"
+            and node.func.value.attr == "commands"
+            and node.func.attr in PYCORD_COMMAND_NAMES  # noqa: COM812
+        )
+        or bool(
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Attribute)
+            and isinstance(node.func.value.value, ast.Attribute)
+            and isinstance(node.func.value.value.value, ast.Name)
+            and node.func.value.value.value.id == "discord"
+            and node.func.value.value.attr == "commands"
+            and node.func.value.attr in ("core", "options")
+            and node.func.attr in PYCORD_COMMAND_NAMES  # noqa: COM812
+        )  # noqa: COM812
+    )
