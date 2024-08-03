@@ -5,6 +5,7 @@ from collections.abc import Sequence
 __all__: Sequence[str] = ("RuleCAR102",)
 
 import ast
+from collections.abc import Mapping
 from typing import Final, override
 
 from flake8_carrot.utils import BaseRule
@@ -21,7 +22,7 @@ class RuleCAR102(BaseRule):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: dict[str, object]) -> str:
+    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return "CAR102 Multiple `__all__` exports found in a single module"
 
     @override

@@ -6,7 +6,7 @@ __all__: Sequence[str] = ("RuleCAR101",)
 
 import ast
 import enum
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from enum import Enum
 from tokenize import TokenInfo
 from typing import Final, override
@@ -34,7 +34,7 @@ class RuleCAR101(BaseRule):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: dict[str, object]) -> str:
+    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return "CAR101 Missing `__all__` export at the top of the module"
 
     @classmethod

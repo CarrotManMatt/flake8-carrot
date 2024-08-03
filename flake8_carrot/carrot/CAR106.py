@@ -6,6 +6,7 @@ __all__: Sequence[str] = ("RuleCAR106",)
 
 import abc
 import ast
+from collections.abc import Mapping
 from tokenize import TokenInfo
 from typing import Final, Literal, override
 
@@ -91,7 +92,7 @@ class RuleCAR106(BaseRule):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: dict[str, object]) -> str:
+    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
         imported_class: object | None = ctx.get("imported_class", None)
         if imported_class is not None and not isinstance(imported_class, str):
             raise TypeError

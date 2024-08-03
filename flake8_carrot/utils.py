@@ -7,7 +7,7 @@ __all__: Sequence[str] = ("BasePlugin", "BaseRule", "ProblemsContainer")
 import abc
 import ast
 import importlib.metadata
-from collections.abc import Generator
+from collections.abc import Generator, Mapping
 from tokenize import TokenInfo
 from typing import Final, override
 
@@ -54,12 +54,12 @@ class BasePlugin(abc.ABC):
 
             line_number: int
             column_number: int
-            ctx: dict[str, object]
+            ctx: Mapping[str, object]
             for (line_number, column_number), ctx in rule.problems.items():
                 yield line_number, column_number, rule.format_error_message(ctx), type(self)
 
 
-class ProblemsContainer(dict[tuple[int, int], dict[str, object]]):
+class ProblemsContainer(dict[tuple[int, int], Mapping[str, object]]):
     """"""
 
     def add_without_ctx(self, problem_location: tuple[int, int]) -> None:
@@ -82,5 +82,5 @@ class BaseRule(ast.NodeVisitor, abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def format_error_message(cls, ctx: dict[str, object]) -> str:
+    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
         """"""

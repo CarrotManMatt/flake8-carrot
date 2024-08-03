@@ -5,7 +5,7 @@ from collections.abc import Sequence
 __all__: Sequence[str] = ("RuleCAR107",)
 
 import ast
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from tokenize import TokenInfo
 from typing import Final, override
 
@@ -23,7 +23,7 @@ class RuleCAR107(BaseRule):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: dict[str, object]) -> str:
+    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return "CAR107 Double newline is required after `__all__` export"
 
     @override
@@ -36,7 +36,7 @@ class RuleCAR107(BaseRule):
         if self.first_all_end_line_number is None:
             return
 
-        first_all_end_line: str = lines[self.first_all_end_line_number - 1]
+        first_all_end_line: str = lines[self.first_all_end_line_number - 1]  # type: ignore[unreachable]
 
         if not first_all_end_line.endswith("\n"):
             return

@@ -6,6 +6,7 @@ __all__: Sequence[str] = ("RuleCAR105",)
 
 import abc
 import ast
+from collections.abc import Mapping
 from tokenize import TokenInfo
 from typing import Final, Literal, override
 
@@ -91,7 +92,7 @@ class RuleCAR105(BaseRule):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: dict[str, object]) -> str:
+    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
         line: object | None = ctx.get("line", None)
         if line is not None and not isinstance(line, str):
             raise TypeError
@@ -125,6 +126,7 @@ class RuleCAR105(BaseRule):
     @override
     def generic_visit(self, node: ast.AST) -> None:
         if isinstance(node, ast.Module):
+            # noinspection PyTypeChecker
             super().generic_visit(node)
             return
 

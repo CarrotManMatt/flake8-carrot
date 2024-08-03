@@ -72,6 +72,12 @@ no_implicit_reexport = true
 strict_equality = true
 warn_unreachable = true
 
+[[tool.mypy.overrides]]
+module = [
+    "astpretty",
+]
+ignore_missing_imports = true
+
 
 [tool.ruff]
 output-format = "concise"
