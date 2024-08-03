@@ -6,7 +6,7 @@ __all__: Sequence[str] = ("RuleCAR105",)
 
 import abc
 import ast
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
 from tokenize import TokenInfo
 from typing import Final, Literal, override
 
@@ -87,6 +87,7 @@ class RuleCAR105(BaseRule):
         self.visit_pass_flag: RuleCAR105._BaseVisitPassFlag = self.FirstVisitPassFlag(
             first_all_export_lineno=None,
         )
+        self.start_line_number: int | None = None
 
         super().__init__()
 
@@ -108,8 +109,19 @@ class RuleCAR105(BaseRule):
 
     @override
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
-        if self.visit_pass_flag:
+        if self.visit_pass_flag or self.start_line_number is not None:
             raise RuntimeError
+
+        tree_iterator: Iterator[ast.AST] = ast.walk(tree)
+
+        while self.start_line_number is None:
+            try:
+                node: ast.AST = next(tree_iterator)
+            except StopIteration:
+                self.start_line_number = 1
+            else:
+                if hasattr(node, "lineno"):
+                    self.start_line_number = node.lineno
 
         self.visit(tree)
 
@@ -130,27 +142,29 @@ class RuleCAR105(BaseRule):
             super().generic_visit(node)
             return
 
-        EXPRESSION_BEFORE_ALL: Final[bool] = bool(
-            hasattr(node, "lineno")
-            and hasattr(node, "col_offset")
-            and isinstance(self.visit_pass_flag, self.SecondVisitPassFlag)
-            and node.lineno < self.visit_pass_flag.first_all_export_lineno
-            and not bool(
-                isinstance(node, ast.Expr)
-                and isinstance(node.value, ast.Constant)
-                and node.lineno == 1  # noqa: COM812
+        if isinstance(self.visit_pass_flag, self.SecondVisitPassFlag):
+            EXPRESSION_BEFORE_ALL: Final[bool] = bool(
+                hasattr(node, "lineno")
+                and hasattr(node, "col_offset")
+                and node.lineno < self.visit_pass_flag.first_all_export_lineno
+                and not bool(
+                    isinstance(node, ast.Expr)
+                    and isinstance(node.value, ast.Constant)
+                    and node.lineno == (
+                        self.start_line_number if self.start_line_number is not None else 1
+                    )  # noqa: COM812
+                )
+                and not bool(
+                    isinstance(node, ast.ImportFrom)
+                    and node.module in ("collections.abc", "typing")
+                    and any(name.name == "Sequence" for name in node.names)  # noqa: COM812
+                )  # noqa: COM812
             )
-            and not bool(
-                isinstance(node, ast.ImportFrom)
-                and node.module in ("collections.abc", "typing")
-                and any(name.name == "Sequence" for name in node.names)  # noqa: COM812
-            )  # noqa: COM812
-        )
-        if EXPRESSION_BEFORE_ALL:
-            line: str = ast.unparse(node).split("\n")[0]
-            self.problems[(node.lineno, 0)] = {  # type: ignore[attr-defined]
-                "line": f"`{line if len(line) < 30 else f"{line[:30]}..."}`",
-            }
+            if EXPRESSION_BEFORE_ALL:
+                line: str = ast.unparse(node).split("\n")[0]
+                self.problems[(node.lineno, 0)] = {  # type: ignore[attr-defined]
+                    "line": f"`{line if len(line) < 30 else f"{line[:30]}..."}`",
+                }
 
     @override
     def visit_Assign(self, node: ast.Assign) -> None:
