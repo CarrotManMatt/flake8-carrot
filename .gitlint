@@ -1,5 +1,5 @@
 [general]
-ignore=B6
+ignore=B6,B5
 staged=true
 
 [title-must-not-contain-word]
