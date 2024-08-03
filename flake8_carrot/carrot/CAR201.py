@@ -36,7 +36,7 @@ class RuleCAR201(BaseRule):
                     isinstance(node.value.func, ast.Name)
                     and node.value.func.id == "getLogger"  # noqa: COM812
                 )  # noqa: COM812
-            )
+            )  # TODO: Also accept variable called `logger`
         )
         if LOGGER_ASSIGNMENT_FOUND:
             column_offset: int = node.col_offset
@@ -82,7 +82,7 @@ class RuleCAR201(BaseRule):
                 and isinstance(node.annotation.slice, ast.Name)
                 and node.annotation.value.id == "Final"
                 and node.annotation.slice.id == "Logger"  # noqa: COM812
-            )  # noqa: COM812
+            )  # noqa: COM812  # TODO: Also accept variable called `logger` or variable annotated as `Logger` or `logging.Logger`
         )
         if LOGGER_ASSIGNMENT_FOUND:
             self.problems.add_without_ctx(
