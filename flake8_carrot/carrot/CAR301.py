@@ -9,7 +9,7 @@ import ast
 from collections.abc import Mapping
 from collections.abc import Set as AbstractSet
 from tokenize import TokenInfo
-from typing import Final, override, Literal
+from typing import Final, Literal, override
 
 from flake8_carrot.utils import BaseRule
 
@@ -93,7 +93,7 @@ class RuleCAR301(BaseRule):
         """"""
 
         @override
-        def __init__(self, *, slash_command_group_names: "RuleCAR106._BaseVisitPassFlag | set[str] | None") -> None:  # noqa: E501
+        def __init__(self, *, slash_command_group_names: "RuleCAR301._BaseVisitPassFlag | set[str] | None") -> None:  # noqa: E501
             if isinstance(slash_command_group_names, RuleCAR301._BaseVisitPassFlag):
                 raw_slash_command_group_names: AbstractSet[str] | None = (
                     slash_command_group_names._get_true_value()  # noqa: SLF001
@@ -101,9 +101,9 @@ class RuleCAR301(BaseRule):
 
                 slash_command_group_names = (
                     raw_slash_command_group_names
-                    if bool(
-                        raw_slash_command_group_names is None
-                        or isinstance(raw_slash_command_group_names, set)  # noqa: COM812
+                    if raw_slash_command_group_names is None or isinstance(
+                        raw_slash_command_group_names,
+                        set,
                     )
                     else set(raw_slash_command_group_names)
                 )
@@ -116,13 +116,14 @@ class RuleCAR301(BaseRule):
             return self._slash_command_group_names
 
         def add_slash_command_group_name(self, slash_command_group_name: str) -> None:
+            """"""
             if self._slash_command_group_names is None:
                 self._slash_command_group_names = {slash_command_group_name}
             else:
                 self._slash_command_group_names.add(slash_command_group_name)
 
         @override
-        def _get_true_value(self) -> set[str] | None:
+        def _get_true_value(self) -> AbstractSet[str] | None:
             return self.slash_command_group_names
 
     class SecondVisitPassFlag(_BaseVisitPassFlag):
@@ -184,6 +185,8 @@ class RuleCAR301(BaseRule):
 
     @override
     def visit_Call(self, node: ast.Call) -> None:
+        positional_argument: ast.expr
+
         if isinstance(self.visit_pass_flag, self.FirstVisitPassFlag):
             PYCORD_CALL_FOUND: Final[bool] = bool(
                 bool(
@@ -216,10 +219,9 @@ class RuleCAR301(BaseRule):
                 )  # noqa: COM812
             )
             if PYCORD_CALL_FOUND:
-                positional_argument: ast.expr
                 for positional_argument in node.args:
                     # noinspection PyTypeChecker
-                    self.problems[(positional_argument.lineno, positional_argument.col_offset)] = {
+                    self.problems[(positional_argument.lineno, positional_argument.col_offset)] = {  # noqa: E501
                         "positional_argument": ast.unparse(positional_argument),
                         "function_name": ast.unparse(node.func),
                     }
@@ -232,10 +234,9 @@ class RuleCAR301(BaseRule):
                 and node.func.attr in self.PYCORD_COMMAND_NAMES  # noqa: COM812
             )
             if SLASH_GROUP_CALL_FOUND:
-                positional_argument: ast.expr
                 for positional_argument in node.args:
                     # noinspection PyTypeChecker
-                    self.problems[(positional_argument.lineno, positional_argument.col_offset)] = {
+                    self.problems[(positional_argument.lineno, positional_argument.col_offset)] = {  # noqa: E501
                         "positional_argument": ast.unparse(positional_argument),
                         "function_name": ast.unparse(node.func),
                     }
@@ -249,14 +250,14 @@ class RuleCAR301(BaseRule):
                 bool(
                     isinstance(node.value, ast.Call)
                     and isinstance(node.value.func, ast.Name)
-                    and node.value.func.id == "SlashCommandGroup"
+                    and node.value.func.id == "SlashCommandGroup"  # noqa: COM812
                 )
                 or bool(
                     isinstance(node.value, ast.Call)
                     and isinstance(node.value.func, ast.Attribute)
                     and isinstance(node.value.func.value, ast.Name)
                     and node.value.func.value.id == "discord"
-                    and node.value.func.attr == "SlashCommandGroup"
+                    and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
                 )
                 or bool(
                     isinstance(node.value, ast.Call)
@@ -264,8 +265,8 @@ class RuleCAR301(BaseRule):
                     and isinstance(node.value.func.value, ast.Attribute)
                     and isinstance(node.value.func.value.value, ast.Name)
                     and node.value.func.value.value.id == "discord"
-                    and node.value.func.value.id == "commands"
-                    and node.value.func.attr == "SlashCommandGroup"
+                    and node.value.func.value.attr == "commands"
+                    and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
                 )
                 or bool(
                     isinstance(node.value, ast.Call)
@@ -274,10 +275,10 @@ class RuleCAR301(BaseRule):
                     and isinstance(node.value.func.value.value, ast.Attribute)
                     and isinstance(node.value.func.value.value.value, ast.Name)
                     and node.value.func.value.value.value.id == "discord"
-                    and node.value.func.value.value.id == "commands"
-                    and node.value.func.value.id == "core"
-                    and node.value.func.attr == "SlashCommandGroup"
-                )
+                    and node.value.func.value.value.attr == "commands"
+                    and node.value.func.value.attr == "core"
+                    and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
+                )  # noqa: COM812
             )
             if SLASH_COMMAND_GROUP_FOUND:
                 target: ast.expr
@@ -294,14 +295,14 @@ class RuleCAR301(BaseRule):
                 bool(
                     isinstance(node.value, ast.Call)
                     and isinstance(node.value.func, ast.Name)
-                    and node.value.func.id == "SlashCommandGroup"
+                    and node.value.func.id == "SlashCommandGroup"  # noqa: COM812
                 )
                 or bool(
                     isinstance(node.value, ast.Call)
                     and isinstance(node.value.func, ast.Attribute)
                     and isinstance(node.value.func.value, ast.Name)
                     and node.value.func.value.id == "discord"
-                    and node.value.func.attr == "SlashCommandGroup"
+                    and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
                 )
                 or bool(
                     isinstance(node.value, ast.Call)
@@ -310,7 +311,7 @@ class RuleCAR301(BaseRule):
                     and isinstance(node.value.func.value.value, ast.Name)
                     and node.value.func.value.value.id == "discord"
                     and node.value.func.value.attr == "commands"
-                    and node.value.func.attr == "SlashCommandGroup"
+                    and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
                 )
                 or bool(
                     isinstance(node.value, ast.Call)
@@ -321,17 +322,17 @@ class RuleCAR301(BaseRule):
                     and node.value.func.value.value.value.id == "discord"
                     and node.value.func.value.value.attr == "commands"
                     and node.value.func.value.attr == "core"
-                    and node.value.func.attr == "SlashCommandGroup"
+                    and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
                 )
                 or bool(
                     isinstance(node.annotation, ast.Name)
-                    and node.annotation.id == "SlashCommandGroup"
+                    and node.annotation.id == "SlashCommandGroup"  # noqa: COM812
                 )
                 or bool(
                     isinstance(node.annotation, ast.Attribute)
                     and isinstance(node.annotation.value, ast.Name)
                     and node.annotation.value.id == "discord"
-                    and node.annotation.attr == "SlashCommandGroup"
+                    and node.annotation.attr == "SlashCommandGroup"  # noqa: COM812
                 )
                 or bool(
                     isinstance(node.annotation, ast.Attribute)
@@ -339,7 +340,7 @@ class RuleCAR301(BaseRule):
                     and isinstance(node.annotation.value.value, ast.Name)
                     and node.annotation.value.value.id == "discord"
                     and node.annotation.value.attr == "commands"
-                    and node.annotation.attr == "SlashCommandGroup"
+                    and node.annotation.attr == "SlashCommandGroup"  # noqa: COM812
                 )
                 or bool(
                     isinstance(node.annotation, ast.Attribute)
@@ -349,10 +350,10 @@ class RuleCAR301(BaseRule):
                     and node.annotation.value.value.value.id == "discord"
                     and node.annotation.value.value.attr == "commands"
                     and node.annotation.value.attr == "core"
-                    and node.annotation.attr == "SlashCommandGroup"
-                )
+                    and node.annotation.attr == "SlashCommandGroup"  # noqa: COM812
+                )  # noqa: COM812
             )
-            if SLASH_COMMAND_GROUP_FOUND:
+            if isinstance(node.target, ast.Name) and SLASH_COMMAND_GROUP_FOUND:
                 self.visit_pass_flag.add_slash_command_group_name(node.target.id)
 
         self.generic_visit(node)
