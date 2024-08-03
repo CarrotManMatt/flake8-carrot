@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-__all__: Sequence[str] = ("RuleCAR002",)
+__all__: Sequence[str] = ("RuleCAR102",)
 
 import ast
 from typing import Final, override
@@ -10,7 +10,7 @@ from typing import Final, override
 from flake8_carrot.utils import BaseRule
 
 
-class RuleCAR002(BaseRule):
+class RuleCAR102(BaseRule):
     """"""
 
     @override
@@ -22,7 +22,7 @@ class RuleCAR002(BaseRule):
     @classmethod
     @override
     def format_error_message(cls, ctx: dict[str, object]) -> str:
-        return "CAR002 Multiple `__all__` exports found in a single module"
+        return "CAR102 Multiple `__all__` exports found in a single module"
 
     @override
     def visit_Assign(self, node: ast.Assign) -> None:

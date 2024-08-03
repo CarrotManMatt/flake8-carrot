@@ -2,32 +2,27 @@
 
 from collections.abc import Sequence
 
-__all__: Sequence[str] = ("RuleCAR100",)
+__all__: Sequence[str] = ("RuleCAR201",)
 
 import ast
-from collections.abc import Iterator
-from tokenize import TokenInfo
 from typing import Final, override
+
+import astpretty
 
 from flake8_carrot.utils import BaseRule
 
 
-class RuleCAR100(BaseRule):
+class RuleCAR201(BaseRule):
     """"""
-
-    @override
-    def __init__(self) -> None:
-        self.first_all_end_line_number: int | None = None
-
-        super().__init__()
 
     @classmethod
     @override
     def format_error_message(cls, ctx: dict[str, object]) -> str:
-        return "CAR100 Assignment of `logging.Logger` object should be marked as `Final`"
+        return "CAR201 Assignment of `logging.Logger` object should be marked as `Final`"
 
     @override
     def visit_Assign(self, node: ast.Assign) -> None:
+        astpretty.pprint(node)
         ALL_EXPORT_FOUND: Final[bool] = any(
             isinstance(target, ast.Name) and target.id == "__all__"
             for target in node.targets  # noqa: COM812

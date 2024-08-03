@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-__all__: Sequence[str] = ("RuleCAR005",)
+__all__: Sequence[str] = ("RuleCAR105",)
 
 import abc
 import ast
@@ -12,7 +12,7 @@ from typing import Final, Literal, override
 from flake8_carrot.utils import BaseRule
 
 
-class RuleCAR005(BaseRule):
+class RuleCAR105(BaseRule):
     """"""
 
     class _BaseVisitPassFlag(abc.ABC):
@@ -34,8 +34,8 @@ class RuleCAR005(BaseRule):
         """"""
 
         @override
-        def __init__(self, *, first_all_export_lineno: "RuleCAR005._BaseVisitPassFlag | int | None") -> None:  # noqa: E501
-            if isinstance(first_all_export_lineno, RuleCAR005._BaseVisitPassFlag):
+        def __init__(self, *, first_all_export_lineno: "RuleCAR105._BaseVisitPassFlag | int | None") -> None:  # noqa: E501
+            if isinstance(first_all_export_lineno, RuleCAR105._BaseVisitPassFlag):
                 first_all_export_lineno = first_all_export_lineno._get_true_value()  # noqa: SLF001
 
             self._first_all_export_lineno: int | None = first_all_export_lineno
@@ -53,8 +53,8 @@ class RuleCAR005(BaseRule):
         """"""
 
         @override
-        def __init__(self, *, first_all_export_lineno: "RuleCAR005._BaseVisitPassFlag | int") -> None:  # noqa: E501
-            if isinstance(first_all_export_lineno, RuleCAR005._BaseVisitPassFlag):
+        def __init__(self, *, first_all_export_lineno: "RuleCAR105._BaseVisitPassFlag | int") -> None:  # noqa: E501
+            if isinstance(first_all_export_lineno, RuleCAR105._BaseVisitPassFlag):
                 raw_first_all_export_lineno: int | None = (
                     first_all_export_lineno._get_true_value()  # noqa: SLF001
                 )
@@ -83,7 +83,7 @@ class RuleCAR005(BaseRule):
 
     @override
     def __init__(self) -> None:
-        self.visit_pass_flag: RuleCAR005._BaseVisitPassFlag = (
+        self.visit_pass_flag: RuleCAR105._BaseVisitPassFlag = (
             self.FirstVisitPassFlag(first_all_export_lineno=None)
         )
 
@@ -97,7 +97,7 @@ class RuleCAR005(BaseRule):
             raise TypeError
 
         return (
-            "CAR005 "
+            "CAR105 "
             f"{
                 f"{line} is not"
                 if line

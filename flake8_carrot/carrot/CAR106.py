@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-__all__: Sequence[str] = ("RuleCAR006",)
+__all__: Sequence[str] = ("RuleCAR106",)
 
 import abc
 import ast
@@ -12,7 +12,7 @@ from typing import Final, Literal, override
 from flake8_carrot.utils import BaseRule
 
 
-class RuleCAR006(BaseRule):
+class RuleCAR106(BaseRule):
     """"""
 
     class _BaseVisitPassFlag(abc.ABC):
@@ -34,8 +34,8 @@ class RuleCAR006(BaseRule):
         """"""
 
         @override
-        def __init__(self, *, first_all_export_lineno: "RuleCAR006._BaseVisitPassFlag | int | None") -> None:  # noqa: E501
-            if isinstance(first_all_export_lineno, RuleCAR006._BaseVisitPassFlag):
+        def __init__(self, *, first_all_export_lineno: "RuleCAR106._BaseVisitPassFlag | int | None") -> None:  # noqa: E501
+            if isinstance(first_all_export_lineno, RuleCAR106._BaseVisitPassFlag):
                 first_all_export_lineno = first_all_export_lineno._get_true_value()  # noqa: SLF001
 
             self._first_all_export_lineno: int | None = first_all_export_lineno
@@ -53,8 +53,8 @@ class RuleCAR006(BaseRule):
         """"""
 
         @override
-        def __init__(self, *, first_all_export_lineno: "RuleCAR006._BaseVisitPassFlag | int") -> None:  # noqa: E501
-            if isinstance(first_all_export_lineno, RuleCAR006._BaseVisitPassFlag):
+        def __init__(self, *, first_all_export_lineno: "RuleCAR106._BaseVisitPassFlag | int") -> None:  # noqa: E501
+            if isinstance(first_all_export_lineno, RuleCAR106._BaseVisitPassFlag):
                 raw_first_all_export_lineno: int | None = (
                     first_all_export_lineno._get_true_value()  # noqa: SLF001
                 )
@@ -83,7 +83,7 @@ class RuleCAR006(BaseRule):
 
     @override
     def __init__(self) -> None:
-        self.visit_pass_flag: RuleCAR006._BaseVisitPassFlag = (
+        self.visit_pass_flag: RuleCAR106._BaseVisitPassFlag = (
             self.FirstVisitPassFlag(first_all_export_lineno=None)
         )
 
@@ -97,7 +97,7 @@ class RuleCAR006(BaseRule):
             raise TypeError
 
         return (
-            "CAR006 "
+            "CAR106 "
             f"{
                 f"Importing `{imported_class}`, from `collections.abc`, is not"
                 if imported_class

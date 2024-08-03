@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-__all__: Sequence[str] = ("RuleCAR007",)
+__all__: Sequence[str] = ("RuleCAR107",)
 
 import ast
 from collections.abc import Iterator
@@ -12,7 +12,7 @@ from typing import Final, override
 from flake8_carrot.utils import BaseRule
 
 
-class RuleCAR007(BaseRule):
+class RuleCAR107(BaseRule):
     """"""
 
     @override
@@ -24,7 +24,7 @@ class RuleCAR007(BaseRule):
     @classmethod
     @override
     def format_error_message(cls, ctx: dict[str, object]) -> str:
-        return "CAR007 Double newline is required after `__all__` export"
+        return "CAR107 Double newline is required after `__all__` export"
 
     @override
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501

@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-__all__: Sequence[str] = ("RuleCAR001",)
+__all__: Sequence[str] = ("RuleCAR101",)
 
 import ast
 import enum
@@ -14,7 +14,7 @@ from typing import Final, override
 from flake8_carrot.utils import BaseRule
 
 
-class RuleCAR001(BaseRule):
+class RuleCAR101(BaseRule):
     """"""
 
     class MissingAllExportFlag(Enum):
@@ -26,7 +26,7 @@ class RuleCAR001(BaseRule):
 
     @override
     def __init__(self) -> None:
-        self.missing_all_export_flag: RuleCAR001.MissingAllExportFlag = (
+        self.missing_all_export_flag: RuleCAR101.MissingAllExportFlag = (
             self.MissingAllExportFlag.UNKNOWN
         )
 
@@ -35,7 +35,7 @@ class RuleCAR001(BaseRule):
     @classmethod
     @override
     def format_error_message(cls, ctx: dict[str, object]) -> str:
-        return "CAR001 Missing `__all__` export at the top of the module"
+        return "CAR101 Missing `__all__` export at the top of the module"
 
     @classmethod
     def get_error_position(cls, tree: ast.AST, lines: Sequence[str]) -> tuple[int, int]:  # NOTE: I'm sorry to whoever has to work out what is going on here
