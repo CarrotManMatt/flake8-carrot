@@ -84,8 +84,8 @@ class RuleCAR105(BaseRule):
 
     @override
     def __init__(self) -> None:
-        self.visit_pass_flag: RuleCAR105._BaseVisitPassFlag = (
-            self.FirstVisitPassFlag(first_all_export_lineno=None)
+        self.visit_pass_flag: RuleCAR105._BaseVisitPassFlag = self.FirstVisitPassFlag(
+            first_all_export_lineno=None,
         )
 
         super().__init__()
