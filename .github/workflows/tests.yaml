@@ -22,6 +22,18 @@ jobs:  # yamllint disable-line rule:key-ordering
             - name: Run Asciidoctor
               run: asciidoctor -v --failure-level=WARNING -w -o /dev/null README.adoc
 
+    flake8:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Install Python Project
+              uses: CarrotManMatt/action-install-python-project@v2
+              with:
+                  python-version: 3.12
+
+            - name: Run flake8
+              run: poetry run flake8
+
     mypy:
         runs-on: ubuntu-latest
 

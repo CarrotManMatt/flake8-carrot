@@ -69,7 +69,10 @@ class RuleCAR103(BaseRule):
                         node.annotation.lineno,
                         (
                             (node.annotation.end_col_offset or node.annotation.col_offset) - 1
-                            if isinstance(node.annotation, ast.Name) and node.annotation.id == "Sequence"
+                            if bool(
+                                isinstance(node.annotation, ast.Name)
+                                and node.annotation.id == "Sequence"  # noqa: COM812
+                            )
                             else node.annotation.col_offset
                         ),
                     ),
