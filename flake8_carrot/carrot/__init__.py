@@ -3,7 +3,17 @@
 
 from collections.abc import Sequence
 
-__all__: Sequence[str] = ("CarrotPlugin", "RuleCAR001")
+__all__: Sequence[str] = (
+    "CarrotPlugin",
+    "RuleCAR101",
+    "RuleCAR102",
+    "RuleCAR103",
+    "RuleCAR104",
+    "RuleCAR105",
+    "RuleCAR106",
+    "RuleCAR107",
+    "RuleCAR201",
+)
 
 
 from typing import override
@@ -12,13 +22,14 @@ from classproperties import classproperty
 
 from flake8_carrot.utils import BasePlugin, BaseRule
 
-from .CAR001 import RuleCAR001
-from .CAR002 import RuleCAR002
-from .CAR003 import RuleCAR003
-from .CAR004 import RuleCAR004
-from .CAR005 import RuleCAR005
-from .CAR006 import RuleCAR006
-from .CAR007 import RuleCAR007
+from .CAR101 import RuleCAR101
+from .CAR102 import RuleCAR102
+from .CAR103 import RuleCAR103
+from .CAR104 import RuleCAR104
+from .CAR105 import RuleCAR105
+from .CAR106 import RuleCAR106
+from .CAR107 import RuleCAR107
+from .CAR201 import RuleCAR201
 
 
 class CarrotPlugin(BasePlugin):
@@ -36,12 +47,13 @@ class CarrotPlugin(BasePlugin):
     def RULES(cls) -> frozenset[type[BaseRule]]:  # noqa: N805
         return frozenset(
             {
-                RuleCAR001,
-                RuleCAR002,
-                RuleCAR003,
-                RuleCAR004,
-                RuleCAR005,
-                RuleCAR006,
-                RuleCAR007,
+                RuleCAR101,
+                RuleCAR102,
+                RuleCAR103,
+                RuleCAR104,
+                RuleCAR105,
+                RuleCAR106,
+                RuleCAR107,
+                RuleCAR201,
             },
         )
