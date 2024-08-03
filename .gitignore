@@ -149,6 +149,9 @@ cover/
 
 ### Local Config & Settings
 
+# Example files
+examples/
+
 # VSCode settings
 .vscode
 

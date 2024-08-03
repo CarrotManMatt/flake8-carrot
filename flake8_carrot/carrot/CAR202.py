@@ -43,12 +43,8 @@ class RuleCAR202(BaseRule):
             targets: list[ast.Name] = [
                 target for target in node.targets if isinstance(target, ast.Name)
             ]
-            self.problems.add_without_ctx(
-                (
-                    targets[0].lineno if len(targets) == 1 else node.lineno,
-                    targets[0].col_offset if len(targets) == 1 else node.col_offset,
-                ),
-            )
+            if len(targets) == 1 and "logger" not in targets[0].id:
+                self.problems.add_without_ctx((targets[0].lineno, targets[0].col_offset))
 
         self.generic_visit(node)
 
@@ -100,7 +96,7 @@ class RuleCAR202(BaseRule):
                 and node.annotation.slice.attr == "Logger"  # noqa: COM812
             )  # noqa: COM812
         )
-        if LOGGER_ASSIGNMENT_FOUND:
+        if LOGGER_ASSIGNMENT_FOUND and "logger" not in node.target.id:
             self.problems.add_without_ctx((node.target.lineno, node.target.col_offset))
 
         self.generic_visit(node)
