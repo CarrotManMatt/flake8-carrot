@@ -7,6 +7,8 @@ __all__: Sequence[str] = ("RuleCAR201",)
 import ast
 from typing import Final, override
 
+import astpretty
+
 from flake8_carrot.utils import BaseRule
 
 
@@ -39,50 +41,60 @@ class RuleCAR201(BaseRule):
             )  # TODO: Also accept variable called `logger`
         )
         if LOGGER_ASSIGNMENT_FOUND:
-            column_offset: int = node.col_offset
+            targets: list[ast.Name] = [
+                target for target in node.targets if isinstance(target, ast.Name)
+            ]
 
-            if len(node.targets) == 1:
-                no_targets_exception: StopIteration
-                try:
-                    variable_name: ast.Name = next(
-                        iter(
-                            target for target in node.targets if isinstance(target, ast.Name)
-                        ),
-                    )
-                except StopIteration as no_targets_exception:
-                    raise ValueError(
-                        "No logger variable names found.",
-                    ) from no_targets_exception
-
-                column_offset = variable_name.end_col_offset or variable_name.col_offset
-
-            self.problems.add_without_ctx((node.lineno, column_offset))
+            self.problems.add_without_ctx(
+                (
+                    node.lineno,
+                    (
+                        (targets[0].end_col_offset or targets[0].col_offset)
+                        if len(targets) == 1
+                        else node.col_offset
+                    ),
+                ),
+            )
 
         self.generic_visit(node)
 
     @override
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
+        astpretty.pprint(node)
         LOGGER_ASSIGNMENT_FOUND: Final[bool] = bool(
-            isinstance(node.value, ast.Call)
-            and (
+            bool(
                 bool(
-                    isinstance(node.value.func, ast.Attribute)
-                    and isinstance(node.value.func.value, ast.Name)
-                    and node.value.func.value.id == "logging"
-                    and node.value.func.attr == "getLogger"  # noqa: COM812
+                    bool(
+                        isinstance(node.value, ast.Call)
+                        and (
+                            bool(
+                                isinstance(node.value.func, ast.Attribute)
+                                and isinstance(node.value.func.value, ast.Name)
+                                and node.value.func.value.id == "logging"
+                                and node.value.func.attr == "getLogger"  # noqa: COM812
+                            )
+                            or bool(
+                                isinstance(node.value.func, ast.Name)
+                                and node.value.func.id == "getLogger"  # noqa: COM812
+                            )
+                        )  # noqa: COM812
+                    )
+                    or bool(
+                        isinstance(node.target, ast.Name)
+                        and "logger" in node.target.id  # noqa: COM812
+                    )  # noqa: COM812
                 )
-                or bool(
-                    isinstance(node.value.func, ast.Name)
-                    and node.value.func.id == "getLogger"  # noqa: COM812
-                )
+                and not bool(
+                    isinstance(node.annotation, ast.Subscript)
+                    and isinstance(node.annotation.value, ast.Name)
+                    and isinstance(node.annotation.slice, ast.Name)
+                    and node.annotation.value.id == "Final"
+                    and node.annotation.slice.id == "Logger"  # noqa: COM812
+                )  # noqa: COM812  # TODO: Also accept variable called `logger` or variable annotated as `Logger` or `logging.Logger`
             )
-            and not bool(
-                isinstance(node.annotation, ast.Subscript)
-                and isinstance(node.annotation.value, ast.Name)
-                and isinstance(node.annotation.slice, ast.Name)
-                and node.annotation.value.id == "Final"
-                and node.annotation.slice.id == "Logger"  # noqa: COM812
-            )  # noqa: COM812  # TODO: Also accept variable called `logger` or variable annotated as `Logger` or `logging.Logger`
+            # or bool(
+            #     isinstance(node.annotation, ast.Subscript)  # noqa: COM812
+            # )  # noqa: COM812
         )
         if LOGGER_ASSIGNMENT_FOUND:
             self.problems.add_without_ctx(

@@ -115,11 +115,12 @@ class RuleCAR105(BaseRule):
         if not isinstance(self.visit_pass_flag, self.FirstVisitPassFlag):
             raise RuntimeError  # noqa: TRY004
 
-        self.visit_pass_flag = self.SecondVisitPassFlag(
-            first_all_export_lineno=self.visit_pass_flag,
-        )
+        if self.visit_pass_flag:
+            self.visit_pass_flag = self.SecondVisitPassFlag(
+                first_all_export_lineno=self.visit_pass_flag,
+            )
 
-        self.visit(tree)
+            self.visit(tree)
 
     @override
     def generic_visit(self, node: ast.AST) -> None:

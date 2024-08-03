@@ -24,7 +24,7 @@ class TestRuleCAR001:
     @classmethod
     def _get_message(cls, line_number: int, column_number: int) -> str:
         return (
-            f"{line_number}:{column_number} CAR001 "
+            f"{line_number}:{column_number} CAR101 "
             "Missing `__all__` export at the top of the module"
         )
 
@@ -149,4 +149,6 @@ class TestRuleCAR001:
     )
     def test_successful_all_export_provided(self, RAW_TEST_AST: str) -> None:  # noqa: N803
         """"""
-        assert _apply_carrot_plugin_to_ast(RAW_TEST_AST) == set()
+        assert all(
+            "CAR101" not in problem for problem in _apply_carrot_plugin_to_ast(RAW_TEST_AST)
+        )

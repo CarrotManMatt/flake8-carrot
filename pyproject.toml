@@ -166,6 +166,7 @@ task-tags = [
     "ISSUE",
     "DONE",
 ]
+external = ["CAR", "TXB"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/test_*.py" = ["S101"]
