@@ -170,7 +170,7 @@ class RuleCAR301(BaseRule):
         positional_argument: ast.expr
 
         if isinstance(self.visit_pass_flag, self.FirstVisitPassFlag):
-            if utils.function_call_is_pycord_function_call(node):
+            if utils.function_call_is_pycord_command_decorator(node):
                 for positional_argument in node.args:
                     # noinspection PyTypeChecker
                     self.problems[(positional_argument.lineno, positional_argument.col_offset)] = {  # noqa: E501
@@ -183,7 +183,7 @@ class RuleCAR301(BaseRule):
                 isinstance(node.func, ast.Attribute)
                 and isinstance(node.func.value, ast.Name)
                 and node.func.value.id in self.visit_pass_flag.slash_command_group_names
-                and node.func.attr in utils.PYCORD_COMMAND_NAMES  # noqa: COM812
+                and node.func.attr in utils.PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
             )
             if SLASH_GROUP_CALL_FOUND:
                 for positional_argument in node.args:

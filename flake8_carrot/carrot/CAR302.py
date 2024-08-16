@@ -19,42 +19,122 @@ class RuleCAR302(BaseRule):
     @classmethod
     @override
     def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+        needs_to_be_plural: object | None = ctx.get("needs_to_be_plural", None)
+        if needs_to_be_plural is not None and not isinstance(needs_to_be_plural, bool):
+            raise TypeError
+
         return (
             "CAR302 "
-            "Pycord cog subclass name should end with either 'CommandCog' or 'CommandsCog', "
-            "if that cog contains command(s)"
+            "Pycord cog subclass name should end with "
+            f"{
+                f"'Command{"s" if needs_to_be_plural else ""}Cog'"
+                if needs_to_be_plural is not None
+                else "'CommandCog' or 'CommandsCog'"
+            }, "
+            f"if that cog contains {
+                f"{"a command" if needs_to_be_plural else "commands"}"
+                if needs_to_be_plural is not None
+                else "command(s)"
+            }"
         )
 
-    @override
-    def visit_ClassDef(self, node: ast.ClassDef) -> None:
-        FOUND_MISLABELLED_COG_SUBCLASS: Final[bool] = bool(
-            not node.name.endswith("CommandCog")
-            and not node.name.endswith("CommandsCog")  # TODO: Make name identification smarter (based on one or multiple commands)
+    @classmethod
+    def function_is_command(cls, node: ast.AsyncFunctionDef) -> bool:
+        """"""
+        function_is_command: bool = False
+
+        decorator_node: ast.expr
+        for decorator_node in node.decorator_list:
+            if not isinstance(decorator_node, ast.Call):
+                continue
+
+            DECORATOR_IS_NOT_COMMAND: bool = bool(
+                utils.function_call_is_pycord_task_decorator(decorator_node)
+                or utils.function_call_is_pycord_event_listener_decorator(decorator_node)  # noqa: COM812
+            )
+            if DECORATOR_IS_NOT_COMMAND:
+                return False
+
+            if utils.function_call_is_pycord_command_decorator(decorator_node):
+                function_is_command = True
+
+        if function_is_command:
+            return function_is_command
+        # TODO: Add check for slash command group decorator
+        return bool(
+            not node.args.posonlyargs
+            and len(node.args.args) >= 2
+            and node.args.args[0].arg == "self"
             and bool(
-                "cog" in node.name.lower()
-                or any(
-                    "cog" in base.id.lower()
-                    for base in node.bases
-                    if isinstance(base, ast.Name)
-                )
-                or any(
-                    "cog" in base.attr.lower()
-                    for base in node.bases
-                    if isinstance(base, ast.Attribute)
+                node.args.args[1].arg == "ctx"
+                or "context" in node.args.args[1].arg
+                or bool(
+                    isinstance(node.args.args[1].annotation, ast.Name)
+                    and "context" in node.args.args[1].annotation.id.lower()  # noqa: COM812
                 )  # noqa: COM812
             )  # noqa: COM812
         )
-        if FOUND_MISLABELLED_COG_SUBCLASS:
-            COG_SUBCLASS_IS_COMMAND_COG: Final[bool] = any(
-                bool(
-                    isinstance(decorator_node, ast.Call)
-                    and utils.function_call_is_pycord_function_call(decorator_node)
+
+    @classmethod
+    def get_number_of_commands_in_class(cls, node: ast.ClassDef) -> int:
+        """"""
+        commands_count: int = 0
+
+        class_inner_node: ast.AST
+        for class_inner_node in ast.walk(node):
+            NODE_IS_WRONG_TYPE: bool = bool(
+                not isinstance(class_inner_node, ast.AsyncFunctionDef)
+                or not cls.function_is_command(class_inner_node)  # noqa: COM812
+            )
+            if NODE_IS_WRONG_TYPE:
+                continue
+
+            commands_count += 1
+
+        return commands_count
+
+    @override
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        FOUND_COG_SUBCLASS: Final[bool] = bool(
+            "cog" in node.name.lower()
+            or any(
+                "cog" in base.id.lower()
+                for base in node.bases
+                if isinstance(base, ast.Name)
+            )
+            or any(
+                "cog" in base.attr.lower()
+                for base in node.bases
+                if isinstance(base, ast.Attribute)
+            )  # noqa: COM812
+        )
+        if FOUND_COG_SUBCLASS:
+            number_of_commands_in_class: int = self.get_number_of_commands_in_class(node)
+            if number_of_commands_in_class < 0:
+                NEGATIVE_COMMAND_FUNCTIONS_FOUND_MESSAGE: Final[str] = (
+                    "Found less than 0 command functions within cog class."
                 )
-                for class_inner_node in ast.walk(node)
-                if isinstance(class_inner_node, ast.AsyncFunctionDef)
-                for decorator_node in class_inner_node.decorator_list
-            )  # TODO: Identify subclass is command cog from function arguments or slash command group decorators
-            if COG_SUBCLASS_IS_COMMAND_COG:
-                self.problems.add_without_ctx((node.lineno, node.col_offset + 6))
+                raise ValueError(NEGATIVE_COMMAND_FUNCTIONS_FOUND_MESSAGE)
+
+            if number_of_commands_in_class == 0:
+                return
+            print(number_of_commands_in_class)
+
+            is_multiple_commands_cog_subclass: bool = number_of_commands_in_class > 1
+
+            COG_SUBCLASS_IS_MISLABELLED: Final[bool] = bool(
+                bool(
+                    not is_multiple_commands_cog_subclass
+                    and not node.name.endswith("CommandCog")  # noqa: COM812
+                )
+                or bool(
+                    is_multiple_commands_cog_subclass
+                    and not node.name.endswith("CommandsCog")  # noqa: COM812
+                )  # noqa: COM812
+            )
+            if COG_SUBCLASS_IS_MISLABELLED:
+                self.problems[(node.lineno, node.col_offset + 6)] = {
+                    "needs_to_be_plural": is_multiple_commands_cog_subclass,
+                }
 
         self.generic_visit(node)

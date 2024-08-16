@@ -6,16 +6,20 @@ __all__: Sequence[str] = (
     "BasePlugin",
     "BaseRule",
     "ProblemsContainer",
-    "PYCORD_COMMAND_NAMES",
-    "function_call_is_pycord_function_call",
+    "PYCORD_COMMAND_DECORATOR_NAMES",
+    "PYCORD_TASK_DECORATOR_NAMES",
+    "PYCORD_EVENT_LISTENER_DECORATOR_NAMES",
+    "function_call_is_pycord_command_decorator",
+    "function_call_is_pycord_task_decorator",
+    "function_call_is_pycord_event_listener_decorator",
 )
 
 
 import abc
 import ast
 import importlib.metadata
-from collections.abc import Set as AbstractSet
 from collections.abc import Generator, Mapping
+from collections.abc import Set as AbstractSet
 from tokenize import TokenInfo
 from typing import Final, override
 
@@ -26,7 +30,7 @@ if __name__ == "__main__":
     raise RuntimeError(CANNOT_RUN_AS_SCRIPT_MESSAGE)
 
 
-PYCORD_COMMAND_NAMES: Final[AbstractSet[str]] = frozenset(
+PYCORD_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
     {
         "application_command",
         "command",
@@ -43,6 +47,12 @@ PYCORD_COMMAND_NAMES: Final[AbstractSet[str]] = frozenset(
         "ThreadOption",
         "OptionChoice",
     },
+)
+PYCORD_TASK_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
+    {"loop", "Loop", "SleepHandle"},
+)
+PYCORD_EVENT_LISTENER_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
+    {"listen", "listener"},
 )
 
 
@@ -114,17 +124,18 @@ class BaseRule(ast.NodeVisitor, abc.ABC):
         """"""
 
 
-def function_call_is_pycord_function_call(node: ast.Call) -> bool:
+def function_call_is_pycord_command_decorator(node: ast.Call) -> bool:
+    """"""
     return bool(
         bool(
             isinstance(node.func, ast.Name)
-            and node.func.id in PYCORD_COMMAND_NAMES  # noqa: COM812
+            and node.func.id in PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
         )
         or bool(
             isinstance(node.func, ast.Attribute)
             and isinstance(node.func.value, ast.Name)
             and node.func.value.id == "discord"
-            and node.func.attr in PYCORD_COMMAND_NAMES  # noqa: COM812
+            and node.func.attr in PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
         )
         or bool(
             isinstance(node.func, ast.Attribute)
@@ -132,7 +143,7 @@ def function_call_is_pycord_function_call(node: ast.Call) -> bool:
             and isinstance(node.func.value.value, ast.Name)
             and node.func.value.value.id == "discord"
             and node.func.value.attr == "commands"
-            and node.func.attr in PYCORD_COMMAND_NAMES  # noqa: COM812
+            and node.func.attr in PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
         )
         or bool(
             isinstance(node.func, ast.Attribute)
@@ -142,6 +153,86 @@ def function_call_is_pycord_function_call(node: ast.Call) -> bool:
             and node.func.value.value.value.id == "discord"
             and node.func.value.value.attr == "commands"
             and node.func.value.attr in ("core", "options")
-            and node.func.attr in PYCORD_COMMAND_NAMES  # noqa: COM812
+            and node.func.attr in PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
+        )  # noqa: COM812
+    )
+
+def function_call_is_pycord_task_decorator(node: ast.Call) -> bool:
+    """"""
+    return bool(
+        bool(
+            isinstance(node.func, ast.Name)
+            and node.func.id in PYCORD_TASK_DECORATOR_NAMES  # noqa: COM812
+        )
+        or bool(
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and bool(
+                node.func.value.id in ("discord", "tasks")
+                or "bot" in node.func.value.id.lower()
+                or "client" in node.func.value.id.lower()  # noqa: COM812
+            )
+            and node.func.attr in PYCORD_TASK_DECORATOR_NAMES  # noqa: COM812
+        )
+        or bool(
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Attribute)
+            and isinstance(node.func.value.value, ast.Name)
+            and node.func.value.value.id == "discord"
+            and node.func.value.attr == "tasks"
+            and node.func.attr in PYCORD_TASK_DECORATOR_NAMES  # noqa: COM812
+        )
+        or bool(
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Attribute)
+            and isinstance(node.func.value.value, ast.Attribute)
+            and isinstance(node.func.value.value.value, ast.Name)
+            and node.func.value.value.value.id == "discord"
+            and node.func.value.value.attr == "ext"
+            and node.func.value.attr == "tasks"
+            and node.func.attr in PYCORD_TASK_DECORATOR_NAMES  # noqa: COM812
+        )  # noqa: COM812
+    )
+
+def function_call_is_pycord_event_listener_decorator(node: ast.Call) -> bool:
+    """"""
+    return bool(
+        bool(
+            isinstance(node.func, ast.Name)
+            and node.func.id in PYCORD_EVENT_LISTENER_DECORATOR_NAMES  # noqa: COM812
+        )
+        or bool(
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and bool(
+                node.func.value.id in ("discord", "commands")
+                or "bot" in node.func.value.id.lower()
+                or "client" in node.func.value.id.lower()
+                or "cog" in node.func.value.id.lower()  # noqa: COM812
+            )
+            and node.func.attr in PYCORD_EVENT_LISTENER_DECORATOR_NAMES  # noqa: COM812
+        )
+        or bool(
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Attribute)
+            and isinstance(node.func.value.value, ast.Name)
+            and node.func.value.value.id == "discord"
+            and bool(
+                node.func.value.attr == "commands"
+                or "bot" in node.func.value.attr.lower()
+                or "client" in node.func.value.attr.lower()
+                or "cog" in node.func.value.attr.lower()  # noqa: COM812
+            )
+            and node.func.attr in PYCORD_EVENT_LISTENER_DECORATOR_NAMES  # noqa: COM812
+        )
+        or bool(
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Attribute)
+            and isinstance(node.func.value.value, ast.Attribute)
+            and isinstance(node.func.value.value.value, ast.Name)
+            and node.func.value.value.value.id == "discord"
+            and node.func.value.value.attr == "ext"
+            and node.func.value.attr == "commands"
+            and node.func.attr in PYCORD_EVENT_LISTENER_DECORATOR_NAMES  # noqa: COM812
         )  # noqa: COM812
     )
