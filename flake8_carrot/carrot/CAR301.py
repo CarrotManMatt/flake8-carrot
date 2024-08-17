@@ -196,7 +196,7 @@ class RuleCAR301(BaseRule):
         self.generic_visit(node)
 
     @classmethod
-    def _node_id_slash_command_group_assignment(cls, node: ast.Assign | ast.AnnAssign) -> bool:
+    def _node_is_slash_command_group_assignment(cls, node: ast.Assign | ast.AnnAssign) -> bool:
         return bool(
             bool(
                 isinstance(node.value, ast.Call)
@@ -236,7 +236,7 @@ class RuleCAR301(BaseRule):
     def visit_Assign(self, node: ast.Assign) -> None:
         if isinstance(self.visit_pass_flag, self.FirstVisitPassFlag):
             SLASH_COMMAND_GROUP_FOUND: Final[bool] = (  # NOTE: `if` statements should not be combined because the `_node_id_slash_command_group_assignment()` function is expensive to run
-                self._node_id_slash_command_group_assignment(node)
+                self._node_is_slash_command_group_assignment(node)
             )
             if SLASH_COMMAND_GROUP_FOUND:
                 target: ast.expr
@@ -250,7 +250,7 @@ class RuleCAR301(BaseRule):
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         if isinstance(self.visit_pass_flag, self.FirstVisitPassFlag):
             SLASH_COMMAND_GROUP_FOUND: Final[bool] = (  # NOTE: `if` statements should not be combined because the `_node_id_slash_command_group_assignment()` function is expensive to run
-                self._node_id_slash_command_group_assignment(node)
+                self._node_is_slash_command_group_assignment(node)
             )
             if isinstance(node.target, ast.Name) and SLASH_COMMAND_GROUP_FOUND:
                 self.visit_pass_flag.add_slash_command_group_name(node.target.id)
