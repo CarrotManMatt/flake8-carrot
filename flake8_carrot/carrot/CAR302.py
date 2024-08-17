@@ -149,7 +149,7 @@ class RuleCAR302(BaseRule):
                 else "'CommandCog' or 'CommandsCog'"
             }, "
             f"if that cog contains {
-                f"{"multiple commands" if needs_to_be_plural else "only a single command"}"
+                f"{"multiple commands" if needs_to_be_plural else "a single command"}"
                 if needs_to_be_plural is not None
                 else "command(s)"
             }"
@@ -157,6 +157,20 @@ class RuleCAR302(BaseRule):
 
     def function_is_command(self, node: ast.AsyncFunctionDef) -> bool:
         """"""
+        FUNCTION_HAS_WRONG_SIGNATURE: Final[bool] = bool(
+            node.name.startswith("_")
+            or node.name.startswith("autocomplete_")
+            or bool(
+                node.returns is not None
+                and not bool(
+                    isinstance(node.returns, ast.Constant)
+                    and node.returns.value is None  # noqa: COM812
+                )  # noqa: COM812
+            )  # noqa: COM812
+        )
+        if FUNCTION_HAS_WRONG_SIGNATURE:
+            return False
+
         function_is_command: bool = False
 
         decorator_node: ast.expr
