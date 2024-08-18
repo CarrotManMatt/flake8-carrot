@@ -93,9 +93,9 @@ class BasePlugin(abc.ABC):
 
     def run(self) -> Generator[tuple[int, int, str, type["BasePlugin"]], None, None]:
         """"""
-        RuleClass: type[BaseRule]
+        RuleClass: type[BaseRule[BasePlugin]]
         for RuleClass in self.RULES:
-            rule: BaseRule = RuleClass(plugin=self)
+            rule: BaseRule[BasePlugin] = RuleClass(plugin=self)
             rule.run_check(tree=self._tree, file_tokens=self._file_tokens, lines=self._lines)
 
             line_number: int
@@ -133,7 +133,7 @@ class BaseRule(abc.ABC, Generic[T_plugin]):
         """"""
 
 
-class CarrotRule(BaseRule, abc.ABC):
+class CarrotRule(BaseRule["CarrotPlugin"], abc.ABC):
     """"""
 
     @override
@@ -141,7 +141,7 @@ class CarrotRule(BaseRule, abc.ABC):
         super().__init__(plugin)
 
 
-class TeXBotRule(BaseRule, abc.ABC):
+class TeXBotRule(BaseRule["TeXBotPlugin"], abc.ABC):
     """"""
 
     @override

@@ -16,12 +16,6 @@ from flake8_carrot.utils import CarrotRule
 class RuleCAR103(CarrotRule, ast.NodeVisitor):
     """"""
 
-    @override
-    def __init__(self) -> None:
-        self.all_found_count: int = 0
-
-        super().__init__()
-
     @classmethod
     @override
     def format_error_message(cls, ctx: Mapping[str, object]) -> str:
@@ -41,48 +35,49 @@ class RuleCAR103(CarrotRule, ast.NodeVisitor):
             ),
             None,
         )
-        if all_assignment is not None:
-            if self.all_found_count == 0:
-                self.problems.add_without_ctx(
-                    (
-                        all_assignment.lineno,
-                        (all_assignment.end_col_offset or all_assignment.col_offset) - 1,
-                    ),
-                )
-
-            self.all_found_count += 1
+        IS_FIRST_ALL_EXPORT: Final[bool] = bool(
+            all_assignment is not None
+            and self.plugin.first_all_export_line_numbers is not None
+            and node.lineno == self.plugin.first_all_export_line_numbers[0]
+        )
+        if IS_FIRST_ALL_EXPORT:
+            self.problems.add_without_ctx(
+                (
+                    all_assignment.lineno,  # type: ignore[union-attr]
+                    (all_assignment.end_col_offset or all_assignment.col_offset),  # type: ignore[union-attr]
+                ),
+            )
 
         self.generic_visit(node)
 
     @override
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
-        ALL_EXPORT_FOUND: Final[bool] = bool(
+        INCORRECTLY_ANNOTATED_ALL_EXPORT_FOUND: Final[bool] = bool(
             isinstance(node.target, ast.Name)
-            and node.target.id == "__all__"  # noqa: COM812
-        )
-        if ALL_EXPORT_FOUND:
-            CORRECT_ANNOTATION: Final[bool] = bool(
+            and node.target.id == "__all__"
+            and self.plugin.first_all_export_line_numbers is not None
+            and node.lineno == self.plugin.first_all_export_line_numbers[0]
+            and not bool(
                 isinstance(node.annotation, ast.Subscript)
                 and isinstance(node.annotation.value, ast.Name)
                 and isinstance(node.annotation.slice, ast.Name)
                 and node.annotation.value.id == "Sequence"
                 and node.annotation.slice.id == "str"  # noqa: COM812
-            )
-            if self.all_found_count == 0 and not CORRECT_ANNOTATION:
-                self.problems.add_without_ctx(
+            )  # noqa: COM812
+        )
+        if INCORRECTLY_ANNOTATED_ALL_EXPORT_FOUND:
+            self.problems.add_without_ctx(
+                (
+                    node.annotation.lineno,
                     (
-                        node.annotation.lineno,
-                        (
-                            (node.annotation.end_col_offset or node.annotation.col_offset) - 1
-                            if bool(
-                                isinstance(node.annotation, ast.Name)
-                                and node.annotation.id == "Sequence"  # noqa: COM812
-                            )
-                            else node.annotation.col_offset
-                        ),
+                        (node.annotation.end_col_offset or node.annotation.col_offset) - 1
+                        if bool(
+                            isinstance(node.annotation, ast.Name)
+                            and node.annotation.id == "Sequence"  # noqa: COM812
+                        )
+                        else node.annotation.col_offset
                     ),
-                )
-
-            self.all_found_count += 1
+                ),
+            )
 
         self.generic_visit(node)

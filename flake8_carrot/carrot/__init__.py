@@ -52,12 +52,12 @@ class CarrotPlugin(BasePlugin):
     # noinspection PyMethodParameters,PyPep8Naming
     @classproperty
     @override
-    def RULES(cls) -> frozenset[type[BaseRule]]:  # noqa: N805
+    def RULES(cls) -> frozenset[type[BaseRule["CarrotPlugin"]]]:  # noqa: N805
         return frozenset(
             {
                 # RuleCAR101,
                 # RuleCAR102,
-                # RuleCAR103,
+                RuleCAR103,
                 RuleCAR104,
                 RuleCAR105,
                 RuleCAR106,
@@ -142,7 +142,7 @@ class CarrotPlugin(BasePlugin):
                     and self._node_is_slash_command_group_assignment(node)
                 )
                 if NODE_IS_SLASH_COMMAND_GROUP_ASSIGNMENT:
-                    self.found_slash_command_group_names.add(node.target.id)
+                    self.found_slash_command_group_names.add(node.target.id)  # type: ignore[union-attr]
 
                 ALL_EXPORT_FOUND: Final[bool] = bool(
                     isinstance(node.target, ast.Name)
@@ -183,9 +183,11 @@ class CarrotPlugin(BasePlugin):
 
     @classmethod
     def _find_true_start_line_number(cls, tree: ast.AST) -> int:
-        node: ast.AST
-        for node in ast.walk(tree):
-            if hasattr(node, "lineno"):
-                return node.lineno
+        if not isinstance(tree, ast.Module):
+            raise TypeError("'tree' AST must be a module.")
 
-        return 1
+        first_node: ast.stmt | None = next(iter(tree.body), None)
+        if first_node is None:
+            return 1
+
+        return first_node.lineno

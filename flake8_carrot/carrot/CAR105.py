@@ -42,6 +42,7 @@ class RuleCAR105(CarrotRule):
             EXPRESSION_BEFORE_ALL: bool = bool(
                 hasattr(node, "lineno")
                 and hasattr(node, "col_offset")
+                and self.plugin.first_all_export_line_numbers is not None
                 and node.lineno < self.plugin.first_all_export_line_numbers[0]
                 and not bool(
                     isinstance(node, ast.Expr)
@@ -56,6 +57,6 @@ class RuleCAR105(CarrotRule):
             )
             if EXPRESSION_BEFORE_ALL:
                 line: str = ast.unparse(node).split("\n")[0]
-                self.problems[(node.lineno, 0)] = {  # type: ignore[attr-defined]
+                self.problems[(node.lineno, 0)] = {
                     "line": f"`{line if len(line) < 30 else f"{line[:30]}..."}`",
                 }

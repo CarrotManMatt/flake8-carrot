@@ -24,5 +24,5 @@ class TeXBotPlugin(BasePlugin):
     # noinspection PyMethodParameters,PyPep8Naming
     @classproperty
     @override
-    def RULES(cls) -> frozenset[type[BaseRule]]:  # noqa: N805
+    def RULES(cls) -> frozenset[type[BaseRule["TeXBotPlugin"]]]:  # noqa: N805
         return frozenset()

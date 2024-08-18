@@ -30,14 +30,14 @@ class RuleCAR107(CarrotRule):
         if SKIP_FILE:
             return
 
-        remaining_lines: Iterator[str] = iter(lines[self.plugin.first_all_export_line_numbers[1]:])
+        remaining_lines: Iterator[str] = iter(lines[self.plugin.first_all_export_line_numbers[1]:])  # type: ignore[index]
 
         first_line_after: str | None = next(remaining_lines, None)
         if first_line_after is None:
             return
 
         if first_line_after.strip("\n"):
-            self.problems.add_without_ctx((self.plugin.first_all_export_line_numbers[1] + 1, 0))
+            self.problems.add_without_ctx((self.plugin.first_all_export_line_numbers[1] + 1, 0))  # type: ignore[index]
             return
 
         second_line_after: str | None = next(remaining_lines, None)
@@ -45,5 +45,5 @@ class RuleCAR107(CarrotRule):
             return
 
         if second_line_after.strip("\n"):
-            self.problems.add_without_ctx((self.plugin.first_all_export_line_numbers[1] + 1, 0))
+            self.problems.add_without_ctx((self.plugin.first_all_export_line_numbers[1] + 1, 0))  # type: ignore[index]
             return

@@ -40,6 +40,7 @@ class RuleCAR106(CarrotRule, ast.NodeVisitor):
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         COLLECTIONS_IMPORT_FOUND: Final[bool] = bool(
             node.module in ("collections.abc", "typing")
+            and self.plugin.first_all_export_line_numbers is not None
             and node.lineno < self.plugin.first_all_export_line_numbers[0]
             and any(alias.name == "Sequence" for alias in node.names)  # noqa: COM812
         )

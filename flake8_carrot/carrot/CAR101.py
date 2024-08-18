@@ -178,7 +178,7 @@ class RuleCAR101(CarrotRule, ast.NodeVisitor):
         if self.missing_all_export_flag is not self.MissingAllExportFlag.UNKNOWN:
             raise RuntimeError
 
-        super().run_check(tree=tree, file_tokens=file_tokens, lines=lines)
+        self.visit(tree)
 
         if self.missing_all_export_flag is self.MissingAllExportFlag.UNKNOWN:
             error_line_number: int

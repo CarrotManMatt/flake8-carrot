@@ -78,7 +78,7 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
                 or bool(
                     isinstance(decorator_node.func, ast.Attribute)
                     and isinstance(decorator_node.func.value, ast.Name)
-                    and decorator_node.func.value.id in self.plugin.found_slash_command_group_names  # type: ignore[operator] # noqa: E501
+                    and decorator_node.func.value.id in self.plugin.found_slash_command_group_names  # noqa: E501
                     and decorator_node.func.attr == "command"  # noqa: COM812
                 )  # noqa: COM812
             )

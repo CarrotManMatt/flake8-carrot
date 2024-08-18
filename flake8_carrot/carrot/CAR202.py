@@ -10,6 +10,8 @@ from collections.abc import Mapping
 from tokenize import TokenInfo
 from typing import Final, override
 
+import astpretty
+
 from flake8_carrot.utils import CarrotRule
 
 
@@ -102,7 +104,44 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
                 and node.annotation.slice.attr == "Logger"  # noqa: COM812
             )  # noqa: COM812
         )
-        if LOGGER_ASSIGNMENT_FOUND and "logger" not in node.target.id:
+        if LOGGER_ASSIGNMENT_FOUND and self._logger_in_assignment_target(node.target):
             self.problems.add_without_ctx((node.target.lineno, node.target.col_offset))
 
         self.generic_visit(node)
+
+    @classmethod
+    def _logger_in_assignment_target(cls, target: ast.expr | str) -> bool:
+        match target:
+            case str():
+                print(1)
+                return "logger" in target.lower()
+
+            case ast.Name():
+                return cls._logger_in_assignment_target(target.id)
+
+            case ast.Constant():
+                return cls._logger_in_assignment_target(target.value)
+
+            case ast.Attribute():
+                ATTRIBUTE_CONTAINS_LOGGER: Final[bool] = cls._logger_in_assignment_target(
+                    target.attr,
+                )
+                if ATTRIBUTE_CONTAINS_LOGGER:
+                    return ATTRIBUTE_CONTAINS_LOGGER
+
+                return cls._logger_in_assignment_target(target.value)
+
+            case ast.Subscript():
+                SUBSCRIPT_CONTAINS_LOGGER: Final[bool] = cls._logger_in_assignment_target(
+                    target.value,
+                )
+                if SUBSCRIPT_CONTAINS_LOGGER:
+                    return SUBSCRIPT_CONTAINS_LOGGER
+
+                if isinstance(target.slice, ast.expr):
+                    return cls._logger_in_assignment_target(target.slice)
+
+                raise NotImplementedError  # TODO
+
+            case _:
+                raise TypeError(f"Not able to identify the word `logger` within ast node 'ast.{type(target).__name__}'.")
