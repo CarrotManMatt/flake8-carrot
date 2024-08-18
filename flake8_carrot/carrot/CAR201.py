@@ -7,12 +7,13 @@ __all__: Sequence[str] = ("RuleCAR201",)
 
 import ast
 from collections.abc import Mapping
+from tokenize import TokenInfo
 from typing import Final, override
 
-from flake8_carrot.utils import BaseRule
+from flake8_carrot.utils import CarrotRule
 
 
-class RuleCAR201(BaseRule):
+class RuleCAR201(CarrotRule, ast.NodeVisitor):
     """"""
 
     @classmethod
@@ -22,6 +23,10 @@ class RuleCAR201(BaseRule):
             "CAR201 "
             "Assignment of `logging.Logger` object should be annotated as `Final[Logger]`"
         )
+
+    @override
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+        self.visit(tree)
 
     @override
     def visit_Assign(self, node: ast.Assign) -> None:

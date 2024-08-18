@@ -7,12 +7,13 @@ __all__: Sequence[str] = ("RuleCAR103",)
 
 import ast
 from collections.abc import Mapping
+from tokenize import TokenInfo
 from typing import Final, override
 
-from flake8_carrot.utils import BaseRule
+from flake8_carrot.utils import CarrotRule
 
 
-class RuleCAR103(BaseRule):
+class RuleCAR103(CarrotRule, ast.NodeVisitor):
     """"""
 
     @override
@@ -25,6 +26,10 @@ class RuleCAR103(BaseRule):
     @override
     def format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return "CAR103 `__all__` export should be annotated as `Sequence[str]`"
+
+    @override
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+        self.visit(tree)
 
     @override
     def visit_Assign(self, node: ast.Assign) -> None:

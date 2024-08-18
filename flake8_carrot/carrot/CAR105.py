@@ -5,92 +5,16 @@ from collections.abc import Sequence
 __all__: Sequence[str] = ("RuleCAR105",)
 
 
-import abc
 import ast
-from collections.abc import Iterator, Mapping
+from collections.abc import Mapping
 from tokenize import TokenInfo
-from typing import Final, Literal, override
+from typing import override
 
-from flake8_carrot.utils import BaseRule
+from flake8_carrot.utils import CarrotRule
 
 
-class RuleCAR105(BaseRule):
+class RuleCAR105(CarrotRule):
     """"""
-
-    class _BaseVisitPassFlag(abc.ABC):
-        """"""
-
-        def __bool__(self) -> bool:
-            return self._get_true_value() is not None
-
-        @abc.abstractmethod
-        def _get_true_value(self) -> int | None:
-            """"""
-
-        @property
-        @abc.abstractmethod
-        def first_all_export_lineno(self) -> object:
-            """"""
-
-    class FirstVisitPassFlag(_BaseVisitPassFlag):
-        """"""
-
-        @override
-        def __init__(self, *, first_all_export_lineno: "RuleCAR105._BaseVisitPassFlag | int | None") -> None:  # noqa: E501
-            if isinstance(first_all_export_lineno, RuleCAR105._BaseVisitPassFlag):
-                first_all_export_lineno = first_all_export_lineno._get_true_value()  # noqa: SLF001
-
-            self._first_all_export_lineno: int | None = first_all_export_lineno
-
-        @property
-        @override
-        def first_all_export_lineno(self) -> int | None:
-            return self._first_all_export_lineno
-
-        @override
-        def _get_true_value(self) -> int | None:
-            return self.first_all_export_lineno
-
-    class SecondVisitPassFlag(_BaseVisitPassFlag):
-        """"""
-
-        @override
-        def __init__(self, *, first_all_export_lineno: "RuleCAR105._BaseVisitPassFlag | int") -> None:  # noqa: E501
-            if isinstance(first_all_export_lineno, RuleCAR105._BaseVisitPassFlag):
-                raw_first_all_export_lineno: int | None = (
-                    first_all_export_lineno._get_true_value()  # noqa: SLF001
-                )
-                if raw_first_all_export_lineno is None:
-                    raise ValueError
-
-                first_all_export_lineno = raw_first_all_export_lineno
-
-            self._first_all_export_lineno: int = first_all_export_lineno
-
-        @property
-        @override
-        def first_all_export_lineno(self) -> int:
-            return self._first_all_export_lineno
-
-        @override
-        def __bool__(self) -> Literal[True]:
-            if not super().__bool__():
-                raise RuntimeError
-
-            return True
-
-        @override
-        def _get_true_value(self) -> int | None:
-            return self.first_all_export_lineno
-
-    @override
-    def __init__(self) -> None:
-        self.visit_pass_flag: RuleCAR105._BaseVisitPassFlag = self.FirstVisitPassFlag(
-            first_all_export_lineno=None,
-        )
-        self.start_line_number: int | None = None
-
-        super().__init__()
 
     @classmethod
     @override
@@ -109,51 +33,20 @@ class RuleCAR105(BaseRule):
         )
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
-        if self.visit_pass_flag or self.start_line_number is not None:
-            raise RuntimeError
-
-        tree_iterator: Iterator[ast.AST] = ast.walk(tree)
-
-        while self.start_line_number is None:
-            try:
-                node: ast.AST = next(tree_iterator)
-            except StopIteration:
-                self.start_line_number = 1
-            else:
-                if hasattr(node, "lineno"):
-                    self.start_line_number = node.lineno
-
-        self.visit(tree)
-
-        if not isinstance(self.visit_pass_flag, self.FirstVisitPassFlag):
-            raise RuntimeError  # noqa: TRY004
-
-        if self.visit_pass_flag:
-            self.visit_pass_flag = self.SecondVisitPassFlag(
-                first_all_export_lineno=self.visit_pass_flag,
-            )
-
-            self.visit(tree)
-
-    @override
-    def generic_visit(self, node: ast.AST) -> None:
-        if isinstance(node, ast.Module):
-            # noinspection PyTypeChecker
-            super().generic_visit(node)
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+        if not isinstance(tree, ast.Module):
             return
 
-        if isinstance(self.visit_pass_flag, self.SecondVisitPassFlag):
-            EXPRESSION_BEFORE_ALL: Final[bool] = bool(
+        node: ast.stmt
+        for node in tree.body:
+            EXPRESSION_BEFORE_ALL: bool = bool(
                 hasattr(node, "lineno")
                 and hasattr(node, "col_offset")
-                and node.lineno < self.visit_pass_flag.first_all_export_lineno
+                and node.lineno < self.plugin.first_all_export_line_numbers[0]
                 and not bool(
                     isinstance(node, ast.Expr)
                     and isinstance(node.value, ast.Constant)
-                    and node.lineno == (
-                        self.start_line_number if self.start_line_number is not None else 1
-                    )  # noqa: COM812
+                    and node.lineno == self.plugin.true_start_line_number  # noqa: COM812
                 )
                 and not bool(
                     isinstance(node, ast.ImportFrom)
@@ -166,25 +59,3 @@ class RuleCAR105(BaseRule):
                 self.problems[(node.lineno, 0)] = {  # type: ignore[attr-defined]
                     "line": f"`{line if len(line) < 30 else f"{line[:30]}..."}`",
                 }
-
-    @override
-    def visit_Assign(self, node: ast.Assign) -> None:
-        ALL_EXPORT_FOUND: Final[bool] = any(
-            isinstance(target, ast.Name) and target.id == "__all__"
-            for target in node.targets
-        )
-        if ALL_EXPORT_FOUND and not self.visit_pass_flag:
-            self.visit_pass_flag = self.FirstVisitPassFlag(first_all_export_lineno=node.lineno)
-
-        self.generic_visit(node)
-
-    @override
-    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
-        ALL_EXPORT_FOUND: Final[bool] = bool(
-            isinstance(node.target, ast.Name)
-            and node.target.id == "__all__"  # noqa: COM812
-        )
-        if ALL_EXPORT_FOUND and not self.visit_pass_flag:
-            self.visit_pass_flag = self.FirstVisitPassFlag(first_all_export_lineno=node.lineno)
-
-        self.generic_visit(node)

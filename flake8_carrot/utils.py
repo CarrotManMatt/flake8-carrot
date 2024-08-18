@@ -5,6 +5,8 @@ from collections.abc import Sequence
 __all__: Sequence[str] = (
     "BasePlugin",
     "BaseRule",
+    "CarrotRule",
+    "TeXBotRule",
     "ProblemsContainer",
     "PYCORD_COMMAND_DECORATOR_NAMES",
     "PYCORD_TASK_DECORATOR_NAMES",
@@ -21,13 +23,19 @@ import importlib.metadata
 from collections.abc import Generator, Mapping
 from collections.abc import Set as AbstractSet
 from tokenize import TokenInfo
-from typing import Final, override
+from typing import Final, TYPE_CHECKING, override, Generic, TypeVar
 
 from classproperties import classproperty
 
 if __name__ == "__main__":
     CANNOT_RUN_AS_SCRIPT_MESSAGE: Final[str] = "This module cannot be run as a script."
     raise RuntimeError(CANNOT_RUN_AS_SCRIPT_MESSAGE)
+
+if TYPE_CHECKING:
+    from flake8_carrot.carrot import CarrotPlugin
+    from flake8_carrot.tex_bot import TeXBotPlugin
+
+T_plugin = TypeVar("T_plugin", bound="BasePlugin")
 
 
 PYCORD_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
@@ -87,7 +95,7 @@ class BasePlugin(abc.ABC):
         """"""
         RuleClass: type[BaseRule]
         for RuleClass in self.RULES:
-            rule: BaseRule = RuleClass()
+            rule: BaseRule = RuleClass(plugin=self)
             rule.run_check(tree=self._tree, file_tokens=self._file_tokens, lines=self._lines)
 
             line_number: int
@@ -105,23 +113,40 @@ class ProblemsContainer(dict[tuple[int, int], Mapping[str, object]]):
         self[problem_location] = {}
 
 
-class BaseRule(ast.NodeVisitor, abc.ABC):
+class BaseRule(abc.ABC, Generic[T_plugin]):
     """"""
 
     @override
-    def __init__(self) -> None:
+    def __init__(self, plugin: T_plugin) -> None:
+        self.plugin: T_plugin = plugin
         self.problems: ProblemsContainer = ProblemsContainer()
 
         super().__init__()
 
+    @abc.abstractmethod
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: ARG002, E501
         """"""
-        self.visit(tree)
 
     @classmethod
     @abc.abstractmethod
     def format_error_message(cls, ctx: Mapping[str, object]) -> str:
         """"""
+
+
+class CarrotRule(BaseRule, abc.ABC):
+    """"""
+
+    @override
+    def __init__(self, plugin: "CarrotPlugin") -> None:
+        super().__init__(plugin)
+
+
+class TeXBotRule(BaseRule, abc.ABC):
+    """"""
+
+    @override
+    def __init__(self, plugin: "TeXBotPlugin") -> None:
+        super().__init__(plugin)
 
 
 def function_call_is_pycord_command_decorator(node: ast.Call) -> bool:

@@ -10,12 +10,15 @@ import enum
 from collections.abc import Iterator, Mapping
 from enum import Enum
 from tokenize import TokenInfo
-from typing import Final, override
+from typing import Final, TYPE_CHECKING, override
 
-from flake8_carrot.utils import BaseRule
+from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from flake8_carrot.carrot import CarrotPlugin
 
 
-class RuleCAR101(BaseRule):
+class RuleCAR101(CarrotRule, ast.NodeVisitor):
     """"""
 
     class MissingAllExportFlag(Enum):
@@ -26,12 +29,12 @@ class RuleCAR101(BaseRule):
         BODY_WAS_EMPTY = enum.auto()
 
     @override
-    def __init__(self) -> None:
+    def __init__(self, plugin: "CarrotPlugin") -> None:
         self.missing_all_export_flag: RuleCAR101.MissingAllExportFlag = (
             self.MissingAllExportFlag.UNKNOWN
         )
 
-        super().__init__()
+        super().__init__(plugin)
 
     @classmethod
     @override
