@@ -69,8 +69,8 @@ class RuleCAR102(CarrotRule, ast.NodeVisitor):
                 and node.annotation.slice.id == "str"  # noqa: COM812
             )  # noqa: COM812
         )
-        if INCORRECTLY_ANNOTATED_ALL_EXPORT_FOUND:
-                self.problems.add_without_ctx((node.lineno, node.col_offset))
+        if MULTIPLE_ALL_EXPORTS_FOUND:
+            self.problems.add_without_ctx((node.lineno, node.col_offset))
         ALL_EXPORT_FOUND: Final[bool] = bool(
             isinstance(node.target, ast.Name)
             and node.target.id == "__all__"  # noqa: COM812
