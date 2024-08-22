@@ -20,12 +20,6 @@ if TYPE_CHECKING:
 class RuleCAR102(CarrotRule, ast.NodeVisitor):
     """"""
 
-    @override
-    def __init__(self, plugin: "CarrotPlugin") -> None:
-        self.all_found_count: int = 0
-
-        super().__init__(plugin)
-
     @classmethod
     @override
     def format_error_message(cls, ctx: Mapping[str, object]) -> str:
@@ -37,20 +31,46 @@ class RuleCAR102(CarrotRule, ast.NodeVisitor):
 
     @override
     def visit_Assign(self, node: ast.Assign) -> None:
-        ALL_EXPORT_FOUND: Final[bool] = any(
-            isinstance(target, ast.Name) and target.id == "__all__"
-            for target in node.targets
+        all_assignment: ast.Name | None = next(
+            (
+                target
+                for target in node.targets
+                if isinstance(target, ast.Name) and target.id == "__all__"
+            ),
+            None,
         )
-        if ALL_EXPORT_FOUND:
-            if self.all_found_count > 0:
-                self.problems.add_without_ctx((node.lineno, node.col_offset))
-
-            self.all_found_count += 1
+        IS_FIRST_ALL_EXPORT: Final[bool] = bool(
+            all_assignment is not None
+            and self.plugin.first_all_export_line_numbers is not None
+            and all_assignment.lineno != self.plugin.first_all_export_line_numbers[0]
+        )
+        if IS_FIRST_ALL_EXPORT:
+            self.problems.add_without_ctx(
+                (
+                    all_assignment.lineno,  # type: ignore[union-attr]
+                    (all_assignment.end_col_offset or all_assignment.col_offset),  # type: ignore[union-attr]
+                ),
+            )
 
         self.generic_visit(node)
 
     @override
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
+        MULTIPLE_ALL_EXPORTS_FOUND: Final[bool] = bool(
+            isinstance(node.target, ast.Name)
+            and node.target.id == "__all__"
+            and self.plugin.first_all_export_line_numbers is not None
+            and node.lineno != self.plugin.first_all_export_line_numbers[0]
+            and not bool(
+                isinstance(node.annotation, ast.Subscript)
+                and isinstance(node.annotation.value, ast.Name)
+                and isinstance(node.annotation.slice, ast.Name)
+                and node.annotation.value.id == "Sequence"
+                and node.annotation.slice.id == "str"  # noqa: COM812
+            )  # noqa: COM812
+        )
+        if INCORRECTLY_ANNOTATED_ALL_EXPORT_FOUND:
+                self.problems.add_without_ctx((node.lineno, node.col_offset))
         ALL_EXPORT_FOUND: Final[bool] = bool(
             isinstance(node.target, ast.Name)
             and node.target.id == "__all__"  # noqa: COM812
