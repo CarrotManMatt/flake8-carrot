@@ -56,7 +56,7 @@ class CarrotPlugin(BasePlugin):
         return frozenset(
             {
                 # RuleCAR101,
-                # RuleCAR102,
+                RuleCAR102,
                 RuleCAR103,
                 RuleCAR104,
                 RuleCAR105,
