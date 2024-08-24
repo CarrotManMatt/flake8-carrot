@@ -55,7 +55,7 @@ class CarrotPlugin(BasePlugin):
     def RULES(cls) -> frozenset[type[BaseRule["CarrotPlugin"]]]:  # noqa: N805
         return frozenset(
             {
-                # RuleCAR101,
+                RuleCAR101,
                 RuleCAR102,
                 RuleCAR103,
                 RuleCAR104,

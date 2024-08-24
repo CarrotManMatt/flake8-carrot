@@ -6,35 +6,15 @@ __all__: Sequence[str] = ("RuleCAR101",)
 
 
 import ast
-import enum
 from collections.abc import Iterator, Mapping
-from enum import Enum
 from tokenize import TokenInfo
-from typing import Final, TYPE_CHECKING, override
+from typing import Final, override
 
 from flake8_carrot.utils import CarrotRule
-
-if TYPE_CHECKING:
-    from flake8_carrot.carrot import CarrotPlugin
 
 
 class RuleCAR101(CarrotRule, ast.NodeVisitor):
     """"""
-
-    class MissingAllExportFlag(Enum):
-        """"""
-
-        UNKNOWN = enum.auto()
-        FOUND_ALL = enum.auto()
-        BODY_WAS_EMPTY = enum.auto()
-
-    @override
-    def __init__(self, plugin: "CarrotPlugin") -> None:
-        self.missing_all_export_flag: RuleCAR101.MissingAllExportFlag = (
-            self.MissingAllExportFlag.UNKNOWN
-        )
-
-        super().__init__(plugin)
 
     @classmethod
     @override
@@ -175,12 +155,7 @@ class RuleCAR101(CarrotRule, ast.NodeVisitor):
 
     @override
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
-        if self.missing_all_export_flag is not self.MissingAllExportFlag.UNKNOWN:
-            raise RuntimeError
-
-        self.visit(tree)
-
-        if self.missing_all_export_flag is self.MissingAllExportFlag.UNKNOWN:
+        if self.plugin.first_all_export_line_numbers is None:
             error_line_number: int
             error_column_number: int
             error_line_number, error_column_number = self.get_error_position(tree, lines)
@@ -188,40 +163,3 @@ class RuleCAR101(CarrotRule, ast.NodeVisitor):
             self.problems.add_without_ctx(
                 (max(error_line_number, 1), max(error_column_number, 0)),
             )
-
-    @override
-    def visit_Module(self, node: ast.Module) -> None:
-        if not node.body:
-            self.problems.add_without_ctx((1, 0))
-            self.missing_all_export_flag = self.MissingAllExportFlag.BODY_WAS_EMPTY
-            return
-
-        self.generic_visit(node)
-
-    @override
-    def visit_Assign(self, node: ast.Assign) -> None:
-        ALL_EXPORT_FOUND: Final[bool] = bool(
-            self.missing_all_export_flag is self.MissingAllExportFlag.UNKNOWN
-            and any(
-                isinstance(target, ast.Name) and target.id == "__all__"
-                for target in node.targets
-            )  # noqa: COM812
-        )
-        if ALL_EXPORT_FOUND:
-            self.missing_all_export_flag = self.MissingAllExportFlag.FOUND_ALL
-            return
-
-        self.generic_visit(node)
-
-    @override
-    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
-        ALL_EXPORT_FOUND: Final[bool] = bool(
-            self.missing_all_export_flag is self.MissingAllExportFlag.UNKNOWN
-            and isinstance(node.target, ast.Name)
-            and node.target.id == "__all__"  # noqa: COM812
-        )
-        if ALL_EXPORT_FOUND:
-            self.missing_all_export_flag = self.MissingAllExportFlag.FOUND_ALL
-            return
-
-        self.generic_visit(node)
