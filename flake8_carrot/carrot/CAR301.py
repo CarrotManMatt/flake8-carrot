@@ -11,7 +11,7 @@ from tokenize import TokenInfo
 from typing import Final, override
 
 from flake8_carrot import utils
-from flake8_carrot.utils import CarrotRule
+from flake8_carrot.utils import CarrotRule, PYCORD_OPTION_DECORATOR_NAMES, PYCORD_TASK_DECORATOR_NAMES
 
 
 class RuleCAR301(CarrotRule, ast.NodeVisitor):
@@ -64,7 +64,7 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
                 isinstance(node.func, ast.Attribute)
                 and isinstance(node.func.value, ast.Name)
                 and node.func.value.id in self.plugin.found_slash_command_group_names
-                and node.func.attr in utils.PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
+                and node.func.attr in utils.PYCORD_COMMAND_DECORATOR_NAMES | utils.PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
             )  # noqa: COM812
         )
         if FUNCTION_CALL_IS_PYCORD_FUNCTION:

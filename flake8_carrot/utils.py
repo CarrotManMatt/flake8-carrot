@@ -9,9 +9,11 @@ __all__: Sequence[str] = (
     "TeXBotRule",
     "ProblemsContainer",
     "PYCORD_COMMAND_DECORATOR_NAMES",
+    "PYCORD_OPTION_DECORATOR_NAMES",
     "PYCORD_TASK_DECORATOR_NAMES",
     "PYCORD_EVENT_LISTENER_DECORATOR_NAMES",
     "function_call_is_pycord_command_decorator",
+    "function_call_is_pycord_option_decorator",
     "function_call_is_pycord_task_decorator",
     "function_call_is_pycord_event_listener_decorator",
 )
@@ -50,11 +52,15 @@ PYCORD_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
         "SlashCommandGroup",
         "UserCommand",
         "MessageCommand",
+    },
+)
+PYCORD_OPTION_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
+    {
         "option",
         "Option",
         "ThreadOption",
         "OptionChoice",
-    },
+    }
 )
 PYCORD_TASK_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
     {"loop", "Loop", "SleepHandle"},
@@ -179,6 +185,40 @@ def function_call_is_pycord_command_decorator(node: ast.Call) -> bool:
             and node.func.value.value.attr == "commands"
             and node.func.value.attr in ("core", "options")
             and node.func.attr in PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
+        )  # noqa: COM812
+    )
+
+
+def function_call_is_pycord_option_decorator(node: ast.Call) -> bool:
+    """"""
+    return bool(
+        bool(
+            isinstance(node.func, ast.Name)
+            and node.func.id in PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
+        )
+        or bool(
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "discord"
+            and node.func.attr in PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
+        )
+        or bool(
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Attribute)
+            and isinstance(node.func.value.value, ast.Name)
+            and node.func.value.value.id == "discord"
+            and node.func.value.attr == "commands"
+            and node.func.attr in PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
+        )
+        or bool(
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Attribute)
+            and isinstance(node.func.value.value, ast.Attribute)
+            and isinstance(node.func.value.value.value, ast.Name)
+            and node.func.value.value.value.id == "discord"
+            and node.func.value.value.attr == "commands"
+            and node.func.value.attr in ("core", "options")
+            and node.func.attr in PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
         )  # noqa: COM812
     )
 
