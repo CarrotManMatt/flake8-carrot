@@ -114,12 +114,14 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
                 return "logger" in target.lower()
 
             case ast.Name():
+                # noinspection PyUnresolvedReferences
                 return cls._logger_in_assignment_target(target.id)
 
             case ast.Constant():
                 return cls._logger_in_assignment_target(target.value)
 
             case ast.Attribute():
+                # noinspection PyUnresolvedReferences
                 ATTRIBUTE_CONTAINS_LOGGER: Final[bool] = cls._logger_in_assignment_target(
                     target.attr,
                 )
@@ -135,7 +137,9 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
                 if SUBSCRIPT_CONTAINS_LOGGER:
                     return SUBSCRIPT_CONTAINS_LOGGER
 
+                # noinspection PyUnresolvedReferences
                 if isinstance(target.slice, ast.expr):
+                    # noinspection PyUnresolvedReferences
                     return cls._logger_in_assignment_target(target.slice)
 
                 raise NotImplementedError  # TODO
