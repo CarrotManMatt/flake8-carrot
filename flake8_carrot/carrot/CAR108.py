@@ -38,10 +38,10 @@ class RuleCAR108(CarrotRule, ast.NodeVisitor):
         )
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
-    def _check_for_non_alphabetical_all_export_values(self, values: ast.List | ast.Tuple) -> None:
+    def _check_for_non_alphabetical_all_export_values(self, values: ast.List | ast.Tuple) -> None:  # noqa: E501
         sorted_values: list[ast.Constant] = sorted(
             (value for value in values.elts if isinstance(value, ast.Constant)),
             key=lambda value: value.value,
@@ -58,7 +58,7 @@ class RuleCAR108(CarrotRule, ast.NodeVisitor):
             if index != correct_index:
                 self.problems[(value.lineno, value.col_offset)] = {
                     "export_object_name": value.value,
-                    "correct_index": correct_index
+                    "correct_index": correct_index,
                 }
 
     @override
@@ -70,7 +70,7 @@ class RuleCAR108(CarrotRule, ast.NodeVisitor):
             )
             and isinstance(node.value, ast.List | ast.Tuple)
             and self.plugin.first_all_export_line_numbers is not None
-            and node.lineno == self.plugin.first_all_export_line_numbers[0]
+            and node.lineno == self.plugin.first_all_export_line_numbers[0]  # noqa: COM812
         )
         if FIRST_ALL_EXPORT_FOUND:
             self._check_for_non_alphabetical_all_export_values(node.value)  # type: ignore[arg-type]

@@ -11,7 +11,9 @@ from tokenize import TokenInfo
 from typing import Final, override
 
 from flake8_carrot import utils
-from flake8_carrot.utils import CarrotRule, PYCORD_OPTION_DECORATOR_NAMES, PYCORD_TASK_DECORATOR_NAMES
+from flake8_carrot.utils import (
+    CarrotRule,
+)
 
 
 class RuleCAR301(CarrotRule, ast.NodeVisitor):
@@ -51,7 +53,7 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
         )
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
     @override
@@ -64,14 +66,14 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
                 isinstance(node.func, ast.Attribute)
                 and isinstance(node.func.value, ast.Name)
                 and node.func.value.id in self.plugin.found_slash_command_group_names
-                and node.func.attr in utils.PYCORD_COMMAND_DECORATOR_NAMES | utils.PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
+                and node.func.attr in utils.PYCORD_COMMAND_DECORATOR_NAMES | utils.PYCORD_OPTION_DECORATOR_NAMES  # noqa: E501, COM812
             )  # noqa: COM812
         )
         if FUNCTION_CALL_IS_PYCORD_FUNCTION:
             positional_argument: ast.expr
             for positional_argument in node.args:
                 # noinspection PyTypeChecker
-                self.problems[(positional_argument.lineno, positional_argument.col_offset)] = {  # noqa: E501
+                self.problems[(positional_argument.lineno, positional_argument.col_offset)] = {
                     "positional_argument": ast.unparse(positional_argument),
                     "function_name": ast.unparse(node.func),
                 }

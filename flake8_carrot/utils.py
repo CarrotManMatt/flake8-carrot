@@ -21,10 +21,12 @@ __all__: Sequence[str] = (
 
 import abc
 import ast
+import enum
 from collections.abc import Generator, Mapping
 from collections.abc import Set as AbstractSet
+from enum import Enum
 from tokenize import TokenInfo
-from typing import Final, TYPE_CHECKING, override, Generic, TypeVar
+from typing import TYPE_CHECKING, Final, Generic, TypeVar, override
 
 from classproperties import classproperty
 
@@ -59,7 +61,7 @@ PYCORD_OPTION_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
         "Option",
         "ThreadOption",
         "OptionChoice",
-    }
+    },
 )
 PYCORD_TASK_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
     {"loop", "Loop", "SleepHandle"},
@@ -117,7 +119,7 @@ class BaseRule(abc.ABC, Generic[T_plugin]):
         super().__init__()
 
     @abc.abstractmethod
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: ARG002, E501
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         """"""
 
     @classmethod
@@ -142,18 +144,32 @@ class TeXBotRule(BaseRule["TeXBotPlugin"], abc.ABC):
         super().__init__(plugin)
 
 
-def function_call_is_pycord_command_decorator(node: ast.Call) -> bool:
-    """"""
-    return bool(
-        bool(
-            isinstance(node.func, ast.Name)
-            and node.func.id in PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
+class _PycordCommandsModuleLookFor(Enum):
+    COMMAND_DECORATORS = enum.auto()
+    OPTION_DECORATORS = enum.auto()
+
+
+def _function_call_is_pycord_function_from_commands_module(node: ast.Call, pycord_commands_module_look_for: _PycordCommandsModuleLookFor) -> bool:  # noqa: E501
+    NAMES: AbstractSet[str] | None = (
+        PYCORD_COMMAND_DECORATOR_NAMES
+        if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.COMMAND_DECORATORS
+        else (
+            PYCORD_OPTION_DECORATOR_NAMES
+            if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.OPTION_DECORATORS  # noqa: E501
+            else None
         )
+    )
+
+    if NAMES is None:
+        raise RuntimeError
+
+    return bool(
+        (isinstance(node.func, ast.Name) and node.func.id in NAMES)
         or bool(
             isinstance(node.func, ast.Attribute)
             and isinstance(node.func.value, ast.Name)
             and node.func.value.id == "discord"
-            and node.func.attr in PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
+            and node.func.attr in NAMES  # noqa: COM812
         )
         or bool(
             isinstance(node.func, ast.Attribute)
@@ -161,7 +177,7 @@ def function_call_is_pycord_command_decorator(node: ast.Call) -> bool:
             and isinstance(node.func.value.value, ast.Name)
             and node.func.value.value.id == "discord"
             and node.func.value.attr == "commands"
-            and node.func.attr in PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
+            and node.func.attr in NAMES  # noqa: COM812
         )
         or bool(
             isinstance(node.func, ast.Attribute)
@@ -171,42 +187,22 @@ def function_call_is_pycord_command_decorator(node: ast.Call) -> bool:
             and node.func.value.value.value.id == "discord"
             and node.func.value.value.attr == "commands"
             and node.func.value.attr in ("core", "options")
-            and node.func.attr in PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
+            and node.func.attr in NAMES  # noqa: COM812
         )  # noqa: COM812
     )
 
+def function_call_is_pycord_command_decorator(node: ast.Call) -> bool:
+    """"""
+    return _function_call_is_pycord_function_from_commands_module(
+        node,
+        _PycordCommandsModuleLookFor.COMMAND_DECORATORS,
+    )
 
 def function_call_is_pycord_option_decorator(node: ast.Call) -> bool:
     """"""
-    return bool(
-        bool(
-            isinstance(node.func, ast.Name)
-            and node.func.id in PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
-        )
-        or bool(
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Name)
-            and node.func.value.id == "discord"
-            and node.func.attr in PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
-        )
-        or bool(
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Attribute)
-            and isinstance(node.func.value.value, ast.Name)
-            and node.func.value.value.id == "discord"
-            and node.func.value.attr == "commands"
-            and node.func.attr in PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
-        )
-        or bool(
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Attribute)
-            and isinstance(node.func.value.value, ast.Attribute)
-            and isinstance(node.func.value.value.value, ast.Name)
-            and node.func.value.value.value.id == "discord"
-            and node.func.value.value.attr == "commands"
-            and node.func.value.attr in ("core", "options")
-            and node.func.attr in PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
-        )  # noqa: COM812
+    return _function_call_is_pycord_function_from_commands_module(
+        node,
+        _PycordCommandsModuleLookFor.OPTION_DECORATORS,
     )
 
 def function_call_is_pycord_task_decorator(node: ast.Call) -> bool:

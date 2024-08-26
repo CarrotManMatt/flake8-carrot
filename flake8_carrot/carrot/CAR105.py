@@ -33,7 +33,7 @@ class RuleCAR105(CarrotRule):
         )
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         if not isinstance(tree, ast.Module):
             return
 

@@ -22,8 +22,9 @@ __all__: Sequence[str] = (
 
 
 import ast
+from collections.abc import Set as AbstractSet
 from tokenize import TokenInfo
-from typing import AbstractSet, Final, override
+from typing import Final, override
 
 from classproperties import classproperty
 
@@ -80,7 +81,7 @@ class CarrotPlugin(BasePlugin):
                 self.first_all_export_line_numbers: tuple[int, int] | None = None
 
             @classmethod
-            def _node_is_slash_command_group_assignment(cls, node: ast.Assign | ast.AnnAssign) -> bool:
+            def _node_is_slash_command_group_assignment(cls, node: ast.Assign | ast.AnnAssign) -> bool:  # noqa: E501
                 return bool(
                     bool(
                         isinstance(node.value, ast.Call)
@@ -130,7 +131,7 @@ class CarrotPlugin(BasePlugin):
                 if ALL_EXPORT_FOUND and self.first_all_export_line_numbers is None:
                     self.first_all_export_line_numbers = (
                         node.lineno,
-                        node.end_lineno or node.lineno
+                        node.end_lineno or node.lineno,
                     )
 
                 self.generic_visit(node)
@@ -139,7 +140,7 @@ class CarrotPlugin(BasePlugin):
             def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
                 NODE_IS_SLASH_COMMAND_GROUP_ASSIGNMENT: Final[bool] = bool(
                     isinstance(node.target, ast.Name)
-                    and self._node_is_slash_command_group_assignment(node)
+                    and self._node_is_slash_command_group_assignment(node)  # noqa: COM812
                 )
                 if NODE_IS_SLASH_COMMAND_GROUP_ASSIGNMENT:
                     self.found_slash_command_group_names.add(node.target.id)  # type: ignore[union-attr]
@@ -151,7 +152,7 @@ class CarrotPlugin(BasePlugin):
                 if ALL_EXPORT_FOUND and self.first_all_export_line_numbers is None:
                     self.first_all_export_line_numbers = (
                         node.lineno,
-                        node.end_lineno or node.lineno#
+                        node.end_lineno or node.lineno,
                     )
 
                 self.generic_visit(node)
@@ -171,20 +172,24 @@ class CarrotPlugin(BasePlugin):
 
     @property
     def found_slash_command_group_names(self) -> AbstractSet[str]:
+        """"""
         return self._found_slash_command_group_names
 
     @property
     def first_all_export_line_numbers(self) -> tuple[int, int] | None:
+        """"""
         return self._first_all_export_line_numbers
 
     @property
     def true_start_line_number(self) -> int:
+        """"""
         return self._true_start_line_number
 
     @classmethod
     def _find_true_start_line_number(cls, tree: ast.AST) -> int:
         if not isinstance(tree, ast.Module):
-            raise TypeError("'tree' AST must be a module.")
+            INVALID_TYPE_MESSAGE: Final[str] = "'tree' AST must be a module."
+            raise TypeError(INVALID_TYPE_MESSAGE)
 
         first_node: ast.stmt | None = next(iter(tree.body), None)
         if first_node is None:

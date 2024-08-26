@@ -41,7 +41,11 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
             raise TypeError
 
         invalid_argument_reason: object | None = ctx.get("invalid_argument_reason", None)
-        if invalid_argument_reason is not None and not isinstance(invalid_argument_reason, cls._InvalidArgumentReason):
+        INVALID_ARGUMENT_REASON_IS_INVALID_TYPE: Final[bool] = bool(
+            invalid_argument_reason is not None
+            and not isinstance(invalid_argument_reason, cls._InvalidArgumentReason)  # noqa: COM812
+        )
+        if INVALID_ARGUMENT_REASON_IS_INVALID_TYPE:
             raise TypeError
 
         hyphenated_name: str | None = (
@@ -68,7 +72,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
             } name"
             f"{f" '{incorrect_name}'" if incorrect_name else ""} "
             f"{
-                invalid_argument_reason.value
+                invalid_argument_reason.value  # type: ignore[attr-defined]
                 if invalid_argument_reason is not None
                 else "should be hyphenated and/or lowercased"
             } "
@@ -76,7 +80,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         )
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
     def _check_single_argument(self, argument: ast.expr, function_type: _FunctionType) -> bool:
@@ -86,16 +90,16 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         ARGUMENT_NEEDS_HYPHENATION: Final[bool] = bool(
             "." in argument.value
             or " " in argument.value
-            or "_" in argument.value
+            or "_" in argument.value  # noqa: COM812
         )
         ARGUMENT_NEEDS_LOWERCASING: Final[bool] = bool(
-            re.search(r"[A-Z]", argument.value)
+            re.search(r"[A-Z]", argument.value),
         )
         if not ARGUMENT_NEEDS_HYPHENATION and not ARGUMENT_NEEDS_LOWERCASING:
             return False
 
         # noinspection PyTypeChecker
-        self.problems[(argument.lineno, argument.col_offset + 1)] = {  # noqa: E501
+        self.problems[(argument.lineno, argument.col_offset + 1)] = {
             "function_type": function_type,
             "incorrect_name": argument.value,
             "invalid_argument_reason": (
@@ -111,14 +115,18 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
 
         return True
 
-    def _check_all_arguments(self, decorator_node: ast.Call, function_type: _FunctionType) -> None:
+    def _check_all_arguments(self, decorator_node: ast.Call, function_type: _FunctionType) -> None:  # noqa: E501
         if decorator_node.args:
             positional_argument: ast.expr = decorator_node.args[0]
             self._check_single_argument(positional_argument, function_type)
 
         keyword_argument: ast.keyword
         for keyword_argument in decorator_node.keywords:
-            if keyword_argument.arg == "name" and self._check_single_argument(keyword_argument.value, function_type):
+            NAME_KEYWORD_ARGUMENT_FOUND: bool = bool(
+                keyword_argument.arg == "name"
+                and self._check_single_argument(keyword_argument.value, function_type)  # noqa: COM812
+            )
+            if NAME_KEYWORD_ARGUMENT_FOUND:
                 return
 
     def _check_decorator(self, decorator_node: ast.expr) -> None:

@@ -25,19 +25,23 @@ class RuleCAR107(CarrotRule):
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         SKIP_FILE: Final[bool] = bool(
             self.plugin.first_all_export_line_numbers is None
-            or not lines[self.plugin.first_all_export_line_numbers[1] - 1].endswith("\n")
+            or not lines[self.plugin.first_all_export_line_numbers[1] - 1].endswith("\n")  # noqa: COM812
         )
         if SKIP_FILE:
             return
 
-        remaining_lines: Iterator[str] = iter(lines[self.plugin.first_all_export_line_numbers[1]:])  # type: ignore[index]
+        remaining_lines: Iterator[str] = iter(
+            lines[self.plugin.first_all_export_line_numbers[1]:],  # type: ignore[index]
+        )
 
         first_line_after: str | None = next(remaining_lines, None)
         if first_line_after is None:
             return
 
         if first_line_after.strip("\n"):
-            self.problems.add_without_ctx((self.plugin.first_all_export_line_numbers[1] + 1, 0))  # type: ignore[index]
+            self.problems.add_without_ctx(
+                (self.plugin.first_all_export_line_numbers[1] + 1, 0),  # type: ignore[index]
+            )
             return
 
         second_line_after: str | None = next(remaining_lines, None)
@@ -45,5 +49,7 @@ class RuleCAR107(CarrotRule):
             return
 
         if second_line_after.strip("\n"):
-            self.problems.add_without_ctx((self.plugin.first_all_export_line_numbers[1] + 1, 0))  # type: ignore[index]
+            self.problems.add_without_ctx(
+                (self.plugin.first_all_export_line_numbers[1] + 1, 0),  # type: ignore[index]
+            )
             return

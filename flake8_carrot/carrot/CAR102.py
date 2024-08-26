@@ -22,7 +22,7 @@ class RuleCAR102(CarrotRule, ast.NodeVisitor):
         return "CAR102 Multiple `__all__` exports found in a single module"
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
     @classmethod
@@ -47,7 +47,7 @@ class RuleCAR102(CarrotRule, ast.NodeVisitor):
         IS_FIRST_ALL_EXPORT: Final[bool] = bool(
             all_assignment is not None
             and self.plugin.first_all_export_line_numbers is not None
-            and all_assignment.lineno != self.plugin.first_all_export_line_numbers[0]
+            and all_assignment.lineno != self.plugin.first_all_export_line_numbers[0]  # noqa: COM812
         )
         if IS_FIRST_ALL_EXPORT:
             self.problems.add_without_ctx(

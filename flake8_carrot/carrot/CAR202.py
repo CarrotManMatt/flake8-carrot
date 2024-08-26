@@ -10,8 +10,6 @@ from collections.abc import Mapping
 from tokenize import TokenInfo
 from typing import Final, override
 
-import astpretty
-
 from flake8_carrot.utils import CarrotRule
 
 
@@ -27,7 +25,7 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
         )
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
     @override
@@ -113,7 +111,6 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
     def _logger_in_assignment_target(cls, target: ast.expr | str) -> bool:
         match target:
             case str():
-                print(1)
                 return "logger" in target.lower()
 
             case ast.Name():
@@ -144,4 +141,8 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
                 raise NotImplementedError  # TODO
 
             case _:
-                raise TypeError(f"Not able to identify the word `logger` within ast node 'ast.{type(target).__name__}'.")
+                UNABLE_TO_IDENTIFY_LOGGER_MESSAGE: Final[str] = (
+                    "Not able to identify the word `logger` "
+                    f"within ast node 'ast.{type(target).__name__}'."
+                )
+                raise TypeError(UNABLE_TO_IDENTIFY_LOGGER_MESSAGE)

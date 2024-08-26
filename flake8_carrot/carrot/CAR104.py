@@ -22,7 +22,7 @@ class RuleCAR104(CarrotRule, ast.NodeVisitor):
         return "CAR104 Simple `__all__` export should be of type `tuple`, not `list`"
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:
+    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
     @override
@@ -34,7 +34,7 @@ class RuleCAR104(CarrotRule, ast.NodeVisitor):
             )
             and isinstance(node.value, ast.List)
             and self.plugin.first_all_export_line_numbers is not None
-            and node.lineno == self.plugin.first_all_export_line_numbers[0]
+            and node.lineno == self.plugin.first_all_export_line_numbers[0]  # noqa: COM812
         )
         if INCORRECT_ALL_EXPORT_FOUND:
             self.problems.add_without_ctx((node.value.lineno, node.value.col_offset))
