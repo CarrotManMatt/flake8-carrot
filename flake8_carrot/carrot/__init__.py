@@ -27,7 +27,7 @@ from typing import AbstractSet, Final, override
 
 from classproperties import classproperty
 
-from flake8_carrot.utils import BasePlugin, BaseRule
+from flake8_carrot.utils import BasePlugin, CarrotRule
 
 from .CAR101 import RuleCAR101
 from .CAR102 import RuleCAR102
@@ -56,7 +56,7 @@ class CarrotPlugin(BasePlugin):
     # noinspection PyMethodParameters,PyPep8Naming
     @classproperty
     @override
-    def RULES(cls) -> frozenset[type[BaseRule["CarrotPlugin"]]]:  # noqa: N805
+    def RULES(cls) -> frozenset[type[CarrotRule]]:  # type: ignore[override] # noqa: N805
         return frozenset(
             {
                 RuleCAR101,

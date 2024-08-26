@@ -27,10 +27,11 @@ class RuleCAR102(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     def _get_all_assignment(cls, targets: Iterable[ast.expr]) -> ast.Name | None:
-        target: ast.Name | ast.Tuple
+        target: ast.expr
         for target in targets:
             match target:
                 case ast.Name(id="__all__"):
+                    # noinspection PyTypeChecker
                     return target
                 case ast.Tuple():
                     return cls._get_all_assignment(target.elts)

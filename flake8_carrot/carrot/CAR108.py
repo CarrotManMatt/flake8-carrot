@@ -48,7 +48,7 @@ class RuleCAR108(CarrotRule, ast.NodeVisitor):
         )
 
         index: int
-        value: ast.Constant
+        value: ast.expr
         for index, value in enumerate(values.elts):
             if not isinstance(value, ast.Constant):
                 continue
@@ -73,7 +73,7 @@ class RuleCAR108(CarrotRule, ast.NodeVisitor):
             and node.lineno == self.plugin.first_all_export_line_numbers[0]
         )
         if FIRST_ALL_EXPORT_FOUND:
-            self._check_for_non_alphabetical_all_export_values(node.value)
+            self._check_for_non_alphabetical_all_export_values(node.value)  # type: ignore[arg-type]
 
         self.generic_visit(node)
 
@@ -87,6 +87,6 @@ class RuleCAR108(CarrotRule, ast.NodeVisitor):
             and node.lineno == self.plugin.first_all_export_line_numbers[0]  # noqa: COM812
         )
         if FIRST_ALL_EXPORT_FOUND:
-            self._check_for_non_alphabetical_all_export_values(node.value)
+            self._check_for_non_alphabetical_all_export_values(node.value)  # type: ignore[arg-type]
 
         self.generic_visit(node)

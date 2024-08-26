@@ -25,7 +25,7 @@ import importlib.metadata
 from collections.abc import Generator, Mapping
 from collections.abc import Set as AbstractSet
 from tokenize import TokenInfo
-from typing import Final, TYPE_CHECKING, override, Generic, TypeVar
+from typing import Final, TYPE_CHECKING, override, Generic, TypeVar, Any
 
 from classproperties import classproperty
 
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from flake8_carrot.carrot import CarrotPlugin
     from flake8_carrot.tex_bot import TeXBotPlugin
 
-T_plugin = TypeVar("T_plugin", bound="BasePlugin")
+T_plugin = TypeVar("T_plugin", bound="BasePlugin", covariant=True)
 
 
 PYCORD_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
@@ -88,7 +88,7 @@ class BasePlugin(abc.ABC):
     # noinspection PyMethodParameters,PyPep8Naming
     @classproperty
     @abc.abstractmethod
-    def RULES(cls) -> frozenset[type["BaseRule"]]:  # noqa: N802,N805
+    def RULES(cls) -> frozenset[type["BaseRule[Any]"]]:  # type: ignore[misc]  # noqa: N802,N805
         """"""
 
     def __init__(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
