@@ -33,7 +33,7 @@ TXB = "flake8_carrot:TeXBotPlugin"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-setuptools = "^72.2"
+setuptools = "^73.0"
 flake8 = "^7.1"
 classproperties = {git = "https://github.com/hottwaj/classproperties.git"}
 
@@ -52,7 +52,7 @@ filterwarnings = ["ignore:'audioop':DeprecationWarning"]
 
 
 [tool.mypy]
-exclude = ["venv/"]
+exclude = ["venv/", "examples/"]
 extra_checks = true
 warn_unused_configs = true
 disallow_untyped_calls = true

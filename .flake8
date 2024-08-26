@@ -1,3 +1,4 @@
 [flake8]
 select = CAR,TXB
 extend_exclude = migrations
+require_plugins = flake8-carrot

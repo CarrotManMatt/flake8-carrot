@@ -6,26 +6,25 @@ __all__: Sequence[str] = (
     "BasePlugin",
     "BaseRule",
     "CarrotRule",
-    "TeXBotRule",
-    "ProblemsContainer",
     "PYCORD_COMMAND_DECORATOR_NAMES",
+    "PYCORD_EVENT_LISTENER_DECORATOR_NAMES",
     "PYCORD_OPTION_DECORATOR_NAMES",
     "PYCORD_TASK_DECORATOR_NAMES",
-    "PYCORD_EVENT_LISTENER_DECORATOR_NAMES",
+    "ProblemsContainer",
+    "TeXBotRule",
     "function_call_is_pycord_command_decorator",
+    "function_call_is_pycord_event_listener_decorator",
     "function_call_is_pycord_option_decorator",
     "function_call_is_pycord_task_decorator",
-    "function_call_is_pycord_event_listener_decorator",
 )
 
 
 import abc
 import ast
-import importlib.metadata
 from collections.abc import Generator, Mapping
 from collections.abc import Set as AbstractSet
 from tokenize import TokenInfo
-from typing import Final, TYPE_CHECKING, override, Generic, TypeVar, Any
+from typing import Final, TYPE_CHECKING, override, Generic, TypeVar
 
 from classproperties import classproperty
 
@@ -37,7 +36,7 @@ if TYPE_CHECKING:
     from flake8_carrot.carrot import CarrotPlugin
     from flake8_carrot.tex_bot import TeXBotPlugin
 
-T_plugin = TypeVar("T_plugin", bound="BasePlugin", covariant=True)
+T_plugin = TypeVar("T_plugin", bound="BasePlugin")
 
 
 PYCORD_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
@@ -73,22 +72,10 @@ PYCORD_EVENT_LISTENER_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
 class BasePlugin(abc.ABC):
     """"""
 
-    version = importlib.metadata.version(__name__.split(".")[0])
-
     # noinspection PyMethodParameters,PyPep8Naming
     @classproperty
     @abc.abstractmethod
-    def name(cls) -> str:  # noqa: N805
-        """The name of this flake8 plugin."""  # noqa: D401
-
-    @classmethod
-    def _name(cls, name: str) -> str:
-        return f"flake8_{name.split(".")[-1]}"
-
-    # noinspection PyMethodParameters,PyPep8Naming
-    @classproperty
-    @abc.abstractmethod
-    def RULES(cls) -> frozenset[type["BaseRule[Any]"]]:  # type: ignore[misc]  # noqa: N802,N805
+    def RULES(cls) -> frozenset[type["BaseRule[BasePlugin]"]]:  # noqa: N802,N805
         """"""
 
     def __init__(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
