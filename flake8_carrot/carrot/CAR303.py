@@ -20,7 +20,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
     """"""
 
     class _FunctionType(Enum):
-        COMMAND = "command"
+        COMMAND = "slash-command"
         OPTION = "option"
 
     class _InvalidArgumentReason(Enum):
@@ -68,7 +68,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
             f"Pycord {
                 function_type.value
                 if function_type is not None
-                else "command/option"
+                else "slash-command/option"
             } name"
             f"{f" '{incorrect_name}'" if incorrect_name else ""} "
             f"{
