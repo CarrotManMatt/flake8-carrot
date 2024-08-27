@@ -6,11 +6,15 @@ __all__: Sequence[str] = ("TestRuleCAR001",)
 
 
 from collections.abc import Set as AbstractSet
+from typing import TYPE_CHECKING
 
 import pytest
 
 from flake8_carrot import CarrotPlugin
 from tests._testing_utils import apply_plugin_to_ast
+
+if TYPE_CHECKING:
+    from flake8_carrot.utils import CarrotRule
 
 
 def _apply_carrot_plugin_to_ast(raw_testing_ast: str) -> AbstractSet[str]:
@@ -27,6 +31,12 @@ class TestRuleCAR001:
             f"{line_number}:{column_number} CAR101 "
             "Missing `__all__` export at the top of the module"
         )
+
+    def test_message_never_ends_with_full_stop_without_ctx(self) -> None:
+        """"""
+        RuleClass: type[CarrotRule]
+        for RuleClass in CarrotPlugin.RULES:
+            assert not RuleClass.format_error_message(ctx={}).endswith(".")
 
     # noinspection PyPep8Naming
     @pytest.mark.parametrize(
