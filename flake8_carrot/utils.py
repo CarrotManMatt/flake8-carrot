@@ -6,13 +6,17 @@ __all__: Sequence[str] = (
     "BasePlugin",
     "BaseRule",
     "CarrotRule",
-    "PYCORD_COMMAND_DECORATOR_NAMES",
+    "ALL_PYCORD_FUNCTION_NAMES",
+    "PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES",
     "PYCORD_EVENT_LISTENER_DECORATOR_NAMES",
     "PYCORD_OPTION_DECORATOR_NAMES",
+    "PYCORD_SLASH_COMMAND_DECORATOR_NAMES",
     "PYCORD_TASK_DECORATOR_NAMES",
     "ProblemsContainer",
     "TeXBotRule",
-    "function_call_is_pycord_command_decorator",
+    "function_call_is_any_pycord_decorator",
+    "function_call_is_pycord_slash_command_decorator",
+    "function_call_is_pycord_context_command_decorator",
     "function_call_is_pycord_event_listener_decorator",
     "function_call_is_pycord_option_decorator",
     "function_call_is_pycord_task_decorator",
@@ -41,19 +45,23 @@ if TYPE_CHECKING:
 T_plugin = TypeVar("T_plugin", bound="BasePlugin")
 
 
-PYCORD_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
+PYCORD_SLASH_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
     {
         "application_command",
         "command",
         "slash_command",
-        "user_command",
-        "message_command",
         "ApplicationCommand",
         "SlashCommand",
         "SlashCommandGroup",
+    },
+)
+PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
+    {
+        "user_command",
+        "message_command",
         "UserCommand",
         "MessageCommand",
-    },
+    }
 )
 PYCORD_OPTION_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
     {
@@ -68,6 +76,13 @@ PYCORD_TASK_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
 )
 PYCORD_EVENT_LISTENER_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
     {"listen", "listener"},
+)
+ALL_PYCORD_FUNCTION_NAMES: Final[AbstractSet[str]] = (
+    PYCORD_SLASH_COMMAND_DECORATOR_NAMES
+    | PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
+    | PYCORD_OPTION_DECORATOR_NAMES
+    | PYCORD_TASK_DECORATOR_NAMES
+    | PYCORD_EVENT_LISTENER_DECORATOR_NAMES
 )
 
 
@@ -145,18 +160,23 @@ class TeXBotRule(BaseRule["TeXBotPlugin"], abc.ABC):
 
 
 class _PycordCommandsModuleLookFor(Enum):
-    COMMAND_DECORATORS = enum.auto()
+    SLASH_COMMAND_DECORATORS = enum.auto()
+    CONTEXT_COMMAND_DECORATORS = enum.auto()
     OPTION_DECORATORS = enum.auto()
 
 
 def _function_call_is_pycord_function_from_commands_module(node: ast.Call, pycord_commands_module_look_for: _PycordCommandsModuleLookFor) -> bool:  # noqa: E501
     NAMES: AbstractSet[str] | None = (
-        PYCORD_COMMAND_DECORATOR_NAMES
-        if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.COMMAND_DECORATORS
+        PYCORD_SLASH_COMMAND_DECORATOR_NAMES
+        if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.SLASH_COMMAND_DECORATORS
         else (
-            PYCORD_OPTION_DECORATOR_NAMES
-            if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.OPTION_DECORATORS  # noqa: E501
-            else None
+            PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
+            if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.CONTEXT_COMMAND_DECORATORS  # noqa: E501
+            else (
+                PYCORD_OPTION_DECORATOR_NAMES
+                if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.OPTION_DECORATORS
+                else None
+            )
         )
     )
 
@@ -191,11 +211,18 @@ def _function_call_is_pycord_function_from_commands_module(node: ast.Call, pycor
         )  # noqa: COM812
     )
 
-def function_call_is_pycord_command_decorator(node: ast.Call) -> bool:
+def function_call_is_pycord_slash_command_decorator(node: ast.Call) -> bool:
     """"""
     return _function_call_is_pycord_function_from_commands_module(
         node,
-        _PycordCommandsModuleLookFor.COMMAND_DECORATORS,
+        _PycordCommandsModuleLookFor.SLASH_COMMAND_DECORATORS,
+    )
+
+def function_call_is_pycord_context_command_decorator(node: ast.Call) -> bool:
+    """"""
+    return _function_call_is_pycord_function_from_commands_module(
+        node,
+        _PycordCommandsModuleLookFor.CONTEXT_COMMAND_DECORATORS,
     )
 
 def function_call_is_pycord_option_decorator(node: ast.Call) -> bool:
@@ -283,4 +310,13 @@ def function_call_is_pycord_event_listener_decorator(node: ast.Call) -> bool:
             and node.func.value.attr == "commands"
             and node.func.attr in PYCORD_EVENT_LISTENER_DECORATOR_NAMES  # noqa: COM812
         )  # noqa: COM812
+    )
+
+def function_call_is_any_pycord_decorator(node: ast.Call) -> bool:
+    return bool(
+        function_call_is_pycord_slash_command_decorator(node)
+        or function_call_is_pycord_context_command_decorator(node)
+        or function_call_is_pycord_option_decorator(node)
+        or function_call_is_pycord_task_decorator(node)
+        or function_call_is_pycord_event_listener_decorator(node)
     )

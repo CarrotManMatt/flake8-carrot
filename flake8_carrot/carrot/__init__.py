@@ -5,6 +5,7 @@ from collections.abc import Sequence
 
 __all__: Sequence[str] = (
     "CarrotPlugin",
+    "CarrotRule",
     "RuleCAR101",
     "RuleCAR102",
     "RuleCAR103",
@@ -19,6 +20,7 @@ __all__: Sequence[str] = (
     "RuleCAR302",
     "RuleCAR303",
     "RuleCAR304",
+    "RuleCAR305",
 )
 
 
@@ -45,6 +47,7 @@ from .CAR301 import RuleCAR301
 from .CAR302 import RuleCAR302
 from .CAR303 import RuleCAR303
 from .CAR304 import RuleCAR304
+from .CAR305 import RuleCAR305
 
 
 class CarrotPlugin(BasePlugin):
@@ -70,6 +73,7 @@ class CarrotPlugin(BasePlugin):
                 RuleCAR302,
                 RuleCAR303,
                 RuleCAR304,
+                RuleCAR305,
             },
         )
 

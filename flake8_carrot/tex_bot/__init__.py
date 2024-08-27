@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-__all__: Sequence[str] = ("TeXBotPlugin",)
+__all__: Sequence[str] = ("TeXBotPlugin", "TeXBotRule")
 
 
 from typing import override

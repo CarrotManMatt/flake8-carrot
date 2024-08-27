@@ -59,14 +59,12 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
     @override
     def visit_Call(self, node: ast.Call) -> None:
         FUNCTION_CALL_IS_PYCORD_FUNCTION: Final[bool] = bool(
-            utils.function_call_is_pycord_command_decorator(node)
-            or utils.function_call_is_pycord_task_decorator(node)
-            or utils.function_call_is_pycord_event_listener_decorator(node)
+            utils.function_call_is_any_pycord_decorator(node)
             or bool(
                 isinstance(node.func, ast.Attribute)
                 and isinstance(node.func.value, ast.Name)
                 and node.func.value.id in self.plugin.found_slash_command_group_names
-                and node.func.attr in utils.PYCORD_COMMAND_DECORATOR_NAMES | utils.PYCORD_OPTION_DECORATOR_NAMES  # noqa: E501, COM812
+                and node.func.attr in utils.ALL_PYCORD_FUNCTION_NAMES  # noqa: COM812
             )  # noqa: COM812
         )
         if FUNCTION_CALL_IS_PYCORD_FUNCTION:

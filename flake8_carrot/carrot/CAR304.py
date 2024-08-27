@@ -46,9 +46,64 @@ class RuleCAR304(CarrotRule, ast.NodeVisitor):
         if not isinstance(argument, ast.Constant):
             return
 
-        if not argument.value.endswith("."):
+        INVALID_ARGUMENT_ENDING: Final[bool] = bool(
+            not argument.value.endswith(".")
+            and not bool(
+                argument.value.endswith("!")
+                or argument.value.endswith("?")
+                or argument.value.endswith(";")
+                or argument.value.endswith("%")
+                or bool(
+                    argument.value.endswith("]")
+                    and "[" in argument.value
+                )
+                or bool(
+                    argument.value.endswith(")")
+                    and "(" in argument.value
+                )
+                or bool(
+                    argument.value.endswith("}")
+                    and "{" in argument.value
+                )
+                or bool(
+                    argument.value.endswith(">")
+                    and "<" in argument.value
+                )
+                or bool(
+                    argument.value.endswith("\"")
+                    and argument.value.count("\"") > 1
+                    and argument.value.count("\"") % 2 == 0
+                )
+                or bool(
+                    argument.value.endswith("'")
+                    and argument.value.count("'") > 1
+                    and argument.value.count("'") % 2 == 0
+                )
+                or bool(
+                    argument.value.endswith("`")
+                    and argument.value.count("`") > 1
+                    and argument.value.count("`") % 2 == 0
+                )
+                or bool(
+                    argument.value.endswith("*")
+                    and argument.value.count("*") > 1
+                    and argument.value.count("*") % 2 == 0
+                )
+                or bool(
+                    argument.value.endswith("_")
+                    and argument.value.count("_") > 1
+                    and argument.value.count("_") % 2 == 0
+                )
+                or bool(
+                    argument.value.endswith("~")
+                    and argument.value.count("~") > 1
+                    and argument.value.count("~") % 2 == 0
+                )
+            )
+        )
+        if INVALID_ARGUMENT_ENDING:
             # noinspection PyTypeChecker
-            self.problems[(argument.lineno, argument.col_offset + 1)] = {
+            self.problems[(argument.lineno, (argument.end_col_offset - 1) if argument.end_col_offset else argument.col_offset)] = {
                 "function_type": function_type,
             }
 
@@ -69,12 +124,16 @@ class RuleCAR304(CarrotRule, ast.NodeVisitor):
             return
 
         FUNCTION_CALL_IS_PYCORD_COMMAND_FUNCTION: Final[bool] = bool(
-            utils.function_call_is_pycord_command_decorator(decorator_node)
+            utils.function_call_is_pycord_slash_command_decorator(decorator_node)
+            or utils.function_call_is_pycord_context_command_decorator(decorator_node)
             or bool(
                 isinstance(decorator_node.func, ast.Attribute)
                 and isinstance(decorator_node.func.value, ast.Name)
                 and decorator_node.func.value.id in self.plugin.found_slash_command_group_names
-                and decorator_node.func.attr in utils.PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
+                and decorator_node.func.attr in (
+                    utils.PYCORD_SLASH_COMMAND_DECORATOR_NAMES
+                    | utils.PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
+                )  # noqa: COM812
             )  # noqa: COM812
         )
         if FUNCTION_CALL_IS_PYCORD_COMMAND_FUNCTION:

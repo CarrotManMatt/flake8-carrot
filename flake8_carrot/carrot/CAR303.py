@@ -133,16 +133,16 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         if not isinstance(decorator_node, ast.Call):
             return
 
-        FUNCTION_CALL_IS_PYCORD_COMMAND_FUNCTION: Final[bool] = bool(
-            utils.function_call_is_pycord_command_decorator(decorator_node)
+        FUNCTION_CALL_IS_PYCORD_SLASH_COMMAND_FUNCTION: Final[bool] = bool(
+            utils.function_call_is_pycord_slash_command_decorator(decorator_node)
             or bool(
                 isinstance(decorator_node.func, ast.Attribute)
                 and isinstance(decorator_node.func.value, ast.Name)
                 and decorator_node.func.value.id in self.plugin.found_slash_command_group_names
-                and decorator_node.func.attr in utils.PYCORD_COMMAND_DECORATOR_NAMES  # noqa: COM812
+                and decorator_node.func.attr in utils.PYCORD_SLASH_COMMAND_DECORATOR_NAMES  # noqa: COM812
             )  # noqa: COM812
         )
-        if FUNCTION_CALL_IS_PYCORD_COMMAND_FUNCTION:
+        if FUNCTION_CALL_IS_PYCORD_SLASH_COMMAND_FUNCTION:
             self._check_all_arguments(decorator_node, self._FunctionType.COMMAND)
 
         FUNCTION_CALL_IS_PYCORD_OPTION_FUNCTION: Final[bool] = bool(

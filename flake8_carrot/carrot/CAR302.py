@@ -74,7 +74,8 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
                 return False
 
             DECORATOR_IS_COMMAND: bool = bool(
-                utils.function_call_is_pycord_command_decorator(decorator_node)
+                utils.function_call_is_pycord_slash_command_decorator(decorator_node)
+                or utils.function_call_is_pycord_context_command_decorator(decorator_node)
                 or bool(
                     isinstance(decorator_node.func, ast.Attribute)
                     and isinstance(decorator_node.func.value, ast.Name)
