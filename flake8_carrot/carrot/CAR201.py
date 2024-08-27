@@ -97,6 +97,18 @@ class RuleCAR201(CarrotRule, ast.NodeVisitor):
                     and isinstance(node.annotation.slice, ast.Name)
                     and node.annotation.value.id == "Final"
                     and node.annotation.slice.id == "Logger"  # noqa: COM812
+                )
+                and not bool(
+                    isinstance(node.annotation, ast.Constant)
+                    and node.annotation.value == "Final[Logger]"  # noqa: COM812
+                )  # noqa: COM812
+            )
+            or bool(
+                isinstance(node.annotation, ast.Constant)
+                and node.annotation.value in (
+                    "Logger",
+                    "logging.Logger",
+                    "Final[logging.Logger]",
                 )  # noqa: COM812
             )
             or bool(

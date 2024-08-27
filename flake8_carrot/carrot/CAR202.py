@@ -76,6 +76,15 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
                 )  # noqa: COM812
             )
             or bool(
+                isinstance(node.annotation, ast.Constant)
+                and node.annotation.value in (
+                    "Logger",
+                    "logging.Logger",
+                    "Final[Logger]",
+                    "Final[logging.Logger]",
+                )  # noqa: COM812
+            )
+            or bool(
                 isinstance(node.annotation, ast.Name)
                 and node.annotation.id == "Logger"  # noqa: COM812
             )
@@ -102,7 +111,8 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
                 and node.annotation.slice.attr == "Logger"  # noqa: COM812
             )  # noqa: COM812
         )
-        if LOGGER_ASSIGNMENT_FOUND and self._logger_in_assignment_target(node.target):
+        # noinspection PyTypeChecker
+        if LOGGER_ASSIGNMENT_FOUND and not self._logger_in_assignment_target(node.target):
             self.problems.add_without_ctx((node.target.lineno, node.target.col_offset))
 
         self.generic_visit(node)
@@ -114,14 +124,12 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
                 return "logger" in target.lower()
 
             case ast.Name():
-                # noinspection PyUnresolvedReferences
                 return cls._logger_in_assignment_target(target.id)
 
             case ast.Constant():
                 return cls._logger_in_assignment_target(target.value)
 
             case ast.Attribute():
-                # noinspection PyUnresolvedReferences
                 ATTRIBUTE_CONTAINS_LOGGER: Final[bool] = cls._logger_in_assignment_target(
                     target.attr,
                 )
@@ -137,12 +145,7 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
                 if SUBSCRIPT_CONTAINS_LOGGER:
                     return SUBSCRIPT_CONTAINS_LOGGER
 
-                # noinspection PyUnresolvedReferences
-                if isinstance(target.slice, ast.expr):
-                    # noinspection PyUnresolvedReferences
-                    return cls._logger_in_assignment_target(target.slice)
-
-                raise NotImplementedError  # TODO
+                return cls._logger_in_assignment_target(target.slice)
 
             case _:
                 UNABLE_TO_IDENTIFY_LOGGER_MESSAGE: Final[str] = (

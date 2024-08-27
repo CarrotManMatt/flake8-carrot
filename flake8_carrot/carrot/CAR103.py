@@ -63,6 +63,10 @@ class RuleCAR103(CarrotRule, ast.NodeVisitor):
                 and isinstance(node.annotation.slice, ast.Name)
                 and node.annotation.value.id == "Sequence"
                 and node.annotation.slice.id == "str"  # noqa: COM812
+            )
+            and not bool(
+                isinstance(node.annotation, ast.Constant)
+                and node.annotation.value == "Sequence[str]"  # noqa: COM812
             )  # noqa: COM812
         )
         if INCORRECTLY_ANNOTATED_ALL_EXPORT_FOUND:

@@ -100,6 +100,10 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
                 or bool(
                     isinstance(node.args.args[1].annotation, ast.Name)
                     and "context" in node.args.args[1].annotation.id.lower()  # noqa: COM812
+                )
+                or bool(
+                    isinstance(node.args.args[1].annotation, ast.Constant)
+                    and "context" in node.args.args[1].annotation.value.lower()  # noqa: COM812
                 )  # noqa: COM812
             )  # noqa: COM812
         )
