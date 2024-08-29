@@ -10,8 +10,6 @@ from collections.abc import Mapping
 from tokenize import TokenInfo
 from typing import Final, override
 
-import astpretty
-
 from flake8_carrot.utils import CarrotRule
 
 
@@ -36,7 +34,11 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
         self.visit(tree)
 
     def _check_function(self, node: ast.AsyncFunctionDef) -> None:
-        ALL_ARGS: Sequence[ast.arg] = node.args.posonlyargs + node.args.args + node.args.kwonlyargs
+        ALL_ARGS: Sequence[ast.arg] = (
+            node.args.posonlyargs
+            + node.args.args
+            + node.args.kwonlyargs
+        )
 
         FUNCTION_HAS_INCORRECT_STRUCTURE: Final[bool] = bool(
             len(ALL_ARGS) == 0
@@ -45,7 +47,7 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
             or any(
                 isinstance(decorator, ast.Name) and decorator.id == "classmethod"
                 for decorator in node.decorator_list
-            )
+            )  # noqa: COM812
         )
         # noinspection PyUnresolvedReferences
         FUNCTION_IS_AUTOCOMPLETE_GETTER: Final[bool] = bool(
@@ -74,7 +76,7 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
         FUNCTION_HAS_CORRECT_RETURN_ANNOTATION: Final[bool] = bool(
             bool(
                 isinstance(node.returns, ast.Constant)
-                and node.returns.value == "Set[discord.OptionChoice] | Set[str]"
+                and node.returns.value == "Set[discord.OptionChoice] | Set[str]"  # noqa: COM812
             )
             or bool(
                 isinstance(node.returns, ast.BinOp)
@@ -90,8 +92,8 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
                 and node.returns.left.slice.value.id == "discord"
                 and node.returns.left.slice.attr == "OptionChoice"
                 and node.returns.right.value.id == "Set"
-                and node.returns.right.slice.id == "str"
-            )
+                and node.returns.right.slice.id == "str"  # noqa: COM812
+            )  # noqa: COM812
         )
         if not FUNCTION_HAS_CORRECT_RETURN_ANNOTATION:
             self.problems[(node.returns.lineno, node.returns.col_offset)] = {  # type: ignore[union-attr]

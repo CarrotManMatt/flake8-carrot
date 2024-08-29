@@ -61,7 +61,7 @@ PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
         "message_command",
         "UserCommand",
         "MessageCommand",
-    }
+    },
 )
 PYCORD_OPTION_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
     {
@@ -168,13 +168,13 @@ class _PycordCommandsModuleLookFor(Enum):
 def _function_call_is_pycord_function_from_commands_module(node: ast.Call, pycord_commands_module_look_for: _PycordCommandsModuleLookFor) -> bool:  # noqa: E501
     NAMES: AbstractSet[str] | None = (
         PYCORD_SLASH_COMMAND_DECORATOR_NAMES
-        if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.SLASH_COMMAND_DECORATORS
+        if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.SLASH_COMMAND_DECORATORS  # noqa: E501
         else (
             PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
             if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.CONTEXT_COMMAND_DECORATORS  # noqa: E501
             else (
                 PYCORD_OPTION_DECORATOR_NAMES
-                if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.OPTION_DECORATORS
+                if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.OPTION_DECORATORS  # noqa: E501
                 else None
             )
         )
@@ -313,10 +313,11 @@ def function_call_is_pycord_event_listener_decorator(node: ast.Call) -> bool:
     )
 
 def function_call_is_any_pycord_decorator(node: ast.Call) -> bool:
+    """"""
     return bool(
         function_call_is_pycord_slash_command_decorator(node)
         or function_call_is_pycord_context_command_decorator(node)
         or function_call_is_pycord_option_decorator(node)
         or function_call_is_pycord_task_decorator(node)
-        or function_call_is_pycord_event_listener_decorator(node)
+        or function_call_is_pycord_event_listener_decorator(node)  # noqa: COM812
     )

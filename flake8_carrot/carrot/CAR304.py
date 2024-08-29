@@ -55,55 +55,55 @@ class RuleCAR304(CarrotRule, ast.NodeVisitor):
                 or argument.value.endswith("%")
                 or bool(
                     argument.value.endswith("]")
-                    and "[" in argument.value
+                    and "[" in argument.value  # noqa: COM812
                 )
                 or bool(
                     argument.value.endswith(")")
-                    and "(" in argument.value
+                    and "(" in argument.value  # noqa: COM812
                 )
                 or bool(
                     argument.value.endswith("}")
-                    and "{" in argument.value
+                    and "{" in argument.value  # noqa: COM812
                 )
                 or bool(
                     argument.value.endswith(">")
-                    and "<" in argument.value
+                    and "<" in argument.value  # noqa: COM812
                 )
                 or bool(
                     argument.value.endswith("\"")
                     and argument.value.count("\"") > 1
-                    and argument.value.count("\"") % 2 == 0
+                    and argument.value.count("\"") % 2 == 0  # noqa: COM812
                 )
                 or bool(
                     argument.value.endswith("'")
                     and argument.value.count("'") > 1
-                    and argument.value.count("'") % 2 == 0
+                    and argument.value.count("'") % 2 == 0  # noqa: COM812
                 )
                 or bool(
                     argument.value.endswith("`")
                     and argument.value.count("`") > 1
-                    and argument.value.count("`") % 2 == 0
+                    and argument.value.count("`") % 2 == 0  # noqa: COM812
                 )
                 or bool(
                     argument.value.endswith("*")
                     and argument.value.count("*") > 1
-                    and argument.value.count("*") % 2 == 0
+                    and argument.value.count("*") % 2 == 0  # noqa: COM812
                 )
                 or bool(
                     argument.value.endswith("_")
                     and argument.value.count("_") > 1
-                    and argument.value.count("_") % 2 == 0
+                    and argument.value.count("_") % 2 == 0  # noqa: COM812
                 )
                 or bool(
                     argument.value.endswith("~")
                     and argument.value.count("~") > 1
-                    and argument.value.count("~") % 2 == 0
-                )
-            )
+                    and argument.value.count("~") % 2 == 0  # noqa: COM812
+                )  # noqa: COM812
+            )  # noqa: COM812
         )
         if INVALID_ARGUMENT_ENDING:
             # noinspection PyTypeChecker
-            self.problems[(argument.lineno, (argument.end_col_offset - 1) if argument.end_col_offset else argument.col_offset)] = {
+            self.problems[(argument.lineno, (argument.end_col_offset - 1) if argument.end_col_offset else argument.col_offset)] = {  # noqa: E501
                 "function_type": function_type,
             }
 
