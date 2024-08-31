@@ -198,29 +198,29 @@ class RuleCAR120(CarrotRule):
 
     @classmethod
     def _get_all_error_locations(cls, line: str) -> Mapping[int, str]:
+        type_ignore_first_error_locations: dict[int, str] = cls._get_type_ignore_first_error_locations(line)
+        if type_ignore_first_error_locations:
+            return type_ignore_first_error_locations
+
+        noqa_first_error_locations: dict[int, str] = cls._get_noqa_first_error_locations(line)
+        if noqa_first_error_locations:
+            return noqa_first_error_locations
+
         single_type_ignore_match: re.Match[str] | None = re.search(
             f"{cls.TYPE_IGNORE_REGEX}\\Z",
             line,
         )
+        if single_type_ignore_match is not None:
+            return cls._get_single_type_ignore_error_locations(single_type_ignore_match)
+
         single_noqa_match: re.Match[str] | None = re.search(
             f"{cls.NOQA_REGEX}\\Z",
             line,
         )
+        if single_noqa_match is not None:
+            return cls._get_single_noqa_error_locations(single_noqa_match)
 
-        return (
-            (
-                cls._get_single_type_ignore_error_locations(single_type_ignore_match)
-                if single_type_ignore_match is not None
-                else {}
-            )
-            | (
-                cls._get_single_noqa_error_locations(single_noqa_match)
-                if single_noqa_match is not None
-                else {}
-            )
-            | cls._get_type_ignore_first_error_locations(line)
-            | cls._get_noqa_first_error_locations(line)
-        )
+        return {}
 
     @override
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
