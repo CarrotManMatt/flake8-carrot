@@ -27,7 +27,6 @@ import abc
 import ast
 import enum
 from collections.abc import Generator, Mapping
-from collections.abc import Set as AbstractSet
 from enum import Enum
 from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Final, Generic, TypeVar, override
@@ -45,7 +44,7 @@ if TYPE_CHECKING:
 T_plugin = TypeVar("T_plugin", bound="BasePlugin")
 
 
-PYCORD_SLASH_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
+PYCORD_SLASH_COMMAND_DECORATOR_NAMES: Final[frozenset[str]] = frozenset(
     {
         "application_command",
         "command",
@@ -55,7 +54,7 @@ PYCORD_SLASH_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
         "SlashCommandGroup",
     },
 )
-PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
+PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES: Final[frozenset[str]] = frozenset(
     {
         "user_command",
         "message_command",
@@ -63,7 +62,7 @@ PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
         "MessageCommand",
     },
 )
-PYCORD_OPTION_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
+PYCORD_OPTION_DECORATOR_NAMES: Final[frozenset[str]] = frozenset(
     {
         "option",
         "Option",
@@ -71,13 +70,13 @@ PYCORD_OPTION_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
         "OptionChoice",
     },
 )
-PYCORD_TASK_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
+PYCORD_TASK_DECORATOR_NAMES: Final[frozenset[str]] = frozenset(
     {"loop", "Loop", "SleepHandle"},
 )
-PYCORD_EVENT_LISTENER_DECORATOR_NAMES: Final[AbstractSet[str]] = frozenset(
+PYCORD_EVENT_LISTENER_DECORATOR_NAMES: Final[frozenset[str]] = frozenset(
     {"listen", "listener"},
 )
-ALL_PYCORD_FUNCTION_NAMES: Final[AbstractSet[str]] = (
+ALL_PYCORD_FUNCTION_NAMES: Final[frozenset[str]] = (
     PYCORD_SLASH_COMMAND_DECORATOR_NAMES
     | PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
     | PYCORD_OPTION_DECORATOR_NAMES
@@ -117,6 +116,12 @@ class BasePlugin(abc.ABC):
 
 class ProblemsContainer(dict[tuple[int, int], Mapping[str, object]]):
     """"""
+
+    def __setitem__(self, key: tuple[int, int], value: Mapping[str, object]) -> None:
+        if key[0] < 0 or key[1] < 1:
+            raise ValueError("Problem locations cannot be negative.")
+
+        super().__setitem__(key, value)
 
     def add_without_ctx(self, problem_location: tuple[int, int]) -> None:
         """"""
@@ -166,7 +171,7 @@ class _PycordCommandsModuleLookFor(Enum):
 
 
 def _function_call_is_pycord_function_from_commands_module(node: ast.Call, pycord_commands_module_look_for: _PycordCommandsModuleLookFor) -> bool:  # noqa: E501
-    NAMES: AbstractSet[str] | None = (
+    NAMES: Final[frozenset[str] | None] = (
         PYCORD_SLASH_COMMAND_DECORATOR_NAMES
         if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.SLASH_COMMAND_DECORATORS  # noqa: E501
         else (

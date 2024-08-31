@@ -26,7 +26,7 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
         return (
             "CAR305 "
             f"Return annotation of autocomplete function '{function_name}' "
-            "should be `Set[discord.OptionChoice] | Set[str]`"
+            "should be `AbstractSet[discord.OptionChoice] | AbstractSet[str]`"
         )
 
     @override
@@ -76,7 +76,7 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
         FUNCTION_HAS_CORRECT_RETURN_ANNOTATION: Final[bool] = bool(
             bool(
                 isinstance(node.returns, ast.Constant)
-                and node.returns.value == "Set[discord.OptionChoice] | Set[str]"  # noqa: COM812
+                and node.returns.value == "AbstractsSet[discord.OptionChoice] | AbstractSet[str]"  # noqa: COM812
             )
             or bool(
                 isinstance(node.returns, ast.BinOp)
