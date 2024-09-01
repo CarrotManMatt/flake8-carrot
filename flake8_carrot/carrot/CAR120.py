@@ -113,7 +113,7 @@ class RuleCAR120(CarrotRule):
         return error_locations
 
     @classmethod
-    def _get_type_ignore_first_error_locations(cls, line: str) -> dict[int, str]:
+    def _get_type_ignore_first_error_locations(cls, line: str) -> Mapping[int, str]:
         match: re.Match[str] | None = re.search(
             f"(?P<type_ignore>{cls.TYPE_IGNORE_REGEX})(?P<noqa>{cls.NOQA_REGEX})\\Z",
             line,
@@ -133,7 +133,7 @@ class RuleCAR120(CarrotRule):
         )
 
     @classmethod
-    def _get_noqa_first_error_locations(cls, line: str) -> dict[int, str]:
+    def _get_noqa_first_error_locations(cls, line: str) -> Mapping[int, str]:
         match: re.Match[str] | None = re.search(
             f"(?P<noqa>{cls.NOQA_REGEX})(?P<type_ignore>{cls.TYPE_IGNORE_REGEX})\\Z",
             line,
@@ -154,19 +154,19 @@ class RuleCAR120(CarrotRule):
 
     @classmethod
     def _get_all_error_locations(cls, line: str) -> Mapping[int, str]:
-        type_ignore_first_error_locations: dict[int, str] = cls._get_type_ignore_first_error_locations(line)
+        type_ignore_first_error_locations: Mapping[int, str] = cls._get_type_ignore_first_error_locations(line)
         if type_ignore_first_error_locations:
             return type_ignore_first_error_locations
 
-        noqa_first_error_locations: dict[int, str] = cls._get_noqa_first_error_locations(line)
+        noqa_first_error_locations: Mapping[int, str] = cls._get_noqa_first_error_locations(line)
         if noqa_first_error_locations:
             return noqa_first_error_locations
 
-        single_type_ignore_error_locations: dict[int, str] = cls._get_single_type_ignore_error_locations(line)
+        single_type_ignore_error_locations: Mapping[int, str] = cls._get_single_type_ignore_error_locations(line)
         if single_type_ignore_error_locations:
             return single_type_ignore_error_locations
 
-        single_noqa_error_locations: dict[int, str] = cls._get_single_noqa_error_locations(line)
+        single_noqa_error_locations: Mapping[int, str] = cls._get_single_noqa_error_locations(line)
         if single_noqa_error_locations:
             return single_noqa_error_locations
 
