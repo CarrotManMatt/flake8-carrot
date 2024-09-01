@@ -62,7 +62,7 @@ class CarrotPlugin(BasePlugin):
     # noinspection PyMethodParameters,PyPep8Naming
     @classproperty
     @override
-    def RULES(cls) -> frozenset[type[CarrotRule]]:  # type: ignore[override] # noqa: N805
+    def RULES(cls) -> frozenset[type[CarrotRule]]:  # type: ignore[override]  # noqa: N805
         return frozenset(
             {
                 RuleCAR101,

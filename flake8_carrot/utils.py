@@ -3,10 +3,10 @@
 from collections.abc import Sequence
 
 __all__: Sequence[str] = (
+    "ALL_PYCORD_FUNCTION_NAMES",
     "BasePlugin",
     "BaseRule",
     "CarrotRule",
-    "ALL_PYCORD_FUNCTION_NAMES",
     "PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES",
     "PYCORD_EVENT_LISTENER_DECORATOR_NAMES",
     "PYCORD_OPTION_DECORATOR_NAMES",
@@ -15,10 +15,10 @@ __all__: Sequence[str] = (
     "ProblemsContainer",
     "TeXBotRule",
     "function_call_is_any_pycord_decorator",
-    "function_call_is_pycord_slash_command_decorator",
     "function_call_is_pycord_context_command_decorator",
     "function_call_is_pycord_event_listener_decorator",
     "function_call_is_pycord_option_decorator",
+    "function_call_is_pycord_slash_command_decorator",
     "function_call_is_pycord_task_decorator",
 )
 
@@ -91,7 +91,7 @@ class BasePlugin(abc.ABC):
     # noinspection PyMethodParameters,PyPep8Naming
     @classproperty
     @abc.abstractmethod
-    def RULES(cls) -> frozenset[type["BaseRule[BasePlugin]"]]:  # noqa: N802,N805
+    def RULES(cls) -> frozenset[type["BaseRule[BasePlugin]"]]:  # noqa: N802, N805
         """"""
 
     def __init__(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
@@ -118,7 +118,7 @@ class ProblemsContainer(dict[tuple[int, int], Mapping[str, object]]):
     """"""
 
     def __setitem__(self, key: tuple[int, int], value: Mapping[str, object]) -> None:
-        if key[0] < 0 or key[1] < 1:
+        if key[0] < 0 or key[1] < 0:
             raise ValueError("Problem locations cannot be negative.")
 
         super().__setitem__(key, value)

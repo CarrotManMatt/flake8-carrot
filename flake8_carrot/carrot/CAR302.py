@@ -156,13 +156,16 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
 
             COG_SUBCLASS_IS_MISLABELLED: Final[bool] = bool(
                 bool(
-                    not is_multiple_commands_cog_subclass
-                    and not node.name.endswith("CommandCog")  # noqa: COM812
+                    bool(
+                        not is_multiple_commands_cog_subclass
+                        and not node.name.endswith("CommandCog")  # noqa: COM812
+                    )
+                    or bool(
+                        is_multiple_commands_cog_subclass
+                        and not node.name.endswith("CommandsCog")  # noqa: COM812
+                    )  # noqa: COM812
                 )
-                or bool(
-                    is_multiple_commands_cog_subclass
-                    and not node.name.endswith("CommandsCog")  # noqa: COM812
-                )  # noqa: COM812
+                and "base" not in node.name.lower()  # noqa: COM812
             )
             if COG_SUBCLASS_IS_MISLABELLED:
                 self.problems[(node.lineno, node.col_offset + 6)] = {

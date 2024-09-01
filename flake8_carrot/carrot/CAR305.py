@@ -47,7 +47,16 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
             or any(
                 isinstance(decorator, ast.Name) and decorator.id == "classmethod"
                 for decorator in node.decorator_list
-            )  # noqa: COM812
+            )
+            or node.name.startswith("_")  # noqa: COM812
+            or bool(
+                isinstance(node.returns, ast.Constant)
+                and node.returns.value in ("str", "int", "bool", "None")
+            )
+            or bool(
+                isinstance(node.returns, ast.Name)
+                and node.returns.id in ("str", "int", "bool", "None")
+            )
         )
         # noinspection PyUnresolvedReferences
         FUNCTION_IS_AUTOCOMPLETE_GETTER: Final[bool] = bool(
@@ -76,7 +85,7 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
         FUNCTION_HAS_CORRECT_RETURN_ANNOTATION: Final[bool] = bool(
             bool(
                 isinstance(node.returns, ast.Constant)
-                and node.returns.value == "AbstractsSet[discord.OptionChoice] | AbstractSet[str]"  # noqa: COM812
+                and node.returns.value == "AbstractSet[discord.OptionChoice] | AbstractSet[str]"  # noqa: COM812
             )
             or bool(
                 isinstance(node.returns, ast.BinOp)
@@ -88,10 +97,10 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
                 and isinstance(node.returns.right.value, ast.Name)
                 and isinstance(node.returns.right.slice, ast.Name)
                 and isinstance(node.returns.left.slice.value, ast.Name)
-                and node.returns.left.value.id == "Set"
+                and node.returns.left.value.id == "AbstractSet"
                 and node.returns.left.slice.value.id == "discord"
                 and node.returns.left.slice.attr == "OptionChoice"
-                and node.returns.right.value.id == "Set"
+                and node.returns.right.value.id == "AbstractSet"
                 and node.returns.right.slice.id == "str"  # noqa: COM812
             )  # noqa: COM812
         )
