@@ -132,7 +132,7 @@ class ProblemsContainer(_ProblemsContainerDict):
 
             key = (int(match.group("line_number")), int(match.group("column_number")))
 
-        if key[0] < 0 or key[1] < 1:
+        if key[0] < 1 or key[1] < 0:
             raise ValueError("Problem locations cannot be negative.")
 
         return key
