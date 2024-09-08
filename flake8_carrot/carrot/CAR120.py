@@ -11,14 +11,14 @@ from collections.abc import Mapping
 from tokenize import TokenInfo
 from typing import Final, override
 
-from flake8_carrot.utils import CarrotRule
+from flake8_carrot.utils import CarrotRule, ProblemsContainer
 
 
 class RuleCAR120(CarrotRule):
     """"""
 
-    TYPE_IGNORE_REGEX: Final[str] = r"(\s*)#(\s*)type(\s*):(\s*)ignore(?:(\s*)\[(\s*)[a-z_-]+(\s*)((?:,\s*[a-z_-]+\s*)*)(?:,(\s*))?])?"
-    NOQA_REGEX: Final[str] = r"(\s*)#(\s*)noqa(?:(\s*):(\s*)[A-Z0-9]+((?:\s*,\s*[A-Z0-9]+)*)(?:\s*,)?)?"
+    TYPE_IGNORE_REGEX: Final[str] = r"(\s*)#(\s*)type(\s*):(\s*)ignore(?:(\s*)\[(\s*)[a-z_-]+(\s*)((?:,\s*[a-z_-]+\s*)*)(?:,(\s*))*])?"
+    NOQA_REGEX: Final[str] = r"(\s*)#(\s*)noqa(?:(\s*):(\s*)[A-Z0-9]+((?:\s*,\s*[A-Z0-9]+)*)(?:\s*,)*)?"
 
     @classmethod
     @override
@@ -35,7 +35,7 @@ class RuleCAR120(CarrotRule):
 
     @classmethod
     def _get_single_type_ignore_error_locations(cls, line: str, offset: int = 0) -> dict[int, str]:
-        match: re.Match[str] | None = re.search(f"{cls.TYPE_IGNORE_REGEX}\\Z", line)
+        match: re.Match[str] | None = re.search(fr"{cls.TYPE_IGNORE_REGEX}\Z", line)
         if match is None:
             return {}
 
@@ -79,7 +79,7 @@ class RuleCAR120(CarrotRule):
 
     @classmethod
     def _get_single_noqa_error_locations(cls, line: str, offset: int = 0) -> dict[int, str]:
-        match: re.Match[str] | None = re.search(f"{cls.NOQA_REGEX}\\Z", line)
+        match: re.Match[str] | None = re.search(fr"{cls.NOQA_REGEX}\Z", line)
         if match is None:
             return {}
 
@@ -115,7 +115,7 @@ class RuleCAR120(CarrotRule):
     @classmethod
     def _get_type_ignore_first_error_locations(cls, line: str) -> Mapping[int, str]:
         match: re.Match[str] | None = re.search(
-            f"(?P<type_ignore>{cls.TYPE_IGNORE_REGEX})(?P<noqa>{cls.NOQA_REGEX})\\Z",
+            fr"(?P<type_ignore>{cls.TYPE_IGNORE_REGEX})(?P<noqa>{cls.NOQA_REGEX})\Z",
             line,
         )
         if match is None:
@@ -135,7 +135,7 @@ class RuleCAR120(CarrotRule):
     @classmethod
     def _get_noqa_first_error_locations(cls, line: str) -> Mapping[int, str]:
         match: re.Match[str] | None = re.search(
-            f"(?P<noqa>{cls.NOQA_REGEX})(?P<type_ignore>{cls.TYPE_IGNORE_REGEX})\\Z",
+            fr"(?P<noqa>{cls.NOQA_REGEX})(?P<type_ignore>{cls.TYPE_IGNORE_REGEX})\Z",
             line,
         )
         if match is None:
@@ -174,12 +174,15 @@ class RuleCAR120(CarrotRule):
 
     @override
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
-        line_number: int
-        line: str
-        for line_number, line in enumerate(lines):
-            match_location: int
-            replacement_message: str
-            for match_location, replacement_message in self._get_all_error_locations(line.rstrip()).items():
-                self.problems[(line_number + 1, match_location)] = {
-                    "replacement_message": replacement_message,
+        self.problems = ProblemsContainer(
+            (
+                self.problems | {
+                    (line_number + 1, match_location): {
+                        "replacement_message": replacement_message,
+                    }
+                    for line_number, line in enumerate(lines)
+                    for match_location, replacement_message
+                    in self._get_all_error_locations(line.rstrip()).items()
                 }
+            ),
+        )

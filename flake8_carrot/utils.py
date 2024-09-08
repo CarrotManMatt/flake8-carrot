@@ -26,10 +26,11 @@ __all__: Sequence[str] = (
 import abc
 import ast
 import enum
-from collections.abc import Generator, Mapping
+import re
+from collections.abc import Generator, Iterable, Mapping
 from enum import Enum
 from tokenize import TokenInfo
-from typing import TYPE_CHECKING, Final, Generic, TypeVar, override
+from typing import TYPE_CHECKING, Final, Generic, TypeAlias, TypeVar, override
 
 from classproperties import classproperty
 
@@ -42,6 +43,11 @@ if TYPE_CHECKING:
     from flake8_carrot.tex_bot import TeXBotPlugin
 
 T_plugin = TypeVar("T_plugin", bound="BasePlugin")
+_ProblemsContainerKey: TypeAlias = tuple[int, int]
+_ProblemsContainerValue: TypeAlias = Mapping[str, object]
+_ProblemsContainerMapping: TypeAlias = Mapping[_ProblemsContainerKey, _ProblemsContainerValue]
+_ProblemsContainerDict: TypeAlias = dict[_ProblemsContainerKey, _ProblemsContainerValue]
+_ProblemsContainerIterable: TypeAlias = Iterable[tuple[_ProblemsContainerKey, _ProblemsContainerValue]]
 
 
 PYCORD_SLASH_COMMAND_DECORATOR_NAMES: Final[frozenset[str]] = frozenset(
@@ -114,16 +120,47 @@ class BasePlugin(abc.ABC):
                 yield line_number, column_number, rule.format_error_message(ctx), type(self)
 
 
-class ProblemsContainer(dict[tuple[int, int], Mapping[str, object]]):
+class ProblemsContainer(_ProblemsContainerDict):
     """"""
 
-    def __setitem__(self, key: tuple[int, int], value: Mapping[str, object]) -> None:
-        if key[0] < 0 or key[1] < 0:
+    @classmethod
+    def clean_key(cls, key: _ProblemsContainerKey | str) -> _ProblemsContainerKey:
+        if isinstance(key, str):
+            match: re.Match[str] | None = re.fullmatch(r"\A(?P<line_number>\d+),(?P<column_number>\d+)\Z", key)
+            if match is None:
+                raise ValueError(f"Invalid problem location: `{key}`.")
+
+            key = (int(match.group("line_number")), int(match.group("column_number")))
+
+        if key[0] < 0 or key[1] < 1:
             raise ValueError("Problem locations cannot be negative.")
 
-        super().__setitem__(key, value)
+        return key
 
-    def add_without_ctx(self, problem_location: tuple[int, int]) -> None:
+    # noinspection PyOverrides
+    @override
+    def __init__(self, mapping: _ProblemsContainerMapping | _ProblemsContainerIterable | None = None, /, **kwargs: _ProblemsContainerValue) -> None:
+        if mapping is None:
+            mapping = {}
+        elif isinstance(mapping, Mapping):
+            mapping = {self.clean_key(key): value for key, value in mapping.items()}
+        elif isinstance(mapping, Iterable) and not isinstance(mapping, Mapping):
+            mapping = {self.clean_key(key): value for key, value in mapping}
+
+        if kwargs:
+            mapping = {
+                **{self.clean_key(key): value for key, value in kwargs.items()},
+                **mapping
+            }
+
+        super().__init__(mapping)
+
+    # noinspection PyOverrides
+    @override
+    def __setitem__(self, key: _ProblemsContainerKey, value: _ProblemsContainerValue, /) -> None:
+        super().__setitem__(self.clean_key(key), value)
+
+    def add_without_ctx(self, problem_location: _ProblemsContainerKey) -> None:
         """"""
         self[problem_location] = {}
 
