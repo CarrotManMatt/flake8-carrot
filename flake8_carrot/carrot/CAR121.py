@@ -15,23 +15,27 @@ from typing import TypeAlias, override
 from flake8_carrot.utils import CarrotRule, ProblemsContainer
 
 # noinspection PyProtectedMember
-_ErrorLocationContext: TypeAlias = tuple["RuleCAR121._IgnoreCommentType", bool]
+_ErrorLocationContext: TypeAlias = tuple["_IgnoreCommentType", bool]
 _ErrorLocationsMapping: TypeAlias = Mapping[int, _ErrorLocationContext]
 _ErrorLocationsDict: TypeAlias = dict[int, _ErrorLocationContext]
+
+
+class _IgnoreCommentType(Enum):
+    TYPE_IGNORE = (
+        r"\s*#\s*type\s*:\s*ignore\s*\[\s*[a-z_-]+\s*(?:,\s*[a-z_-]+\s*)*((?:,\s*)+)\s*]",
+        "`type: ignore`",
+    )
+    NOQA = (r"\s*#\s*noqa\s*:\s*[A-Z0-9]+(?:\s*,\s*[A-Z0-9]+)*\s*((?:,\s*)+)", "NOQA")
 
 
 class RuleCAR121(CarrotRule):
     """"""
 
-    class _IgnoreCommentType(Enum):
-        TYPE_IGNORE = (r"\s*#\s*type\s*:\s*ignore\s*\[\s*[a-z_-]+\s*(?:,\s*[a-z_-]+\s*)*((?:,\s*)+)\s*]", "`type: ignore`")
-        NOQA = (r"\s*#\s*noqa\s*:\s*[A-Z0-9]+(?:\s*,\s*[A-Z0-9]+)*\s*((?:,\s*)+)", "NOQA")
-
     @classmethod
     @override
     def format_error_message(cls, ctx: Mapping[str, object]) -> str:
         ignore_comment_type: object | None = ctx.get("ignore_comment_type", None)
-        if ignore_comment_type is not None and not isinstance(ignore_comment_type, cls._IgnoreCommentType):
+        if ignore_comment_type is not None and not isinstance(ignore_comment_type, _IgnoreCommentType):  # noqa: E501
             raise TypeError
 
         multiple_commas: object | None = ctx.get("multiple_commas", None)
@@ -51,7 +55,7 @@ class RuleCAR121(CarrotRule):
         )
 
     @classmethod
-    def _get_single_error_locations(cls, ignore_comment_type: _IgnoreCommentType, line: str, offset: int = 0) -> _ErrorLocationsDict:
+    def _get_single_error_locations(cls, ignore_comment_type: _IgnoreCommentType, line: str, offset: int = 0) -> _ErrorLocationsDict:  # noqa: E501
         match: re.Match[str] | None = re.search(fr"{ignore_comment_type.value[0]}\Z", line)
         if match is None:
             return {}
@@ -73,9 +77,17 @@ class RuleCAR121(CarrotRule):
         match: re.Match[str] | None = re.search(
             (
                 fr"(?P<type_ignore>{
-                    cls._IgnoreCommentType.TYPE_IGNORE.value[0].replace(r"((?:,\s*)+)", r"(?:,\s*)*")
+                    _IgnoreCommentType.TYPE_IGNORE.value[0].replace(
+                        r"((?:,\s*)+)",
+                        r"(?:,\s*)*",
+                    )
                 })"
-                fr"(?P<noqa>{cls._IgnoreCommentType.NOQA.value[0].replace(r"((?:,\s*)+)", r"(?:,\s*)*")})"
+                fr"(?P<noqa>{
+                    _IgnoreCommentType.NOQA.value[0].replace(
+                        r"((?:,\s*)+)",
+                        r"(?:,\s*)*",
+                    )
+                })"
                 r"\Z"
             ),
             line,
@@ -85,12 +97,12 @@ class RuleCAR121(CarrotRule):
 
         return (
             cls._get_single_error_locations(
-                cls._IgnoreCommentType.TYPE_IGNORE,
+                _IgnoreCommentType.TYPE_IGNORE,
                 match.group("type_ignore"),
                 offset=match.span("type_ignore")[0],
             )
             | cls._get_single_error_locations(
-                cls._IgnoreCommentType.NOQA,
+                _IgnoreCommentType.NOQA,
                 match.group("noqa"),
                 offset=match.span("noqa")[0],
             )
@@ -100,9 +112,17 @@ class RuleCAR121(CarrotRule):
     def _get_noqa_first_error_locations(cls, line: str) -> _ErrorLocationsMapping:
         match: re.Match[str] | None = re.search(
             (
-                fr"(?P<noqa>{cls._IgnoreCommentType.NOQA.value[0].replace(r"((?:,\s*)+)", r"(?:,\s*)*")})"
+                fr"(?P<noqa>{
+                    _IgnoreCommentType.NOQA.value[0].replace(
+                        r"((?:,\s*)+)",
+                        r"(?:,\s*)*",
+                    )
+                })"
                 fr"(?P<type_ignore>{
-                    cls._IgnoreCommentType.TYPE_IGNORE.value[0].replace(r"((?:,\s*)+)", r"(?:,\s*)*")
+                    _IgnoreCommentType.TYPE_IGNORE.value[0].replace(
+                        r"((?:,\s*)+)",
+                        r"(?:,\s*)*",
+                    )
                 })"
                 r"\Z"
             ),
@@ -113,12 +133,12 @@ class RuleCAR121(CarrotRule):
 
         return (
             cls._get_single_error_locations(
-                cls._IgnoreCommentType.NOQA,
+                _IgnoreCommentType.NOQA,
                 match.group("noqa"),
                 offset=match.span("noqa")[0],
             )
             | cls._get_single_error_locations(
-                cls._IgnoreCommentType.TYPE_IGNORE,
+                _IgnoreCommentType.TYPE_IGNORE,
                 match.group("type_ignore"),
                 offset=match.span("type_ignore")[0],
             )
@@ -126,23 +146,29 @@ class RuleCAR121(CarrotRule):
 
     @classmethod
     def _get_all_error_locations(cls, line: str) -> _ErrorLocationsMapping:
-        type_ignore_first_error_locations: _ErrorLocationsMapping = cls._get_type_ignore_first_error_locations(line)
+        type_ignore_first_error_locations: _ErrorLocationsMapping = (
+            cls._get_type_ignore_first_error_locations(line)
+        )
         if type_ignore_first_error_locations:
             return type_ignore_first_error_locations
 
-        noqa_first_error_locations: _ErrorLocationsMapping = cls._get_noqa_first_error_locations(line)
+        noqa_first_error_locations: _ErrorLocationsMapping = (
+            cls._get_noqa_first_error_locations(line)
+        )
         if noqa_first_error_locations:
             return noqa_first_error_locations
 
-        single_type_ignore_error_locations: _ErrorLocationsMapping = cls._get_single_error_locations(
-            cls._IgnoreCommentType.TYPE_IGNORE,
-            line,
+        single_type_ignore_error_locations: _ErrorLocationsMapping = (
+            cls._get_single_error_locations(
+                _IgnoreCommentType.TYPE_IGNORE,
+                line,
+            )
         )
         if single_type_ignore_error_locations:
             return single_type_ignore_error_locations
 
         single_noqa_error_locations: _ErrorLocationsMapping = cls._get_single_error_locations(
-            cls._IgnoreCommentType.NOQA,
+            _IgnoreCommentType.NOQA,
             line,
         )
         if single_noqa_error_locations:
@@ -154,11 +180,11 @@ class RuleCAR121(CarrotRule):
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.problems = ProblemsContainer(
             self.problems | {
-                (line_number + 1, match_location): {
+                (line_number, match_location): {
                     "ignore_comment_type": ignore_comment_type,
                     "multiple_commas": multiple_commas,
                 }
-                for line_number, line in enumerate(lines)
+                for line_number, line in enumerate(lines, start=1)
                 for match_location, (ignore_comment_type, multiple_commas)
                 in self._get_all_error_locations(line.rstrip()).items()
             },

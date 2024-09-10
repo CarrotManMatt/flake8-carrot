@@ -47,7 +47,9 @@ _ProblemsContainerKey: TypeAlias = tuple[int, int]
 _ProblemsContainerValue: TypeAlias = Mapping[str, object]
 _ProblemsContainerMapping: TypeAlias = Mapping[_ProblemsContainerKey, _ProblemsContainerValue]
 _ProblemsContainerDict: TypeAlias = dict[_ProblemsContainerKey, _ProblemsContainerValue]
-_ProblemsContainerIterable: TypeAlias = Iterable[tuple[_ProblemsContainerKey, _ProblemsContainerValue]]
+_ProblemsContainerIterable: TypeAlias = Iterable[
+    tuple[_ProblemsContainerKey, _ProblemsContainerValue]
+]
 
 
 PYCORD_SLASH_COMMAND_DECORATOR_NAMES: Final[frozenset[str]] = frozenset(
@@ -125,21 +127,31 @@ class ProblemsContainer(_ProblemsContainerDict):
 
     @classmethod
     def clean_key(cls, key: _ProblemsContainerKey | str) -> _ProblemsContainerKey:
+        """"""
         if isinstance(key, str):
-            match: re.Match[str] | None = re.fullmatch(r"\A(?P<line_number>\d+),(?P<column_number>\d+)\Z", key)
+            match: re.Match[str] | None = re.fullmatch(
+                r"\A(?P<line_number>\d+),(?P<column_number>\d+)\Z",
+                key,
+            )
             if match is None:
-                raise ValueError(f"Invalid problem location: `{key}`.")
+                INVALID_PROBLEM_LOCATION_MESSAGE: Final[str] = (
+                    f"Invalid problem location: `{key}`."
+                )
+                raise ValueError(INVALID_PROBLEM_LOCATION_MESSAGE)
 
             key = (int(match.group("line_number")), int(match.group("column_number")))
 
         if key[0] < 1 or key[1] < 0:
-            raise ValueError("Problem locations cannot be negative.")
+            NEGATIVE_PROBLEM_LOCATION_MESSAGE: Final[str] = (
+                "Problem locations cannot be negative."
+            )
+            raise ValueError(NEGATIVE_PROBLEM_LOCATION_MESSAGE)
 
         return key
 
     # noinspection PyOverrides
     @override
-    def __init__(self, mapping: _ProblemsContainerMapping | _ProblemsContainerIterable | None = None, /, **kwargs: _ProblemsContainerValue) -> None:
+    def __init__(self, mapping: _ProblemsContainerMapping | _ProblemsContainerIterable | None = None, /, **kwargs: _ProblemsContainerValue) -> None:  # noqa: E501
         if mapping is None:
             mapping = {}
         elif isinstance(mapping, Mapping):
@@ -150,14 +162,14 @@ class ProblemsContainer(_ProblemsContainerDict):
         if kwargs:
             mapping = {
                 **{self.clean_key(key): value for key, value in kwargs.items()},
-                **mapping
+                **mapping,
             }
 
         super().__init__(mapping)
 
     # noinspection PyOverrides
     @override
-    def __setitem__(self, key: _ProblemsContainerKey, value: _ProblemsContainerValue, /) -> None:
+    def __setitem__(self, key: _ProblemsContainerKey, value: _ProblemsContainerValue, /) -> None:  # noqa: E501
         super().__setitem__(self.clean_key(key), value)
 
     def add_without_ctx(self, problem_location: _ProblemsContainerKey) -> None:

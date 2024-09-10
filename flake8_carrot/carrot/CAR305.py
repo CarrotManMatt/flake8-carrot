@@ -48,15 +48,15 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
                 isinstance(decorator, ast.Name) and decorator.id == "classmethod"
                 for decorator in node.decorator_list
             )
-            or node.name.startswith("_")  # noqa: COM812
+            or node.name.startswith("_")
             or bool(
                 isinstance(node.returns, ast.Constant)
-                and node.returns.value in ("str", "int", "bool", "None")
+                and node.returns.value in ("str", "int", "bool", "None")  # noqa: COM812
             )
             or bool(
                 isinstance(node.returns, ast.Name)
-                and node.returns.id in ("str", "int", "bool", "None")
-            )
+                and node.returns.id in ("str", "int", "bool", "None")  # noqa: COM812
+            )  # noqa: COM812
         )
         # noinspection PyUnresolvedReferences
         FUNCTION_IS_AUTOCOMPLETE_GETTER: Final[bool] = bool(
@@ -85,7 +85,7 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
         FUNCTION_HAS_CORRECT_RETURN_ANNOTATION: Final[bool] = bool(
             bool(
                 isinstance(node.returns, ast.Constant)
-                and node.returns.value == "AbstractSet[discord.OptionChoice] | AbstractSet[str]"  # noqa: COM812
+                and node.returns.value == "AbstractSet[discord.OptionChoice] | AbstractSet[str]"  # noqa: COM812, E501
             )
             or bool(
                 isinstance(node.returns, ast.BinOp)

@@ -17,8 +17,12 @@ from flake8_carrot.utils import CarrotRule, ProblemsContainer
 class RuleCAR120(CarrotRule):
     """"""
 
-    TYPE_IGNORE_REGEX: Final[str] = r"(\s*)#(\s*)type(\s*):(\s*)ignore(?:(\s*)\[(\s*)[a-z_-]+(\s*)((?:,\s*[a-z_-]+\s*)*)(?:,(\s*))*])?"
-    NOQA_REGEX: Final[str] = r"(\s*)#(\s*)noqa(?:(\s*):(\s*)[A-Z0-9]+((?:\s*,\s*[A-Z0-9]+)*)(?:\s*,)*)?"
+    TYPE_IGNORE_REGEX: Final[str] = (
+        r"(\s*)#(\s*)type(\s*):(\s*)ignore(?:(\s*)\[(\s*)[a-z_-]+(\s*)((?:,\s*[a-z_-]+\s*)*)(?:,(\s*))*])?"
+    )
+    NOQA_REGEX: Final[str] = (
+        r"(\s*)#(\s*)noqa(?:(\s*):(\s*)[A-Z0-9]+((?:\s*,\s*[A-Z0-9]+)*)(?:\s*,)*)?"
+    )
 
     @classmethod
     @override
@@ -34,7 +38,7 @@ class RuleCAR120(CarrotRule):
         )
 
     @classmethod
-    def _get_single_type_ignore_error_locations(cls, line: str, offset: int = 0) -> dict[int, str]:
+    def _get_single_type_ignore_error_locations(cls, line: str, offset: int = 0) -> dict[int, str]:  # noqa: E501
         match: re.Match[str] | None = re.search(fr"{cls.TYPE_IGNORE_REGEX}\Z", line)
         if match is None:
             return {}
@@ -67,9 +71,13 @@ class RuleCAR120(CarrotRule):
             group8_match: re.Match[str]
             for group8_match in re.finditer(r",(\s*)[a-z_-]+(\s*)", group8):
                 if group8_match.group(1) != " ":
-                    error_locations[offset + GROUP8_MATCH_START + group8_match.span(1)[0]] = "Replace with a single space"
+                    error_locations[offset + GROUP8_MATCH_START + group8_match.span(1)[0]] = (
+                        "Replace with a single space"
+                    )
                 if group8_match.group(2) != "":
-                    error_locations[offset + GROUP8_MATCH_START +  group8_match.span(2)[0]] = "Remove all spaces"
+                    error_locations[offset + GROUP8_MATCH_START +  group8_match.span(2)[0]] = (
+                        "Remove all spaces"
+                    )
 
         trailing_comma_group: str | None = match.group(9)
         if trailing_comma_group is not None and trailing_comma_group != "":
@@ -106,9 +114,13 @@ class RuleCAR120(CarrotRule):
             group5_match: re.Match[str]
             for group5_match in re.finditer(r"(\s*),(\s*)[A-Z0-9]+", group5):
                 if group5_match.group(1) != "":
-                    error_locations[offset + GROUP5_MATCH_START + group5_match.span(1)[0]] = "Remove all spaces"
+                    error_locations[offset + GROUP5_MATCH_START + group5_match.span(1)[0]] = (
+                        "Remove all spaces"
+                    )
                 if group5_match.group(2) != " ":
-                    error_locations[offset + GROUP5_MATCH_START +  group5_match.span(2)[0]] = "Replace with a single space"
+                    error_locations[offset + GROUP5_MATCH_START +  group5_match.span(2)[0]] = (
+                        "Replace with a single space"
+                    )
 
         return error_locations
 
@@ -154,19 +166,27 @@ class RuleCAR120(CarrotRule):
 
     @classmethod
     def _get_all_error_locations(cls, line: str) -> Mapping[int, str]:
-        type_ignore_first_error_locations: Mapping[int, str] = cls._get_type_ignore_first_error_locations(line)
+        type_ignore_first_error_locations: Mapping[int, str] = (
+            cls._get_type_ignore_first_error_locations(line)
+        )
         if type_ignore_first_error_locations:
             return type_ignore_first_error_locations
 
-        noqa_first_error_locations: Mapping[int, str] = cls._get_noqa_first_error_locations(line)
+        noqa_first_error_locations: Mapping[int, str] = (
+            cls._get_noqa_first_error_locations(line)
+        )
         if noqa_first_error_locations:
             return noqa_first_error_locations
 
-        single_type_ignore_error_locations: Mapping[int, str] = cls._get_single_type_ignore_error_locations(line)
+        single_type_ignore_error_locations: Mapping[int, str] = (
+            cls._get_single_type_ignore_error_locations(line)
+        )
         if single_type_ignore_error_locations:
             return single_type_ignore_error_locations
 
-        single_noqa_error_locations: Mapping[int, str] = cls._get_single_noqa_error_locations(line)
+        single_noqa_error_locations: Mapping[int, str] = (
+            cls._get_single_noqa_error_locations(line)
+        )
         if single_noqa_error_locations:
             return single_noqa_error_locations
 
@@ -177,10 +197,10 @@ class RuleCAR120(CarrotRule):
         self.problems = ProblemsContainer(
             (
                 self.problems | {
-                    (line_number + 1, match_location): {
+                    (line_number, match_location): {
                         "replacement_message": replacement_message,
                     }
-                    for line_number, line in enumerate(lines)
+                    for line_number, line in enumerate(lines, start=1)
                     for match_location, replacement_message
                     in self._get_all_error_locations(line.rstrip()).items()
                 }
