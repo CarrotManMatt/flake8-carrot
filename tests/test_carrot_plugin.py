@@ -1,10 +1,12 @@
 """"""
-import abc
+
 from collections.abc import Sequence
 
 __all__: Sequence[str] = ("TestRuleCAR001",)
 
 
+import abc
+import itertools
 from collections.abc import Set as AbstractSet
 from typing import TYPE_CHECKING
 
@@ -194,6 +196,20 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
             *("\n" * count for count in range(1, 6)),
             "  \n",
             (
+                "#! /usr/bin/env python3\n"
+                "\"\"\"This is a docstring.\"\"\"\n\n"
+                "from collections.abc import Sequence\n\n"
+                "__all__: Sequence[str] = ()\n\n"
+                "print(\"hello\")\n"
+            ),
+            (
+                "#! /usr/bin/env python3\n\n"
+                "\"\"\"This is a docstring.\"\"\"\n\n"
+                "from collections.abc import Sequence\n\n"
+                "__all__: Sequence[str] = ()\n\n"
+                "print(\"hello\")\n"
+            ),
+            (
                 "\"\"\"This is a docstring.\"\"\"\n\n"
                 "from collections.abc import Sequence\n\n"
                 "__all__: Sequence[str] = ()\n\n"
@@ -304,20 +320,28 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
             *(
                 (
                     (
-                        f"{"" * count}\"\"\"This is a docstring.\"\"\"\n"
-                        "from collections.abc import Sequence\n"
+                        f"{"\n" * count}{line1}\n"
+                        f"{line2}\n"
                     ),
-                    (2 + count, 1),
+                    (2 + count, 1),  # NOTE: Test for missing single newline (first break)
+                )
+                for line1, line2 in itertools.combinations(
+                    (
+                        "\"\"\"This is a docstring.\"\"\"",
+                        "from collections.abc import Sequence",
+                        "__all__ = ()",
+                    ),
+                    2,
                 )
                 for count in range(0, 4)
             ),
             *(
                 (
                     (
-                        f"{"" * count_pre}\"\"\"This is a docstring.\"\"\"{"\n" * count_post}"
+                        f"{"\n" * count_pre}\"\"\"This is a docstring.\"\"\"{"\n" * count_post}"
                         "from collections.abc import Sequence\n"
                     ),
-                    (3 + count_pre + count_post, 1),
+                    (3 + count_pre, 1),  # NOTE: Test that always second newline is flagged when > 1 newlines (first break)
                 )
                 for count_post in range(3, 6)
                 for count_pre in range(0, 4)
@@ -325,11 +349,11 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
             *(
                 (
                     (
-                        f"{"" * count_pre}\"\"\"This is a docstring.\"\"\"{"\n" * count_post1}"
+                        f"{"\n" * count_pre}\"\"\"This is a docstring.\"\"\"{"\n" * count_post1}"
                         f"from collections.abc import Sequence{"\n" * count_post2}"
                         "__all__: Sequence[str] = ()\n"
                     ),
-                    (3 + count_pre + count_post1, 1),
+                    (3 + count_pre, 1),  # NOTE: Test that always second newline is flagged when > 1 newlines (first break) and incorrect newlines below
                 )
                 for count_post1 in range(3, 6)
                 for count_pre in range(0, 4)
@@ -339,123 +363,40 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
             *(
                 (
                     (
-                        f"{"" * count_pre}\"\"\"This is a docstring.\"\"\"\n"
+                        f"{"\n" * count}\"\"\"This is a docstring.\"\"\"\n\n"
+                        "from collections.abc import Sequence\n"
+                        "__all__: Sequence[str] = ()\n"
+                    ),
+                    (4 + count, 1),  # NOTE: Test for missing single newline (second break)
+                )
+                for count in range(0, 4)
+            ),
+            *(
+                (
+                    (
+                        f"{"\n" * count_pre}\"\"\"This is a docstring.\"\"\"\n\n"
                         f"from collections.abc import Sequence{"\n" * count_post}"
                         "__all__: Sequence[str] = ()\n"
                     ),
-                    (3 + count_pre + count_post, 1),
+                    (5 + count_pre, 1),  # NOTE: Test that always second newline is flagged when > 1 newlines (second break)
                 )
-                for count_post in range(1, 6)
                 for count_pre in range(0, 4)
-                if count_post != 2
+                for count_post in range(3, 6)
             ),
-            # (  # TODO: fix examples below here
-            #     (
-            #         "\"\"\"This is a docstring.\"\"\"\n\n\n"
-            #         "from collections.abc import Sequence\n\n"
-            #         "__all__: Sequence[str] = ()\n\n"
-            #         "print(\"hello\")\n"
-            #     ),
-            #     (3, 1),
-            # ),
-            # (
-            #     (
-            #         "\"\"\"This is a docstring.\"\"\"\n\n\n\n"
-            #         "from collections.abc import Sequence\n\n"
-            #         "__all__: Sequence[str] = ()\n\n"
-            #         "print(\"hello\")\n"
-            #     ),
-            #     (3, 1),
-            # ),
-            # (
-            #     (
-            #         "\"\"\"This is a docstring.\"\"\"\n\n"
-            #         "from collections.abc import Sequence\n"
-            #         "__all__: Sequence[str] = (\"foo\",)\n\n"
-            #         "def foo():\n    "
-            #         "print(\"hello\")\n"
-            #     ),
-            #     (4, 1),
-            # ),
-            # (
-            #     (
-            #         "\n"
-            #         "\"\"\"This is a docstring.\"\"\"\n\n"
-            #         "from collections.abc import Sequence\n\n\n"
-            #         "__all__: Sequence[str] = (\"foo\",)\n\n"
-            #         "def foo():\n    "
-            #         "print(\"hello\")\n"
-            #     ),
-            #     (5, 1),
-            # ),
-            # (
-            #     (
-            #         "\n"
-            #         "\"\"\"This is a docstring.\"\"\"\n\n"
-            #         "from collections.abc import Sequence\n\n\n\n"
-            #         "__all__: Sequence[str] = (\"foo\",)\n\n"
-            #         "def foo():\n    "
-            #         "print(\"hello\")\n"
-            #     ),
-            #     (5, 1),
-            # ),
-            # (
-            #     (
-            #         "\n\n"
-            #         "\"\"\"This is a docstring.\"\"\"\n\n"
-            #         "from collections.abc import Sequence\n\n"
-            #         "__all__: Sequence[str] = (\"foo\",)\n"
-            #         "def foo():\n    "
-            #         "print(\"hello\")\n"
-            #     ),
-            #     (),
-            # ),
-            # (
-            #     (
-            #         "\"\"\"This is a docstring.\"\"\"\n\n"
-            #         "from collections.abc import Sequence\n\n"
-            #         "__all__: Sequence[str] = (\"foo\",)\n\n"
-            #         "import random\n\n"
-            #         "def foo():\n    "
-            #         "print(f\"hello {random.random()}\")\n"
-            #     ),
-            #     (),
-            # ),
-            # (
-            #     (
-            #         "\n"
-            #         "\"\"\"This is a docstring.\"\"\"\n\n"
-            #         "from collections.abc import Sequence\n\n"
-            #         "__all__: Sequence[str] = (\"foo\",)\n\n"
-            #         "import random\n\n"
-            #         "def foo():\n    "
-            #         "print(f\"hello {random.random()}\")\n"
-            #     ),
-            #     (),
-            # ),
-            # (
-            #     (
-            #         "\"\"\"This is a docstring.\"\"\"\n\n"
-            #         "from collections.abc import Sequence\n\n"
-            #         "__all__: Sequence[str] = (\"foo\",)\n\n"
-            #         "import random\n"
-            #     ),
-            #     (),
-            # ),
-            # (
-            #     (
-            #         "\"\"\"This is a docstring.\"\"\"\n\n"
-            #         "import random\n"
-            #     ),
-            #     (),
-            # ),
-            # (
-            #     (
-            #         "\n\"\"\"This is a docstring.\"\"\"\n\n"
-            #         "import random\n"
-            #     ),
-            #     (),
-            # ),
+            *(
+                (
+                    (
+                        f"{"\n" * count_pre}\"\"\"This is a docstring.\"\"\"{"\n" * count_post1}"
+                        f"from collections.abc import Sequence{"\n" * count_post2}"
+                        "__all__: Sequence[str] = ()\n"
+                    ),
+                    (3 + count_pre + count_post1, 1),  # NOTE: Test that always second newline is flagged when > 1 newlines (second break) and newlines above
+                )
+                for count_post1 in range(1, 6)
+                for count_pre in range(0, 4)
+                for count_post2 in range(3, 6)
+                if count_post1 != 2
+            )
         ),
     )
     def test_no_multiple_newlines_between_preamble(self, RAW_TEST_AST: str, EXPECTED_ERROR_POSITION: tuple[int, int]) -> None:  # noqa: N803, E501
