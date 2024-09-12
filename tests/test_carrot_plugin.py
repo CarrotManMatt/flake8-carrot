@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from flake8_carrot.utils import CarrotRule
 
 
-class BaseTestCarrotPlugin(abc.ABC):
+class BaseTestCarrotPlugin(abc.ABC):  # noqa: B024
     @classmethod
     def _apply_carrot_plugin_to_ast(cls, raw_testing_ast: str) -> AbstractSet[str]:
         """"""
@@ -172,7 +172,8 @@ class TestRuleCar101(BaseTestCarrotPlugin):
     def test_successful_all_export_provided(self, RAW_TEST_AST: str) -> None:  # noqa: N803
         """"""
         assert all(
-            "CAR101" not in problem for problem in self._apply_carrot_plugin_to_ast(RAW_TEST_AST)
+            "CAR101" not in problem
+            for problem in self._apply_carrot_plugin_to_ast(RAW_TEST_AST)
         )
 
 
@@ -338,7 +339,8 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
             *(
                 (
                     (
-                        f"{"\n" * count_pre}\"\"\"This is a docstring.\"\"\"{"\n" * count_post}"
+                        f"{"\n" * count_pre}"
+                        f"\"\"\"This is a docstring.\"\"\"{"\n" * count_post}"
                         "from collections.abc import Sequence\n"
                     ),
                     (3 + count_pre, 1),  # NOTE: Test that always second newline is flagged when > 1 newlines (first break)
@@ -349,7 +351,8 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
             *(
                 (
                     (
-                        f"{"\n" * count_pre}\"\"\"This is a docstring.\"\"\"{"\n" * count_post1}"
+                        f"{"\n" * count_pre}"
+                        f"\"\"\"This is a docstring.\"\"\"{"\n" * count_post1}"
                         f"from collections.abc import Sequence{"\n" * count_post2}"
                         "__all__: Sequence[str] = ()\n"
                     ),
@@ -386,7 +389,8 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
             *(
                 (
                     (
-                        f"{"\n" * count_pre}\"\"\"This is a docstring.\"\"\"{"\n" * count_post1}"
+                        f"{"\n" * count_pre}"
+                        f"\"\"\"This is a docstring.\"\"\"{"\n" * count_post1}"
                         f"from collections.abc import Sequence{"\n" * count_post2}"
                         "__all__: Sequence[str] = ()\n"
                     ),
@@ -396,7 +400,7 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
                 for count_pre in range(0, 4)
                 for count_post2 in range(3, 6)
                 if count_post1 != 2
-            )
+            ),
         ),
     )
     def test_no_multiple_newlines_between_preamble(self, RAW_TEST_AST: str, EXPECTED_ERROR_POSITION: tuple[int, int]) -> None:  # noqa: N803, E501

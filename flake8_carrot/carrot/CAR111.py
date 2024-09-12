@@ -50,10 +50,22 @@ class RuleCAR111(CarrotRule):
 
         match tree.body[1]:
             case (
-                ast.ImportFrom(module="collections", names=[ast.alias(name="abc.Sequence"), *_])
-                | ast.ImportFrom(module="collections", names=[ast.alias(name="abc.Iterable"), *_])
-                | ast.ImportFrom(module="collections.abc", names=[ast.alias(name="Sequence"), *_])
-                | ast.ImportFrom(module="collections.abc", names=[ast.alias(name="Iterable"), *_])
+                ast.ImportFrom(
+                    module="collections",
+                    names=[ast.alias(name="abc.Sequence"), *_],
+                )
+                | ast.ImportFrom(
+                    module="collections",
+                    names=[ast.alias(name="abc.Iterable"), *_],
+                )
+                | ast.ImportFrom(
+                    module="collections.abc",
+                    names=[ast.alias(name="Sequence"), *_],
+                )
+                | ast.ImportFrom(
+                    module="collections.abc",
+                    names=[ast.alias(name="Iterable"), *_],
+                )
                 | ast.ImportFrom(module="typing", names=[ast.alias(name="Sequence"), *_])
                 | ast.ImportFrom(module="typing", names=[ast.alias(name="Iterable"), *_])
                 | ast.Import(names=[ast.alias(name="collections")])
