@@ -27,4 +27,7 @@ class RuleCAR111(CarrotRule):
 
     @override
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
-        raise NotImplementedError
+        if not lines or len(lines) < 3:
+            return
+
+        first_line: str = lines[0]
