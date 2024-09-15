@@ -8,8 +8,9 @@ __all__: Sequence[str] = ("RuleCAR201",)
 import ast
 from collections.abc import Mapping
 from tokenize import TokenInfo
-from typing import Final, override
+from typing import override
 
+from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
 
 
@@ -28,112 +29,120 @@ class RuleCAR201(CarrotRule, ast.NodeVisitor):
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
+    def _add_unannotated_problem(self, node: ast.Assign) -> None:
+        self.problems.add_without_ctx(
+            (
+                (
+                    node.targets[-1].end_lineno or node.targets[-1].lineno
+                    if len(node.targets) > 0
+                    else node.lineno
+                ),
+                (
+                    node.targets[-1].end_col_offset or node.targets[-1].col_offset
+                    if len(node.targets) > 0
+                    else node.col_offset
+                ),
+            ),
+        )
+
+    @classmethod
+    def _check_slice_elements(cls, slice_elements: Sequence[ast.expr]) -> bool:
+        slice_element: ast.expr
+        for slice_element in slice_elements:
+            variable_name: str
+            match slice_element:
+                case ast.Name(id=variable_name):
+                    if "logger" in variable_name.lower():
+                        return True
+                case ast.Constant(value=variable_name):
+                    if "logger" in variable_name.lower():
+                        return True
+
+        return False
+
+    @classmethod
+    def _match_single_target(cls, target: ast.expr) -> bool:
+        variable_name: str
+        match target:
+            case ast.Subscript(value=ast.Name(id=variable_name)):
+                if "loggers" in variable_name.lower():
+                    return True
+
+        slice_elements: Sequence[ast.expr]
+        match target:
+            case ast.Name(id=variable_name):
+                if "logger" in variable_name.lower():
+                    return True
+
+            case ast.Subscript(slice=ast.Name(id=variable_name)):
+                if "logger" in variable_name.lower():
+                    return True
+
+            case ast.Subscript(slice=ast.Constant(value=str(variable_name))):
+                if "logger" in variable_name.lower():
+                    return True
+
+            case ast.Subscript(slice=ast.Tuple(elts=slice_elements)):
+                if cls._check_slice_elements(slice_elements):
+                    return True
+
+        return False
+
+    @utils.generic_visit_before_return
     @override
     def visit_Assign(self, node: ast.Assign) -> None:
-        targets: list[ast.Name] = [
-            target for target in node.targets if isinstance(target, ast.Name)
-        ]
+        match node.value:
+            case (
+                ast.Call(func=ast.Attribute(value=ast.Name(id="logging"), attr="getLogger"))
+                | ast.Call(func=ast.Name(id="getLogger"))
+            ):
+                self._add_unannotated_problem(node)
+                return
 
-        LOGGER_ASSIGNMENT_FOUND: Final[bool] = bool(
-            bool(
-                isinstance(node.value, ast.Call)
-                and (
-                    bool(
-                        isinstance(node.value.func, ast.Attribute)
-                        and isinstance(node.value.func.value, ast.Name)
-                        and node.value.func.value.id == "logging"
-                        and node.value.func.attr == "getLogger"  # noqa: COM812
-                    )
-                    or bool(
-                        isinstance(node.value.func, ast.Name)
-                        and node.value.func.id == "getLogger"  # noqa: COM812
-                    )
-                )  # noqa: COM812
-            )
-            or len(targets) == 1 and "logger" in targets[0].id  # noqa: COM812
-        )
-        if LOGGER_ASSIGNMENT_FOUND:
-            self.problems.add_without_ctx(
-                (
-                    targets[0].lineno if len(targets) == 1 else node.lineno,
-                    (
-                        (targets[0].end_col_offset or targets[0].col_offset)
-                        if len(targets) == 1
-                        else node.col_offset
-                    ),
-                ),
-            )
+        target: ast.expr
+        for target in node.targets:
+            if self._match_single_target(target):
+                self._add_unannotated_problem(node)
+                return
 
-        self.generic_visit(node)
-
+    @utils.generic_visit_before_return
     @override
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
-        LOGGER_ASSIGNMENT_FOUND: Final[bool] = bool(
-            bool(
-                bool(
-                    bool(
-                        isinstance(node.value, ast.Call)
-                        and (
-                            bool(
-                                isinstance(node.value.func, ast.Attribute)
-                                and isinstance(node.value.func.value, ast.Name)
-                                and node.value.func.value.id == "logging"
-                                and node.value.func.attr == "getLogger"  # noqa: COM812
-                            )
-                            or bool(
-                                isinstance(node.value.func, ast.Name)
-                                and node.value.func.id == "getLogger"  # noqa: COM812
-                            )
-                        )  # noqa: COM812
-                    )
-                    or bool(
-                        isinstance(node.target, ast.Name)
-                        and "logger" in node.target.id  # noqa: COM812
-                    )  # noqa: COM812
+        match node.annotation:
+            case (
+                ast.Constant(value="Final[Logger]")
+                | ast.Subscript(value=ast.Name(id="Final"), slice=ast.Name(id="Logger"))
+            ):
+                return
+
+            case (
+                ast.Constant(value=("Logger" | "logging.Logger" | "Final[logging.Logger]"))
+                | ast.Name(id="Logger")
+                | ast.Attribute(value=ast.Name(id="logging"), attr="Logger")
+                | ast.Subscript(
+                    value=ast.Name(id="Final"),
+                    slice=ast.Attribute(value=ast.Name(id="logging"), attr="Logger"),
                 )
-                and not bool(
-                    isinstance(node.annotation, ast.Subscript)
-                    and isinstance(node.annotation.value, ast.Name)
-                    and isinstance(node.annotation.slice, ast.Name)
-                    and node.annotation.value.id == "Final"
-                    and node.annotation.slice.id == "Logger"  # noqa: COM812
+            ):
+                self.problems.add_without_ctx(
+                    (node.annotation.lineno, node.annotation.col_offset),
                 )
-                and not bool(
-                    isinstance(node.annotation, ast.Constant)
-                    and node.annotation.value == "Final[Logger]"  # noqa: COM812
-                )  # noqa: COM812
-            )
-            or bool(
-                isinstance(node.annotation, ast.Constant)
-                and node.annotation.value in (
-                    "Logger",
-                    "logging.Logger",
-                    "Final[logging.Logger]",
-                )  # noqa: COM812
-            )
-            or bool(
-                isinstance(node.annotation, ast.Name)
-                and node.annotation.id == "Logger"  # noqa: COM812
-            )
-            or bool(
-                isinstance(node.annotation, ast.Attribute)
-                and isinstance(node.annotation.value, ast.Name)
-                and node.annotation.value.id == "logging"
-                and node.annotation.attr == "Logger"  # noqa: COM812
-            )
-            or bool(
-                isinstance(node.annotation, ast.Subscript)
-                and isinstance(node.annotation.value, ast.Name)
-                and isinstance(node.annotation.slice, ast.Attribute)
-                and isinstance(node.annotation.slice.value, ast.Name)
-                and node.annotation.value.id == "Final"
-                and node.annotation.slice.value.id == "logging"
-                and node.annotation.slice.attr == "Logger"  # noqa: COM812
-            )  # noqa: COM812
-        )
-        if LOGGER_ASSIGNMENT_FOUND:
+                return
+
+        if self._match_single_target(node.target):
             self.problems.add_without_ctx(
                 (node.annotation.lineno, node.annotation.col_offset),
             )
+            return
 
-        self.generic_visit(node)
+        match node.value:
+            case ast.Call(
+                func=(
+                    ast.Name(id="getLogger")
+                    | ast.Attribute(value=ast.Name(id="logging"), attr="getLogger")
+                ),
+            ):
+                self.problems.add_without_ctx(
+                    (node.annotation.lineno, node.annotation.col_offset),
+                )
+                return

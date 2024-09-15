@@ -185,7 +185,6 @@ class CarrotPlugin(BasePlugin):
         self._first_all_export_line_numbers: tuple[int, int] | None = (
             context_values_finder.first_all_export_line_numbers
         )
-        self._true_start_line_number: int = self._find_true_start_line_number(tree)
 
         super().__init__(tree=tree, file_tokens=file_tokens, lines=lines)
 
@@ -198,20 +197,3 @@ class CarrotPlugin(BasePlugin):
     def first_all_export_line_numbers(self) -> tuple[int, int] | None:
         """"""
         return self._first_all_export_line_numbers
-
-    @property
-    def true_start_line_number(self) -> int:
-        """"""
-        return self._true_start_line_number
-
-    @classmethod
-    def _find_true_start_line_number(cls, tree: ast.AST) -> int:
-        if not isinstance(tree, ast.Module):
-            INVALID_TYPE_MESSAGE: Final[str] = "'tree' AST must be a module."
-            raise TypeError(INVALID_TYPE_MESSAGE)
-
-        first_node: ast.stmt | None = next(iter(tree.body), None)
-        if first_node is None:
-            return 1
-
-        return first_node.lineno

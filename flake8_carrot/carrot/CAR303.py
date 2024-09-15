@@ -28,6 +28,19 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         REQUIRES_LOWERCASING = "should be lowercased"
         REQUIRES_BOTH = "should be both hyphenated and lowercased"
 
+        @classmethod
+        def from_bools(cls, *, requires_hyphenation: bool, requires_lowercasing: bool) -> "RuleCAR303._InvalidArgumentReason | None":  # noqa: E501
+            """"""
+            if requires_hyphenation and requires_lowercasing:
+                return cls.REQUIRES_BOTH
+
+            if requires_hyphenation:
+                return cls.REQUIRES_HYPHENATION
+
+            if requires_lowercasing:
+                return cls.REQUIRES_LOWERCASING
+
+            return None
 
     @classmethod
     @override
@@ -48,8 +61,11 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         if INVALID_ARGUMENT_REASON_IS_INVALID_TYPE:
             raise TypeError
 
+        if incorrect_name:
+            incorrect_name = incorrect_name.strip().strip("'").strip()
+
         hyphenated_name: str | None = (
-            incorrect_name.strip("").replace(
+            incorrect_name.replace(
                 ".",
                 "-",
             ).replace(
@@ -83,37 +99,27 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
-    def _check_single_argument(self, argument: ast.expr, function_type: _FunctionType) -> bool:
+    def _check_single_argument(self, argument: ast.expr, function_type: _FunctionType) -> None:
         if not isinstance(argument, ast.Constant):
-            return False
+            return
 
-        ARGUMENT_NEEDS_HYPHENATION: Final[bool] = bool(
-            "." in argument.value
-            or " " in argument.value
-            or "_" in argument.value  # noqa: COM812
+        reason: RuleCAR303._InvalidArgumentReason | None = (
+            self._InvalidArgumentReason.from_bools(
+                requires_hyphenation=(
+                    "." in argument.value or " " in argument.value or "_" in argument.value
+                ),
+                requires_lowercasing=bool(re.search(r"[A-Z]", argument.value)),
+            )
         )
-        ARGUMENT_NEEDS_LOWERCASING: Final[bool] = bool(
-            re.search(r"[A-Z]", argument.value),
-        )
-        if not ARGUMENT_NEEDS_HYPHENATION and not ARGUMENT_NEEDS_LOWERCASING:
-            return False
+        if reason is None:
+            return
 
         # noinspection PyTypeChecker
         self.problems[(argument.lineno, argument.col_offset + 1)] = {
             "function_type": function_type,
             "incorrect_name": argument.value,
-            "invalid_argument_reason": (
-                self._InvalidArgumentReason.REQUIRES_BOTH
-                if ARGUMENT_NEEDS_HYPHENATION and ARGUMENT_NEEDS_LOWERCASING
-                else (
-                    self._InvalidArgumentReason.REQUIRES_HYPHENATION
-                    if ARGUMENT_NEEDS_HYPHENATION
-                    else self._InvalidArgumentReason.REQUIRES_LOWERCASING
-                )
-            ),
+            "invalid_argument_reason": reason,
         }
-
-        return True
 
     def _check_all_arguments(self, decorator_node: ast.Call, function_type: _FunctionType) -> None:  # noqa: E501
         if decorator_node.args:
@@ -122,45 +128,48 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
 
         keyword_argument: ast.keyword
         for keyword_argument in decorator_node.keywords:
-            NAME_KEYWORD_ARGUMENT_FOUND: bool = bool(
-                keyword_argument.arg == "name"
-                and self._check_single_argument(keyword_argument.value, function_type)  # noqa: COM812
-            )
-            if NAME_KEYWORD_ARGUMENT_FOUND:
+            if keyword_argument.arg == "name":
+                self._check_single_argument(keyword_argument.value, function_type)
                 return
 
     def _check_decorator(self, decorator_node: ast.expr) -> None:
         if not isinstance(decorator_node, ast.Call):
             return
 
-        FUNCTION_CALL_IS_PYCORD_SLASH_COMMAND_FUNCTION: Final[bool] = bool(
-            utils.function_call_is_pycord_slash_command_decorator(decorator_node)
-            or bool(
-                isinstance(decorator_node.func, ast.Attribute)
-                and isinstance(decorator_node.func.value, ast.Name)
-                and decorator_node.func.value.id in self.plugin.found_slash_command_group_names
-                and decorator_node.func.attr in utils.PYCORD_SLASH_COMMAND_DECORATOR_NAMES  # noqa: COM812
-            )  # noqa: COM812
-        )
-        if FUNCTION_CALL_IS_PYCORD_SLASH_COMMAND_FUNCTION:
+        if utils.function_call_is_pycord_slash_command_decorator(decorator_node):
             self._check_all_arguments(decorator_node, self._FunctionType.COMMAND)
+            return
 
-        FUNCTION_CALL_IS_PYCORD_OPTION_FUNCTION: Final[bool] = bool(
-            utils.function_call_is_pycord_option_decorator(decorator_node)
-            or bool(
-                isinstance(decorator_node.func, ast.Attribute)
-                and isinstance(decorator_node.func.value, ast.Name)
-                and decorator_node.func.value.id in self.plugin.found_slash_command_group_names
-                and decorator_node.func.attr in utils.PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
-            )  # noqa: COM812
-        )
-        if FUNCTION_CALL_IS_PYCORD_OPTION_FUNCTION:
+        if utils.function_call_is_pycord_option_decorator(decorator_node):
             self._check_all_arguments(decorator_node, self._FunctionType.OPTION)
+            return
 
+        possible_slash_command_group_name: str
+        possible_pycord_decorator_name: str
+        match decorator_node.func:
+            case ast.Attribute(
+                value=ast.Name(id=possible_slash_command_group_name),
+                attr=possible_pycord_decorator_name,
+            ):
+                COMMAND_FUNCTION: Final[bool] = bool(
+                    possible_slash_command_group_name in self.plugin.found_slash_command_group_names  # noqa: E501
+                    and possible_pycord_decorator_name in utils.PYCORD_SLASH_COMMAND_DECORATOR_NAMES  # noqa: E501, COM812
+                )
+                if COMMAND_FUNCTION:
+                    self._check_all_arguments(decorator_node, self._FunctionType.COMMAND)
+                    return
+
+                OPTION_FUNCTION: Final[bool] = bool(
+                    possible_slash_command_group_name in self.plugin.found_slash_command_group_names  # noqa: E501
+                    and possible_pycord_decorator_name in utils.PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
+                )
+                if OPTION_FUNCTION:
+                    self._check_all_arguments(decorator_node, self._FunctionType.OPTION)
+                    return
+
+    @utils.generic_visit_before_return
     @override
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         decorator_node: ast.expr
         for decorator_node in node.decorator_list:
             self._check_decorator(decorator_node)
-
-        self.generic_visit(node)

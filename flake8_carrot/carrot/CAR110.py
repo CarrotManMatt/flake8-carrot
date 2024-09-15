@@ -8,7 +8,7 @@ __all__: Sequence[str] = ("RuleCAR110",)
 import ast
 from collections.abc import Iterator, Mapping
 from tokenize import TokenInfo
-from typing import Final, override
+from typing import override
 
 from flake8_carrot.utils import CarrotRule
 
@@ -23,15 +23,14 @@ class RuleCAR110(CarrotRule):
 
     @override
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
-        SKIP_FILE: Final[bool] = bool(
-            self.plugin.first_all_export_line_numbers is None
-            or not lines[self.plugin.first_all_export_line_numbers[1] - 1].endswith("\n")  # noqa: COM812
-        )
-        if SKIP_FILE:
+        if self.plugin.first_all_export_line_numbers is None:
+            return
+
+        if not lines[self.plugin.first_all_export_line_numbers[1] - 1].endswith("\n"):
             return
 
         remaining_lines: Iterator[str] = iter(
-            lines[self.plugin.first_all_export_line_numbers[1]:],  # type: ignore[index]
+            lines[self.plugin.first_all_export_line_numbers[1]:],
         )
 
         first_line_after: str | None = next(remaining_lines, None)
@@ -40,7 +39,7 @@ class RuleCAR110(CarrotRule):
 
         if first_line_after.strip("\n"):
             self.problems.add_without_ctx(
-                (self.plugin.first_all_export_line_numbers[1] + 1, 0),  # type: ignore[index]
+                (self.plugin.first_all_export_line_numbers[1] + 1, 0),
             )
             return
 
@@ -50,7 +49,7 @@ class RuleCAR110(CarrotRule):
 
         if second_line_after.strip("\n"):
             self.problems.add_without_ctx(
-                (self.plugin.first_all_export_line_numbers[1] + 1, 0),  # type: ignore[index]
+                (self.plugin.first_all_export_line_numbers[1] + 1, 0),
             )
             return
 
@@ -59,5 +58,5 @@ class RuleCAR110(CarrotRule):
             return
 
         self.problems.add_without_ctx(
-            (self.plugin.first_all_export_line_numbers[1] + 3, 0),  # type: ignore[index]
+            (self.plugin.first_all_export_line_numbers[1] + 3, 0),
         )

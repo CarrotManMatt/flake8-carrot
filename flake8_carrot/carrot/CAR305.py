@@ -10,6 +10,7 @@ from collections.abc import Mapping
 from tokenize import TokenInfo
 from typing import Final, override
 
+from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
 
 
@@ -23,6 +24,9 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
         if function_name is not None and not isinstance(function_name, str):
             raise TypeError
 
+        if function_name:
+            function_name = function_name.strip().strip("'").strip()
+
         return (
             "CAR305 "
             f"Return annotation of autocomplete function '{function_name}' "
@@ -33,84 +37,98 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
-    def _check_function(self, node: ast.AsyncFunctionDef) -> None:
-        ALL_ARGS: Sequence[ast.arg] = (
+    @classmethod
+    def _function_is_autocomplete_getter(cls, node: ast.AsyncFunctionDef) -> bool:
+        ALL_ARGS: Final[Sequence[ast.arg]] = (
             node.args.posonlyargs
             + node.args.args
             + node.args.kwonlyargs
         )
 
-        FUNCTION_HAS_INCORRECT_STRUCTURE: Final[bool] = bool(
-            len(ALL_ARGS) == 0
-            or ALL_ARGS[0].arg in ("self", "cls")
-            or not (len(node.args.kw_defaults) + len(node.args.defaults) >= len(ALL_ARGS) - 1)
-            or any(
-                isinstance(decorator, ast.Name) and decorator.id == "classmethod"
-                for decorator in node.decorator_list
-            )
-            or node.name.startswith("_")
-            or bool(
-                isinstance(node.returns, ast.Constant)
-                and node.returns.value in ("str", "int", "bool", "None")  # noqa: COM812
-            )
-            or bool(
-                isinstance(node.returns, ast.Name)
-                and node.returns.id in ("str", "int", "bool", "None")  # noqa: COM812
-            )  # noqa: COM812
+        if "autocomplete" in node.name.lower():
+            return True
+        if node.name.lower().startswith("get_"):
+            return True
+        if ALL_ARGS[0].arg == "ctx":
+            return True
+        if "context" in ALL_ARGS[0].arg:
+            return True
+
+        annotation_value: str
+        match ALL_ARGS[0].annotation:
+            case ast.Name(id=annotation_value) | ast.Constant(value=annotation_value):
+                if "context" in annotation_value.lower():
+                    return True
+
+        docstring: str | None = ast.get_docstring(node)
+        return docstring is not None and "autocomplete callable" in docstring.lower()
+
+    def _check_function(self, node: ast.AsyncFunctionDef) -> None:
+        ALL_ARGS: Final[Sequence[ast.arg]] = (
+            node.args.posonlyargs
+            + node.args.args
+            + node.args.kwonlyargs
         )
-        # noinspection PyUnresolvedReferences
-        FUNCTION_IS_AUTOCOMPLETE_GETTER: Final[bool] = bool(
-            "autocomplete" in node.name.lower()
-            or node.name.lower().startswith("get_")
-            or ALL_ARGS[0].arg == "ctx"
-            or "context" in ALL_ARGS[0].arg
-            or bool(
-                isinstance(ALL_ARGS[0].annotation, ast.Name)
-                and "context" in ALL_ARGS[0].annotation.id.lower()  # noqa: COM812
-            )
-            or bool(
-                isinstance(ALL_ARGS[0].annotation, ast.Constant)
-                and "context" in ALL_ARGS[0].annotation.value.lower()  # noqa: COM812
-            )
-            or "autocomplete callable" in (ast.get_docstring(node) or "").lower()  # noqa: COM812
+
+        if node.name.startswith("_"):
+            return
+        if len(ALL_ARGS) == 0:
+            return
+        if ALL_ARGS[0].arg in ("self", "cls"):
+            return
+        if len(node.args.kw_defaults) + len(node.args.defaults) < len(ALL_ARGS) - 1:
+            return
+
+        FUNCTION_IS_CLASSMETHOD: Final[bool] = any(
+            isinstance(decorator, ast.Name) and decorator.id == "classmethod"
+            for decorator in node.decorator_list
         )
-        if FUNCTION_HAS_INCORRECT_STRUCTURE or not FUNCTION_IS_AUTOCOMPLETE_GETTER:
+        if FUNCTION_IS_CLASSMETHOD:
+            return
+
+        return_value: str
+        match node.returns:
+            case ast.Constant(value=return_value) | ast.Name(id=return_value):
+                if return_value in ("str", "int", "bool", "None"):
+                    return
+
+        if not self._function_is_autocomplete_getter(node):
             return
 
         if node.returns is None:
-            self.problems[(node.end_lineno or node.lineno, (node.end_col_offset - 1) if node.end_col_offset else node.col_offset)] = {  # noqa: E501
-                "function_name": node.name,
-            }
-
-        FUNCTION_HAS_CORRECT_RETURN_ANNOTATION: Final[bool] = bool(
-            bool(
-                isinstance(node.returns, ast.Constant)
-                and node.returns.value == "AbstractSet[discord.OptionChoice] | AbstractSet[str]"  # noqa: COM812, E501
+            column_offset: int = (
+                (node.end_col_offset - 1) if node.end_col_offset else node.col_offset
             )
-            or bool(
-                isinstance(node.returns, ast.BinOp)
-                and isinstance(node.returns.op, ast.BitOr)
-                and isinstance(node.returns.left, ast.Subscript)
-                and isinstance(node.returns.right, ast.Subscript)
-                and isinstance(node.returns.left.value, ast.Name)
-                and isinstance(node.returns.left.slice, ast.Attribute)
-                and isinstance(node.returns.right.value, ast.Name)
-                and isinstance(node.returns.right.slice, ast.Name)
-                and isinstance(node.returns.left.slice.value, ast.Name)
-                and node.returns.left.value.id == "AbstractSet"
-                and node.returns.left.slice.value.id == "discord"
-                and node.returns.left.slice.attr == "OptionChoice"
-                and node.returns.right.value.id == "AbstractSet"
-                and node.returns.right.slice.id == "str"  # noqa: COM812
-            )  # noqa: COM812
-        )
-        if not FUNCTION_HAS_CORRECT_RETURN_ANNOTATION:
-            self.problems[(node.returns.lineno, node.returns.col_offset)] = {  # type: ignore[union-attr]
+            self.problems[(node.end_lineno or node.lineno), column_offset] = {
                 "function_name": node.name,
             }
+            return
 
+        match node.returns:
+            case (
+                ast.Constant(value="AbstractSet[discord.OptionChoice] | AbstractSet[str]")
+                | ast.BinOp(
+                    op=ast.BitOr,
+                    left=ast.Subscript(
+                        value=ast.Name(id="AbstractSet"),
+                        slice=ast.Attribute(
+                            value=ast.Name(id="discord"),
+                            attr="OptionChoice",
+                        ),
+                    ),
+                    right=ast.Subscript(
+                        value=ast.Name(id="AbstractSet"),
+                        slice=ast.Name(id="str"),
+                    ),
+                )
+            ):
+                return
+
+        self.problems[(node.returns.lineno, node.returns.col_offset)] = {
+            "function_name": node.name,
+        }
+
+    @utils.generic_visit_before_return
     @override
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         self._check_function(node)
-
-        self.generic_visit(node)

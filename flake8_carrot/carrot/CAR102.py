@@ -8,8 +8,9 @@ __all__: Sequence[str] = ("RuleCAR102",)
 import ast
 from collections.abc import Iterable, Mapping
 from tokenize import TokenInfo
-from typing import Final, override
+from typing import override
 
+from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
 
 
@@ -34,38 +35,35 @@ class RuleCAR102(CarrotRule, ast.NodeVisitor):
                     # noinspection PyTypeChecker
                     return target
                 case ast.Tuple():
+                    # noinspection PyUnresolvedReferences
                     return cls._get_all_assignment(target.elts)
-                case _:
-                    continue
 
         return None
 
+    @utils.generic_visit_before_return
     @override
     def visit_Assign(self, node: ast.Assign) -> None:
+        if self.plugin.first_all_export_line_numbers is None:
+            return
+
         all_assignment: ast.Name | None = self._get_all_assignment(node.targets)
+        if all_assignment is None:
+            return
 
-        IS_FIRST_ALL_EXPORT: Final[bool] = bool(
-            all_assignment is not None
-            and self.plugin.first_all_export_line_numbers is not None
-            and all_assignment.lineno != self.plugin.first_all_export_line_numbers[0]  # noqa: COM812
-        )
-        if IS_FIRST_ALL_EXPORT:
-            self.problems.add_without_ctx(
-                (
-                    all_assignment.lineno,  # type: ignore[union-attr]
-                    all_assignment.col_offset,  # type: ignore[union-attr]
-                ),
-            )
+        if all_assignment.lineno == self.plugin.first_all_export_line_numbers[0]:
+            return
 
-        self.generic_visit(node)
+        self.problems.add_without_ctx((all_assignment.lineno, all_assignment.col_offset))
 
+    @utils.generic_visit_before_return
     @override
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
-        MULTIPLE_ALL_EXPORTS_FOUND: Final[bool] = bool(
-            isinstance(node.target, ast.Name)
-            and node.target.id == "__all__"
-            and self.plugin.first_all_export_line_numbers is not None
-            and node.lineno != self.plugin.first_all_export_line_numbers[0]  # noqa: COM812
-        )
-        if MULTIPLE_ALL_EXPORTS_FOUND:
-            self.problems.add_without_ctx((node.lineno, node.col_offset))
+        if self.plugin.first_all_export_line_numbers is None:
+            return
+
+        if node.lineno == self.plugin.first_all_export_line_numbers[0]:
+            return
+
+        match node.target:
+            case ast.Name(id="__all__"):
+                self.problems.add_without_ctx((node.lineno, node.col_offset))

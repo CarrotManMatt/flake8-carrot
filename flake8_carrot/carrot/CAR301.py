@@ -11,9 +11,7 @@ from tokenize import TokenInfo
 from typing import Final, override
 
 from flake8_carrot import utils
-from flake8_carrot.utils import (
-    CarrotRule,
-)
+from flake8_carrot.utils import CarrotRule
 
 
 class RuleCAR301(CarrotRule, ast.NodeVisitor):
@@ -56,24 +54,32 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
+    def _check_for_positional_arguments(self, node: ast.Call) -> None:
+        positional_argument: ast.expr
+        for positional_argument in node.args:
+            self.problems[(positional_argument.lineno, positional_argument.col_offset)] = {
+                "positional_argument": ast.unparse(positional_argument),
+                "function_name": ast.unparse(node.func),
+            }
+
+    @utils.generic_visit_before_return
     @override
     def visit_Call(self, node: ast.Call) -> None:
-        FUNCTION_CALL_IS_PYCORD_FUNCTION: Final[bool] = bool(
-            utils.function_call_is_any_pycord_decorator(node)
-            or bool(
-                isinstance(node.func, ast.Attribute)
-                and isinstance(node.func.value, ast.Name)
-                and node.func.value.id in self.plugin.found_slash_command_group_names
-                and node.func.attr in utils.ALL_PYCORD_FUNCTION_NAMES  # noqa: COM812
-            )  # noqa: COM812
-        )
-        if FUNCTION_CALL_IS_PYCORD_FUNCTION:
-            positional_argument: ast.expr
-            for positional_argument in node.args:
-                # noinspection PyTypeChecker
-                self.problems[(positional_argument.lineno, positional_argument.col_offset)] = {
-                    "positional_argument": ast.unparse(positional_argument),
-                    "function_name": ast.unparse(node.func),
-                }
+        if utils.function_call_is_any_pycord_decorator(node):
+            self._check_for_positional_arguments(node)
+            return
 
-        self.generic_visit(node)
+        possible_slash_command_group_name: str
+        possible_pycord_function_name: str
+        match node.func:
+            case ast.Attribute(
+                value=ast.Name(id=possible_slash_command_group_name),
+                attr=possible_pycord_function_name,
+            ):
+                FUNCTION_CALL_IS_PYCORD_FUNCTION: Final[bool] = bool(
+                    possible_slash_command_group_name in self.plugin.found_slash_command_group_names  # noqa: E501
+                    and possible_pycord_function_name in utils.ALL_PYCORD_FUNCTION_NAMES  # noqa: COM812
+                )
+                if FUNCTION_CALL_IS_PYCORD_FUNCTION:
+                    self._check_for_positional_arguments(node)
+                    return

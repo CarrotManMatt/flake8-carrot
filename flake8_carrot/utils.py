@@ -20,14 +20,16 @@ __all__: Sequence[str] = (
     "function_call_is_pycord_option_decorator",
     "function_call_is_pycord_slash_command_decorator",
     "function_call_is_pycord_task_decorator",
+    "generic_visit_before_return",
 )
 
 
 import abc
 import ast
 import enum
+import functools
 import re
-from collections.abc import Generator, Iterable, Mapping
+from collections.abc import Callable, Generator, Iterable, Mapping
 from enum import Enum
 from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Final, Generic, TypeAlias, TypeVar, override
@@ -43,6 +45,8 @@ if TYPE_CHECKING:
     from flake8_carrot.tex_bot import TeXBotPlugin
 
 T_plugin = TypeVar("T_plugin", bound="BasePlugin")
+T_Visitor = TypeVar("T_Visitor", bound=ast.NodeVisitor)
+T_Node = TypeVar("T_Node", bound=ast.AST)
 _ProblemsContainerKey: TypeAlias = tuple[int, int]
 _ProblemsContainerValue: TypeAlias = Mapping[str, object]
 _ProblemsContainerMapping: TypeAlias = Mapping[_ProblemsContainerKey, _ProblemsContainerValue]
@@ -375,3 +379,12 @@ def function_call_is_any_pycord_decorator(node: ast.Call) -> bool:
         or function_call_is_pycord_task_decorator(node)
         or function_call_is_pycord_event_listener_decorator(node)  # noqa: COM812
     )
+
+def generic_visit_before_return(func: Callable[[T_Visitor, T_Node], None]) -> Callable[[T_Visitor, T_Node], None]:  # noqa: E501
+    """"""
+    @functools.wraps(func)
+    def wrapper(self: T_Visitor, node: T_Node) -> None:
+        func(self, node)
+        self.generic_visit(node)
+
+    return wrapper

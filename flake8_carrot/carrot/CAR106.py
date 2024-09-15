@@ -8,8 +8,9 @@ __all__: Sequence[str] = ("RuleCAR106",)
 import ast
 from collections.abc import Mapping
 from tokenize import TokenInfo
-from typing import Final, override
+from typing import override
 
+from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
 
 
@@ -22,6 +23,9 @@ class RuleCAR106(CarrotRule, ast.NodeVisitor):
         imported_class: object | None = ctx.get("imported_class", None)
         if imported_class is not None and not isinstance(imported_class, str):
             raise TypeError
+
+        if imported_class:
+            imported_class = imported_class.strip().strip("`").strip()
 
         return (
             "CAR106 "
@@ -36,22 +40,26 @@ class RuleCAR106(CarrotRule, ast.NodeVisitor):
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
+    @utils.generic_visit_before_return
     @override
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
-        COLLECTIONS_IMPORT_FOUND: Final[bool] = bool(
-            node.module in ("collections.abc", "typing")
-            and self.plugin.first_all_export_line_numbers is not None
-            and node.lineno < self.plugin.first_all_export_line_numbers[0]
-            and any(alias.name == "Sequence" for alias in node.names)  # noqa: COM812
-        )
-        if COLLECTIONS_IMPORT_FOUND:
-            alias: ast.alias
-            for alias in node.names:
-                if alias.name == "Sequence":
-                    continue
+        if self.plugin.first_all_export_line_numbers is None:
+            return
 
-                self.problems[(alias.lineno, alias.col_offset)] = {
-                    "imported_class": alias.name,
-                }
+        if node.lineno >= self.plugin.first_all_export_line_numbers[0]:
+            return
 
-        self.generic_visit(node)
+        if node.module not in ("collections.abc", "typing"):
+            return
+
+        if all(alias.name != "Sequence" for alias in node.names):
+            return
+
+        alias: ast.alias
+        for alias in node.names:
+            if alias.name == "Sequence":
+                continue
+
+            self.problems[(alias.lineno, alias.col_offset)] = {
+                "imported_class": alias.name,
+            }

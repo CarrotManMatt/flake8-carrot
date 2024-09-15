@@ -6,10 +6,11 @@ __all__: Sequence[str] = ("RuleCAR107",)
 
 
 import ast
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from tokenize import TokenInfo
-from typing import Final, override
+from typing import override
 
+from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
 
 
@@ -23,12 +24,14 @@ class RuleCAR107(CarrotRule, ast.NodeVisitor):
         if export_object_name is not None and not isinstance(export_object_name, str):
             raise TypeError
 
+        if export_object_name is None:
+            return "CAR107 `__all__` export should be in alphabetical order"
+
         correct_index: object | None = ctx.get("correct_index", None)
         if correct_index is not None and not isinstance(correct_index, int):
             raise TypeError
 
-        if export_object_name is None:
-            return "CAR107 `__all__` export should be in alphabetical order"
+        export_object_name = export_object_name.strip().strip("`").strip()
 
         return (
             "CAR107 "
@@ -40,6 +43,16 @@ class RuleCAR107(CarrotRule, ast.NodeVisitor):
     @override
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
+
+    @classmethod
+    def _targets_contain_all(cls, targets: Iterable[ast.expr]) -> bool:
+        target: ast.expr
+        for target in targets:
+            match target:
+                case ast.Name(id="__all__"):
+                    return True
+
+        return False
 
     def _check_for_non_alphabetical_all_export_values(self, values: ast.List | ast.Tuple) -> None:  # noqa: E501
         sorted_values: list[ast.Constant] = sorted(
@@ -61,32 +74,32 @@ class RuleCAR107(CarrotRule, ast.NodeVisitor):
                     "correct_index": correct_index,
                 }
 
+    @utils.generic_visit_before_return
     @override
     def visit_Assign(self, node: ast.Assign) -> None:
-        FIRST_ALL_EXPORT_FOUND: Final[bool] = bool(
-            any(
-                isinstance(target, ast.Name) and target.id == "__all__"
-                for target in node.targets
-            )
-            and isinstance(node.value, ast.List | ast.Tuple)
-            and self.plugin.first_all_export_line_numbers is not None
-            and node.lineno == self.plugin.first_all_export_line_numbers[0]  # noqa: COM812
-        )
-        if FIRST_ALL_EXPORT_FOUND:
-            self._check_for_non_alphabetical_all_export_values(node.value)  # type: ignore[arg-type]
+        if self.plugin.first_all_export_line_numbers is None:
+            return
 
-        self.generic_visit(node)
+        if node.lineno != self.plugin.first_all_export_line_numbers[0]:
+            return
+
+        if not isinstance(node.value, ast.List | ast.Tuple):
+            return
+
+        if self._targets_contain_all(node.targets):
+            self._check_for_non_alphabetical_all_export_values(node.value)
 
     @override
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
-        FIRST_ALL_EXPORT_FOUND: Final[bool] = bool(
-            isinstance(node.target, ast.Name)
-            and node.target.id == "__all__"
-            and isinstance(node.value, ast.List | ast.Tuple)
-            and self.plugin.first_all_export_line_numbers is not None
-            and node.lineno == self.plugin.first_all_export_line_numbers[0]  # noqa: COM812
-        )
-        if FIRST_ALL_EXPORT_FOUND:
-            self._check_for_non_alphabetical_all_export_values(node.value)  # type: ignore[arg-type]
+        if self.plugin.first_all_export_line_numbers is None:
+            return
 
-        self.generic_visit(node)
+        if node.lineno != self.plugin.first_all_export_line_numbers[0]:
+            return
+
+        if not isinstance(node.value, ast.List | ast.Tuple):
+            return
+
+        match node.target:
+            case ast.Name(id="__all__"):
+                self._check_for_non_alphabetical_all_export_values(node.value)

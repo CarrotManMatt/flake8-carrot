@@ -10,6 +10,8 @@ from collections.abc import Mapping
 from tokenize import TokenInfo
 from typing import override
 
+from mypy.fastparse import Constant
+
 from flake8_carrot.utils import CarrotRule
 
 
@@ -23,6 +25,13 @@ class RuleCAR105(CarrotRule):
         if line is not None and not isinstance(line, str):
             raise TypeError
 
+        if line:
+            line = line.strip().strip("`").strip()
+            # noinspection PyTypeChecker
+            line = f"`{
+                line if len(line) < 30 else f"{line[:30]}..."
+            }`"
+
         return (
             "CAR105 "
             f"{
@@ -34,29 +43,29 @@ class RuleCAR105(CarrotRule):
 
     @override
     def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+        if self.plugin.first_all_export_line_numbers is None:
+            return
+
         if not isinstance(tree, ast.Module):
+            raise TypeError
+
+        if len(tree.body) < 2:
             return
 
         node: ast.stmt
         for node in tree.body:
-            EXPRESSION_BEFORE_ALL: bool = bool(
-                hasattr(node, "lineno")
-                and hasattr(node, "col_offset")
-                and self.plugin.first_all_export_line_numbers is not None
-                and node.lineno < self.plugin.first_all_export_line_numbers[0]
-                and not bool(
-                    isinstance(node, ast.Expr)
-                    and isinstance(node.value, ast.Constant)
-                    and node.lineno == self.plugin.true_start_line_number  # noqa: COM812
-                )
-                and not bool(
-                    isinstance(node, ast.ImportFrom)
-                    and node.module in ("collections.abc", "typing")
-                    and any(name.name == "Sequence" for name in node.names)  # noqa: COM812
-                )  # noqa: COM812
-            )
-            if EXPRESSION_BEFORE_ALL:
-                line: str = ast.unparse(node).split("\n")[0]
-                self.problems[(node.lineno, 0)] = {
-                    "line": f"`{line if len(line) < 30 else f"{line[:30]}..."}`",
-                }
+            if node.lineno >= self.plugin.first_all_export_line_numbers[0]:
+                return
+
+            if node == tree.body[0]:
+                match node:
+                    case ast.Expr(value=Constant()):
+                        continue
+
+            match node:
+                case ast.ImportFrom(module="collections.abc" | "typing"):
+                    # noinspection PyUnresolvedReferences
+                    if any(name.name == "Sequence" for name in node.names):
+                        continue
+
+            self.problems[(node.lineno, 0)] = {"line": ast.unparse(node).split("\n")[0]}
