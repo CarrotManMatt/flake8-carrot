@@ -33,7 +33,6 @@ TXB = "flake8_carrot:TeXBotPlugin"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-setuptools = "^75.1"
 flake8 = "^7.1"
 classproperties = {git = "https://github.com/hottwaj/classproperties.git"}
 
