@@ -9,7 +9,7 @@ import ast
 import re
 from collections.abc import Mapping
 from tokenize import TokenInfo
-from typing import Final, override
+from typing import override
 
 from flake8_carrot.utils import CarrotRule
 

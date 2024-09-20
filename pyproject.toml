@@ -114,8 +114,8 @@ select = [
     "COM",
     "DTZ",
     "T",
-    "DJ",
     "EM",
+    "EXE",
     "ISC",
     "ICN",
     "LOG",
@@ -144,6 +144,7 @@ select = [
     "FLY",
     "PERF",
     "FURB",
+    "DOC",
     "RUF",
 ]
 fixable = ["I001", "TCH", "F401", "COM812"]
