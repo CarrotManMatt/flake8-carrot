@@ -2,7 +2,7 @@
 name = "flake8-carrot"
 version = "v0.0.1"
 license = "Apache-2.0"
-description = "A plugin for Flake8 finding opinionated problems in you Python code. Ensures that your Python code adhere's to CarrotManMatt's style guide."
+description = "A plugin for Flake8; Finding opinionated problems in your Python code. Ensures that your Python code adhere's to CarrotManMatt's style guide."
 authors = ["Matt Norton <matt@carrotmanmatt.com>"]
 repository = "https://github.com/CarrotManMatt/flake8-carrot.git"
 keywords = ["python", "flake8", "flake8-plugin", "linter", "static analysis"]
@@ -33,7 +33,7 @@ TXB = "flake8_carrot:TeXBotPlugin"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-setuptools = "^74.1"
+setuptools = "^75.1"
 flake8 = "^7.1"
 classproperties = {git = "https://github.com/hottwaj/classproperties.git"}
 

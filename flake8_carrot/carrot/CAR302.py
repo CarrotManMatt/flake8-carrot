@@ -134,7 +134,7 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
         if number_of_commands_in_class == 1 and not class_name.endswith("CommandCog"):
             return True
 
-        return number_of_commands_in_class > 1 and not class_name.endswith("CommandsCogs")
+        return number_of_commands_in_class > 1 and not class_name.endswith("CommandsCog")
 
     @utils.generic_visit_before_return
     @override

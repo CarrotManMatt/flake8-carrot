@@ -6,7 +6,9 @@ ifndef::env-idea[]
 include::.asciidoctorconfig[]
 endif::[]
 
-A {url-flake8-wiki-plugins}[plugin] for {labelled-url-flake8} finding opinionated problems in your {labelled-url-python} code. Ensures that your {labelled-url-python} code adheres to https://carrotmanmatt.com[CarrotManMatt]'s style guide.
+A {url-flake8-wiki-plugins}[plugin] for {labelled-url-flake8};
+Finding opinionated problems in your {labelled-url-python} code.
+Ensures that your {labelled-url-python} code adheres to https://carrotmanmatt.com[CarrotManMatt]'s style guide.
 
 image:https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2FCarrotManMatt%2Fflake8-carrot%2Fmain%2Fpyproject.toml&query=%24.tool.poetry.version&label=flake8-carrot[Current Version,link={url-project-repo}]
 image:https://img.shields.io/pypi/v/flake8-carrot[PyPI - Version,link={url-project-pypi}]

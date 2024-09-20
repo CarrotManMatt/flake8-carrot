@@ -177,7 +177,7 @@
 :labelled-url-wiki-markdown: {url-wiki-markdown}[MarkDown]
 :labelled-url-git: {url-git}[Git]
 :labelled-url-ruff: {url-ruff}[Ruff]
-:labelled-url-flake8: {url-flake8}[flake8]
+:labelled-url-flake8: {url-flake8}[Flake8]
 :labelled-url-mypy: {url-mypy}[mypy]
 :labelled-url-rust: {url-rust}[Rust]
 :labelled-url-poetry: {url-poetry}[Poetry]
