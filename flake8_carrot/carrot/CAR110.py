@@ -22,7 +22,7 @@ class RuleCAR110(CarrotRule):
         return "CAR110 Double newline is required after `__all__` export"
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         if self.plugin.first_all_export_line_numbers is None:
             return
 

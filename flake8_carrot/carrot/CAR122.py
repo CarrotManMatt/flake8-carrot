@@ -38,7 +38,7 @@ class RuleCAR122(CarrotRule):
         return match.span("noqa")[0]
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         line_number: int
         line: str
         for line_number, line in enumerate(lines, start=1):

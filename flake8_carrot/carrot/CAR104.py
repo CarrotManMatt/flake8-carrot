@@ -23,7 +23,7 @@ class RuleCAR104(CarrotRule, ast.NodeVisitor):
         return "CAR104 Simple `__all__` export should be of type `tuple`, not `list`"
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
     @classmethod

@@ -26,8 +26,8 @@ class RuleCAR111(CarrotRule):
         )
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
-        if len(lines) <= 1 or not isinstance(tree, ast.Module) or len(tree.body) < 2:
+    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+        if len(lines) <= 1 or len(tree.body) < 2:
             return
 
         match tree.body[0]:

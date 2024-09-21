@@ -37,7 +37,7 @@ class RuleCAR106(CarrotRule, ast.NodeVisitor):
         )
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
     @utils.generic_visit_before_return

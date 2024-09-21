@@ -23,7 +23,7 @@ class RuleCAR140(CarrotRule, ast.NodeVisitor):
         return "CAR140 Unnecessary use of string strip function"
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
     @utils.generic_visit_before_return

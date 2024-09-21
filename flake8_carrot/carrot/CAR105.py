@@ -42,14 +42,8 @@ class RuleCAR105(CarrotRule):
         )
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
-        if self.plugin.first_all_export_line_numbers is None:
-            return
-
-        if not isinstance(tree, ast.Module):
-            raise TypeError
-
-        if len(tree.body) < 2:
+    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+        if self.plugin.first_all_export_line_numbers is None or len(tree.body) < 2:
             return
 
         node: ast.stmt

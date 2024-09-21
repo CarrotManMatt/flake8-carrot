@@ -96,7 +96,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         )
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
     def _check_single_argument(self, argument: ast.expr, function_type: _FunctionType) -> None:

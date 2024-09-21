@@ -23,7 +23,7 @@ class RuleCAR102(CarrotRule, ast.NodeVisitor):
         return "CAR102 Multiple `__all__` exports found in a single module"
 
     @override
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
     @classmethod

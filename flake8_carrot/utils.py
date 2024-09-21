@@ -100,7 +100,16 @@ class BasePlugin(abc.ABC):
 
     def __init__(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         """"""
-        self._tree: ast.AST = tree
+        if isinstance(tree, ast.Module):
+            pass
+        elif isinstance(tree, ast.Interactive):
+            tree = ast.Module(body=tree.body, type_ignores=[])
+        elif isinstance(tree, ast.Expression):
+            tree = ast.Module(body=[ast.Expr(tree.body)], type_ignores=[])
+        else:
+            raise TypeError("Cannot run flake8-carrot plugin with tree that is not an 'ast.Module'.")
+
+        self._tree: ast.Module = tree
         self._file_tokens: Sequence[TokenInfo] = file_tokens
         self._lines: Sequence[str] = lines
 
@@ -184,7 +193,7 @@ class BaseRule(abc.ABC, Generic[T_plugin]):
         super().__init__()
 
     @abc.abstractmethod
-    def run_check(self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         """"""
 
     @classmethod
