@@ -10,7 +10,6 @@ from collections.abc import Mapping
 from tokenize import TokenInfo
 from typing import override
 
-import astpretty
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
