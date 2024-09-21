@@ -107,7 +107,10 @@ class BasePlugin(abc.ABC):
         elif isinstance(tree, ast.Expression):
             tree = ast.Module(body=[ast.Expr(tree.body)], type_ignores=[])
         else:
-            raise TypeError("Cannot run flake8-carrot plugin with tree that is not an 'ast.Module'.")
+            CANNOT_RUN_WITH_NON_MODULE_MESSAGE: Final[str] = (
+                "Cannot run flake8-carrot plugin with tree that is not an 'ast.Module'."
+            )
+            raise TypeError(CANNOT_RUN_WITH_NON_MODULE_MESSAGE)
 
         self._tree: ast.Module = tree
         self._file_tokens: Sequence[TokenInfo] = file_tokens

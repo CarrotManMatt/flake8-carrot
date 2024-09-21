@@ -6,7 +6,7 @@ __all__: Sequence[str] = ("RuleCAR141",)
 
 
 import ast
-from collections.abc import Mapping, Iterable
+from collections.abc import Iterable, Mapping
 from tokenize import TokenInfo
 from typing import override
 
@@ -26,7 +26,7 @@ class RuleCAR141(CarrotRule, ast.NodeVisitor):
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
-    def _check_for_string_function(self, statements: Iterable[ast.stmt]):
+    def _check_for_string_function(self, statements: Iterable[ast.stmt]) -> None:
         statement: ast.stmt
         for statement in statements:
             match statement:
