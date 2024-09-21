@@ -54,14 +54,14 @@ class RuleCAR201(CarrotRule, ast.NodeVisitor):
                 case ast.Name(id=variable_name):
                     if "logger" in variable_name.lower():
                         return True
-                case ast.Constant(value=variable_name):
+                case ast.Constant(value=str(variable_name)):
                     if "logger" in variable_name.lower():
                         return True
 
         return False
 
     @classmethod
-    def _match_single_target(cls, target: ast.expr) -> bool:
+    def _match_single_target(cls, target: ast.Name | ast.expr) -> bool:
         variable_name: str
         match target:
             case ast.Subscript(value=ast.Name(id=variable_name)):

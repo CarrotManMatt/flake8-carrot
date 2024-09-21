@@ -26,6 +26,7 @@ __all__: Sequence[str] = (
     "RuleCAR303",
     "RuleCAR304",
     "RuleCAR305",
+    "RuleCAR401",
 )
 
 
@@ -36,6 +37,7 @@ from typing import Final, override
 
 from classproperties import classproperty
 
+from flake8_carrot import utils
 from flake8_carrot.utils import BasePlugin, CarrotRule
 
 from .CAR101 import RuleCAR101
@@ -58,6 +60,7 @@ from .CAR302 import RuleCAR302
 from .CAR303 import RuleCAR303
 from .CAR304 import RuleCAR304
 from .CAR305 import RuleCAR305
+from .CAR401 import RuleCAR401
 
 
 class CarrotPlugin(BasePlugin):
@@ -89,6 +92,7 @@ class CarrotPlugin(BasePlugin):
                 RuleCAR303,
                 RuleCAR304,
                 RuleCAR305,
+                RuleCAR401,
             },
         )
 
@@ -101,6 +105,7 @@ class CarrotPlugin(BasePlugin):
             def __init__(self) -> None:
                 self.found_slash_command_group_names: set[str] = set()
                 self.first_all_export_line_numbers: tuple[int, int] | None = None
+                self.pprint_imported_for_debugging: bool = False
 
             @classmethod
             def _node_is_slash_command_group_assignment(cls, node: ast.Assign | ast.AnnAssign) -> bool:  # noqa: E501
@@ -179,6 +184,15 @@ class CarrotPlugin(BasePlugin):
 
                 self.generic_visit(node)
 
+            @override
+            def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+                if node.module in utils.PPRINT_MODULES:
+                    import_alias: ast.alias
+                    for import_alias in node.names:
+                        if "print" in import_alias.name:
+                            self.pprint_imported_for_debugging = True
+                            break
+
         context_values_finder: ContextValuesFinder = ContextValuesFinder()
         context_values_finder.visit(tree)
 
@@ -187,6 +201,9 @@ class CarrotPlugin(BasePlugin):
         )
         self._first_all_export_line_numbers: tuple[int, int] | None = (
             context_values_finder.first_all_export_line_numbers
+        )
+        self._pprint_imported_for_debugging: bool = (
+            context_values_finder.pprint_imported_for_debugging
         )
 
         super().__init__(tree=tree, file_tokens=file_tokens, lines=lines)
@@ -200,3 +217,8 @@ class CarrotPlugin(BasePlugin):
     def first_all_export_line_numbers(self) -> tuple[int, int] | None:
         """"""
         return self._first_all_export_line_numbers
+
+    @property
+    def pprint_imported_for_debugging(self) -> bool:
+        """"""
+        return self._pprint_imported_for_debugging

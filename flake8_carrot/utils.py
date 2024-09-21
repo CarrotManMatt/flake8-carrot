@@ -30,6 +30,7 @@ import enum
 import functools
 import re
 from collections.abc import Callable, Generator, Iterable, Mapping
+from collections.abc import Set as AbstractSet
 from enum import Enum
 from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Final, Generic, TypeAlias, TypeVar, override
@@ -56,39 +57,30 @@ _ProblemsContainerIterable: TypeAlias = Iterable[
 ]
 
 
-PYCORD_SLASH_COMMAND_DECORATOR_NAMES: Final[frozenset[str]] = frozenset(
-    {
-        "application_command",
-        "command",
-        "slash_command",
-        "ApplicationCommand",
-        "SlashCommand",
-        "SlashCommandGroup",
-    },
-)
-PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES: Final[frozenset[str]] = frozenset(
-    {
-        "user_command",
-        "message_command",
-        "UserCommand",
-        "MessageCommand",
-    },
-)
-PYCORD_OPTION_DECORATOR_NAMES: Final[frozenset[str]] = frozenset(
-    {
-        "option",
-        "Option",
-        "ThreadOption",
-        "OptionChoice",
-    },
-)
-PYCORD_TASK_DECORATOR_NAMES: Final[frozenset[str]] = frozenset(
-    {"loop", "Loop", "SleepHandle"},
-)
-PYCORD_EVENT_LISTENER_DECORATOR_NAMES: Final[frozenset[str]] = frozenset(
-    {"listen", "listener"},
-)
-ALL_PYCORD_FUNCTION_NAMES: Final[frozenset[str]] = (
+PPRINT_MODULES: Final[AbstractSet[str]] = {"astpretty"}
+PYCORD_SLASH_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = {
+    "application_command",
+    "command",
+    "slash_command",
+    "ApplicationCommand",
+    "SlashCommand",
+    "SlashCommandGroup",
+}
+PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = {
+    "user_command",
+    "message_command",
+    "UserCommand",
+    "MessageCommand",
+}
+PYCORD_OPTION_DECORATOR_NAMES: Final[AbstractSet[str]] = {
+    "option",
+    "Option",
+    "ThreadOption",
+    "OptionChoice",
+}
+PYCORD_TASK_DECORATOR_NAMES: Final[AbstractSet[str]] = {"loop", "Loop", "SleepHandle"}
+PYCORD_EVENT_LISTENER_DECORATOR_NAMES: Final[AbstractSet[str]] = {"listen", "listener"}
+ALL_PYCORD_FUNCTION_NAMES: Final[AbstractSet[str]] = (
     PYCORD_SLASH_COMMAND_DECORATOR_NAMES
     | PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
     | PYCORD_OPTION_DECORATOR_NAMES
@@ -224,7 +216,7 @@ class _PycordCommandsModuleLookFor(Enum):
 
 
 def _function_call_is_pycord_function_from_commands_module(node: ast.Call, pycord_commands_module_look_for: _PycordCommandsModuleLookFor) -> bool:  # noqa: E501
-    NAMES: Final[frozenset[str] | None] = (
+    NAMES: Final[AbstractSet[str] | None] = (
         PYCORD_SLASH_COMMAND_DECORATOR_NAMES
         if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.SLASH_COMMAND_DECORATORS  # noqa: E501
         else (
