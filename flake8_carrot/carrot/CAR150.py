@@ -40,8 +40,6 @@ class RuleCAR150(CarrotRule, ast.NodeVisitor):
 
     @override
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
-        for token in file_tokens:
-            print(token)
         self.visit(tree)
 
     def _check_args(self, args: ast.arguments) -> None:
