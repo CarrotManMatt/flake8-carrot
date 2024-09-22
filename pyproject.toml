@@ -147,7 +147,28 @@ select = [
     "DOC",
     "RUF",
 ]
-fixable = ["I001", "TCH", "F401", "COM812"]
+fixable = [
+    "I001",
+    "TCH",
+    "F401",
+    "F541",
+    "F632",
+    "F811",
+    "F901",
+    "E2",
+    "E3",
+    "E401",
+    "E502",
+    "E703",
+    "E71",
+    "W29",
+    "W391",
+    "D2",
+    "D3",
+    "D400",
+    "D406",
+    "D415",
+]  # TODO: Check which rules should allow auto-fixes
 ignore = [
     "D203",
     "D212",

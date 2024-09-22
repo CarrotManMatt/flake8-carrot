@@ -10,7 +10,7 @@ import re
 from collections.abc import Mapping
 from enum import Enum
 from tokenize import TokenInfo
-from typing import Final, override
+from typing import Final, Literal, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
@@ -29,7 +29,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         REQUIRES_BOTH = "should be both hyphenated and lowercased"
 
         @classmethod
-        def from_bools(cls, *, requires_hyphenation: bool, requires_lowercasing: bool) -> "RuleCAR303._InvalidArgumentReason | None":  # noqa: E501
+        def from_bools(cls, *, requires_hyphenation: bool, requires_lowercasing: bool) -> "RuleCAR303._InvalidArgumentReason | Literal[False]":  # noqa: E501
             """"""
             if requires_hyphenation and requires_lowercasing:
                 return cls.REQUIRES_BOTH
@@ -40,7 +40,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
             if requires_lowercasing:
                 return cls.REQUIRES_LOWERCASING
 
-            return None
+            return False
 
     @classmethod
     @override
@@ -103,7 +103,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         if not isinstance(argument, ast.Constant):
             return
 
-        reason: RuleCAR303._InvalidArgumentReason | None = (
+        reason: RuleCAR303._InvalidArgumentReason | Literal[False] = (
             self._InvalidArgumentReason.from_bools(
                 requires_hyphenation=(
                     "." in argument.value or " " in argument.value or "_" in argument.value
@@ -111,7 +111,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
                 requires_lowercasing=bool(re.search(r"[A-Z]", argument.value)),
             )
         )
-        if reason is None:
+        if reason is False:
             return
 
         # noinspection PyTypeChecker
