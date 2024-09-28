@@ -43,8 +43,19 @@ class RuleCAR112(CarrotRule, NodeVisitor):
     def _check_bodied_ast(cls, start_line_number: int, end_line_number: int | None, body_parts: Iterable[Sequence[ast.stmt]]) -> bool:  # noqa: E501
         body: Sequence[ast.stmt]
         for body in body_parts:
-            if len(body) != 0:
-                return body[0].lineno - 1 != start_line_number
+            if len(body) == 0:
+                continue
+
+            first_decorator_line_number: int
+            match body[0]:
+                case ast.FunctionDef(
+                    decorator_list=[ast.expr(lineno=first_decorator_line_number), *_]
+                    | ast.AsyncFunctionDef(decorator_list=[ast.expr(lineno=first_decorator_line_number), *_])
+                ):
+                    return first_decorator_line_number - 1 != start_line_number
+
+                case _:
+                    return body[0].lineno - 1 != start_line_number
 
         if end_line_number is None:
             return False

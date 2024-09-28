@@ -159,7 +159,7 @@ class ProblemsContainer(_ProblemsContainerDict):
 
     # noinspection PyOverrides
     @override
-    def __init__(self, mapping: _ProblemsContainerMapping | _ProblemsContainerIterable | None = None, /, **kwargs: _ProblemsContainerValue) -> None:  # noqa: E501
+    def __init__(self, mapping: _ProblemsContainerMapping | _ProblemsContainerIterable | None = None, /, **kwargs: _ProblemsContainerValue) -> None:  # noqa: E501, CAR150
         if mapping is None:
             mapping = {}
         elif isinstance(mapping, Mapping):
