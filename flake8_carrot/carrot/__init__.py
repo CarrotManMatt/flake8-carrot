@@ -19,6 +19,7 @@ __all__: Sequence[str] = (
     "RuleCAR120",
     "RuleCAR121",
     "RuleCAR122",
+    "RuleCAR123",
     "RuleCAR130",
     "RuleCAR140",
     "RuleCAR141",
@@ -59,6 +60,7 @@ from .CAR112 import RuleCAR112
 from .CAR120 import RuleCAR120
 from .CAR121 import RuleCAR121
 from .CAR122 import RuleCAR122
+from .CAR123 import RuleCAR123
 from .CAR130 import RuleCAR130
 from .CAR140 import RuleCAR140
 from .CAR141 import RuleCAR141
@@ -97,6 +99,7 @@ class CarrotPlugin(BasePlugin):
                 RuleCAR120,
                 RuleCAR121,
                 RuleCAR122,
+                RuleCAR123,
                 RuleCAR130,
                 RuleCAR140,
                 RuleCAR141,

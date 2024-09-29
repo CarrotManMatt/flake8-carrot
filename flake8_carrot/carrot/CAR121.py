@@ -184,7 +184,7 @@ class RuleCAR121(CarrotRule):
                     "ignore_comment_type": ignore_comment_type,
                     "multiple_commas": multiple_commas,
                 }
-                for line_number, line in enumerate(lines, start=1)
+                for line_number, line in enumerate(lines, start=1)  # TODO: Use filetoken comments rather than line regexes
                 for match_location, (ignore_comment_type, multiple_commas)
                 in self._get_all_error_locations(line.rstrip()).items()
             },

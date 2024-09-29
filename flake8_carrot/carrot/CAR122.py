@@ -41,7 +41,7 @@ class RuleCAR122(CarrotRule):
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         line_number: int
         line: str
-        for line_number, line in enumerate(lines, start=1):
+        for line_number, line in enumerate(lines, start=1):  # TODO: Use filetoken comments rather than line regexes
             found_error: int | None = self._check_noqa_first(line.rstrip())
 
             if found_error is None:
