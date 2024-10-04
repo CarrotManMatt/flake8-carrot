@@ -7,6 +7,7 @@ __all__: Sequence[str] = ("RuleCAR121",)
 
 import ast
 import re
+import tokenize
 from collections.abc import Mapping
 from enum import Enum
 from tokenize import TokenInfo
@@ -180,12 +181,13 @@ class RuleCAR121(CarrotRule):
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.problems = ProblemsContainer(
             self.problems | {
-                (line_number, match_location): {
+                (file_token.start[0], file_token.start[1] + match_location): {
                     "ignore_comment_type": ignore_comment_type,
                     "multiple_commas": multiple_commas,
                 }
-                for line_number, line in enumerate(lines, start=1)  # TODO: Use filetoken comments rather than line regexes
+                for file_token in file_tokens
                 for match_location, (ignore_comment_type, multiple_commas)
-                in self._get_all_error_locations(line.rstrip()).items()
+                in self._get_all_error_locations(file_token.string.rstrip()).items()
+                if file_token.type == tokenize.COMMENT
             },
         )

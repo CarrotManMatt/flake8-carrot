@@ -7,6 +7,7 @@ __all__: Sequence[str] = ("RuleCAR120",)
 
 import ast
 import re
+import tokenize
 from collections.abc import Mapping
 from tokenize import TokenInfo
 from typing import Final, override
@@ -191,12 +192,13 @@ class RuleCAR120(CarrotRule):
         self.problems = ProblemsContainer(
             (
                 self.problems | {
-                    (line_number, match_location): {
+                    (file_token.start[0], file_token.start[1] + match_location): {
                         "replacement_message": replacement_message,
                     }
-                    for line_number, line in enumerate(lines, start=1)  # TODO: Use filetoken comments rather than line regexes
+                    for file_token in file_tokens
                     for match_location, replacement_message
-                    in self._get_all_error_locations(line.rstrip()).items()
+                    in self._get_all_error_locations(file_token.string.rstrip()).items()
+                    if file_token.type == tokenize.COMMENT
                 }
             ),
         )
