@@ -168,7 +168,14 @@ fixable = [
     "D400",
     "D406",
     "D415",
-]  # TODO: Check which rules should allow auto-fixes
+    "UP",
+    "YTT",
+    "B004",
+    "EXE004",
+    "G010",
+    "PIE",
+    "PYI009",
+]
 ignore = [
     "D203",
     "D212",

@@ -14,7 +14,7 @@ from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
 
 
-class RuleCAR107(CarrotRule, ast.NodeVisitor):
+class RuleCAR107(CarrotRule, ast.NodeVisitor):  # NOTE: This rule can be removed once RUF022 is no longer in preview
     """"""
 
     @classmethod
