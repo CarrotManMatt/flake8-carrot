@@ -29,7 +29,8 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
 
         return (
             "CAR305 "
-            f"Return annotation of autocomplete function '{function_name}' "
+            "Return annotation of autocomplete function "
+            f"{f"'{function_name}' " if function_name else ""}"
             "should be `AbstractSet[discord.OptionChoice] | AbstractSet[str]`"
         )
 

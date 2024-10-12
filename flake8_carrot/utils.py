@@ -245,7 +245,7 @@ def _function_call_is_pycord_function_from_commands_module(node: ast.Call, pycor
     if NAMES is None:
         raise RuntimeError
 
-    return bool(
+    return bool(  # TODO: Convert to match case
         (isinstance(node.func, ast.Name) and node.func.id in NAMES)
         or bool(
             isinstance(node.func, ast.Attribute)

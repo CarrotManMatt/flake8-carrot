@@ -100,7 +100,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         self.visit(tree)
 
     def _check_single_argument(self, argument: ast.expr, function_type: _FunctionType) -> None:
-        if not isinstance(argument, ast.Constant):
+        if not isinstance(argument, ast.Constant) or not isinstance(argument.value, str):
             return
 
         reason: RuleCAR303._InvalidArgumentReason | Literal[False] = (

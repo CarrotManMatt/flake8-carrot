@@ -43,7 +43,7 @@ class RuleCAR304(CarrotRule, ast.NodeVisitor):
         self.visit(tree)
 
     def _check_single_argument(self, argument: ast.expr, function_type: _FunctionType) -> None:  # noqa: C901, PLR0911, PLR0912
-        if not isinstance(argument, ast.Constant):
+        if not isinstance(argument, ast.Constant) or not isinstance(argument.value, str):
             return
 
         if argument.value.endswith("."):
