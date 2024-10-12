@@ -22,7 +22,7 @@ class RuleCAR101(CarrotRule):
         return "CAR101 Missing `__all__` export at the top of the module"
 
     @classmethod
-    def get_error_position(cls, tree_body: Sequence[ast.stmt], lines: Sequence[str]) -> tuple[int, int]:  # noqa: E501  # NOTE: I'm sorry to whoever has to work out what is going on here
+    def get_error_position(cls, tree_body: Sequence[ast.stmt], lines: Sequence[str]) -> tuple[int, int]:  # NOTE: I'm sorry to whoever has to work out what is going on here  # noqa: E501
         """"""
         if not tree_body:
             return 1, 0

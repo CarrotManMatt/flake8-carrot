@@ -2,10 +2,11 @@
 
 from collections.abc import Sequence
 
-__all__: Sequence[str] = ("RuleCAR304",)
+__all__: Sequence[str] = ("RuleCAR307",)
 
 
 import ast
+import re
 from collections.abc import Mapping
 from enum import Enum
 from tokenize import TokenInfo
@@ -15,99 +16,84 @@ from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
 
 
-class RuleCAR304(CarrotRule, ast.NodeVisitor):
+class RuleCAR307(CarrotRule, ast.NodeVisitor):
     """"""
 
     class _FunctionType(Enum):
-        COMMAND = "command"
+        COMMAND = "slash-command"
         OPTION = "option"
 
     @classmethod
     @override
     def format_error_message(cls, ctx: Mapping[str, object]) -> str:
-        function_type: object | None = ctx.get("function_type", None)
-        if function_type is not None and not isinstance(function_type, cls._FunctionType):
+        function_type: object | None = ctx.get("context_command_type", None)
+        if function_type is not None and not isinstance(function_type, RuleCAR307._FunctionType):
             raise TypeError
 
+        incorrect_name: object | None = ctx.get("incorrect_name", None)
+        if incorrect_name is not None and not isinstance(incorrect_name, str):
+            raise TypeError
+
+        invalid_character: object | None = ctx.get("invalid_character", None)
+        if invalid_character is not None and not isinstance(invalid_character, str):
+            raise TypeError
+
+        if invalid_character is not None and len(invalid_character) != 1:
+            MULTIPLE_INVALID_CHARACTERS_MESSAGE: Final[str] = (
+                "Multiple invalid characters were given."
+            )
+            raise ValueError(MULTIPLE_INVALID_CHARACTERS_MESSAGE)
+
+        if incorrect_name:
+            incorrect_name = incorrect_name.strip().strip("'").strip()
+
         return (
-            "CAR304 "
-            f"Pycord {
+            "CAR307 "
+            f"Invalid character: {
+                f"'{invalid_character}'" if invalid_character is not None else ""
+            }"
+            f" found within Pycord {
                 function_type.value
                 if function_type is not None
-                else "command/option"
-            } description should end with a full-stop"
+                else "slash-command/option"
+            } name"
+            f"{f" '{incorrect_name}'" if incorrect_name else ""}"
         )
 
     @override
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
         self.visit(tree)
 
-    def _check_single_argument(self, argument: ast.expr, function_type: _FunctionType) -> None:  # noqa: C901, PLR0911, PLR0912
+    def _check_single_argument(self, argument: ast.expr, function_type: "RuleCAR307._FunctionType") -> None:  # noqa: E501
         if not isinstance(argument, ast.Constant):
             return
 
         if not argument.value or not isinstance(argument.value, str):
             return
 
-        if argument.value.endswith("."):
-            return
-        if argument.value.endswith("!"):
-            return
-        if argument.value.endswith("?"):
-            return
-        if argument.value.endswith(";"):
-            return
-        if argument.value.endswith("%"):
-            return
-        if argument.value.endswith("]") and "[" in argument.value:
-            return
-        if argument.value.endswith(")") and "(" in argument.value:
-            return
-        if argument.value.endswith("}") and "{" in argument.value:
-            return
-        if argument.value.endswith(">") and "<" in argument.value:
-            return
-        if argument.value.endswith("\""):
-            double_quote_count: int = argument.value.count("\"")
-            if double_quote_count > 1 and double_quote_count % 2 == 0:
-                return
-        if argument.value.endswith("'"):
-            single_quote_count: int = argument.value.count("'")
-            if single_quote_count > 1 and single_quote_count % 2 == 0:
-                return
-        if argument.value.endswith("`"):
-            backtick_count: int = argument.value.count("`")
-            if backtick_count > 1 and backtick_count % 2 == 0:
-                return
-        if argument.value.endswith("*"):
-            asterisk_count: int = argument.value.count("*")
-            if asterisk_count > 1 and asterisk_count % 2 == 0:
-                return
-        if argument.value.endswith("_"):
-            underscore_count: int = argument.value.count("_")
-            if underscore_count > 1 and underscore_count % 2 == 0:
-                return
-        if argument.value.endswith("~"):
-            tilde_count: int = argument.value.count("~")
-            if tilde_count > 1 and tilde_count % 2 == 0:
-                return
+        if function_type is self._FunctionType.COMMAND and argument.value.endswith((".", "_", " ")):
+            self.problems[(argument.lineno, argument.end_col_offset)] = {
+                "invalid_character": argument.value[-1],
+                "function_type": function_type,
+                "incorrect_name": argument.value,
+            }
 
-        column_offset: int = (
-            (argument.end_col_offset - 1)
-            if argument.end_col_offset
-            else argument.col_offset
-        )
-        self.problems[(argument.lineno, column_offset)] = {
-            "function_type": function_type,
-        }
+        for invalid_character in "`!¬£$€%^&*+=,<>?#~`":
+            invalid_character_match: re.Match[str]
+            for invalid_character_match in re.finditer(fr"\{invalid_character}", argument.value):
+                self.problems[(argument.lineno, argument.col_offset + invalid_character_match.span()[0] + 1)] = {
+                    "invalid_character": invalid_character,
+                    "function_type": function_type,
+                    "incorrect_name": argument.value,
+                }
 
     def _check_all_arguments(self, decorator_node: ast.Call, function_type: _FunctionType) -> None:  # noqa: E501
-        if len(decorator_node.args) >= 2:
-            self._check_single_argument(decorator_node.args[1], function_type)
+        if decorator_node.args:
+            self._check_single_argument(decorator_node.args[0], function_type)
 
         keyword_argument: ast.keyword
         for keyword_argument in decorator_node.keywords:
-            if keyword_argument.arg == "description":
+            if keyword_argument.arg == "name":
                 self._check_single_argument(keyword_argument.value, function_type)
                 return
 

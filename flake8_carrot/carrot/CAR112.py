@@ -48,9 +48,13 @@ class RuleCAR112(CarrotRule, NodeVisitor):
 
             first_decorator_line_number: int
             match body[0]:
-                case ast.FunctionDef(
-                    decorator_list=[ast.expr(lineno=first_decorator_line_number), *_]
-                    | ast.AsyncFunctionDef(decorator_list=[ast.expr(lineno=first_decorator_line_number), *_])
+                case (
+                    ast.FunctionDef(
+                        decorator_list=[ast.expr(lineno=first_decorator_line_number), *_],
+                    )
+                    | ast.AsyncFunctionDef(
+                        decorator_list=[ast.expr(lineno=first_decorator_line_number), *_],
+                    )
                 ):
                     return first_decorator_line_number - 1 != start_line_number
 

@@ -35,6 +35,14 @@ class TestRuleMessages(BaseTestCarrotPlugin):
         for RuleClass in CarrotPlugin.RULES:
             assert not RuleClass.format_error_message(ctx={}).endswith(".")
 
+    def test_rule_code_matches(self) -> None:
+        """"""
+        RuleClass: type[CarrotRule]
+        for RuleClass in CarrotPlugin.RULES:
+            assert RuleClass.__name__.removeprefix("Rule").upper() in (
+                RuleClass.format_error_message(ctx={})
+            )
+
 
 class TestRuleCAR001(BaseTestCarrotPlugin):
     """"""

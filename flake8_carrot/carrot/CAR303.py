@@ -64,19 +64,33 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         if incorrect_name:
             incorrect_name = incorrect_name.strip().strip("'").strip()
 
-        hyphenated_name: str | None = (
-            incorrect_name.replace(
-                ".",
-                "-",
-            ).replace(
-                " ",
-                "-",
-            ).replace(
-                "_",
-                "-",
-            ).lower()
-            if incorrect_name is not None
+        corrected_name: str | None = (
+            f"{
+                incorrect_name[:-1].replace(
+                    ".",
+                    "-",
+                ).replace(
+                    " ",
+                    "-",
+                ).replace(
+                    "_",
+                    "-",
+                )
+            }{incorrect_name[-1]}"
+            if (
+                incorrect_name is not None
+                and (
+                    invalid_argument_reason is cls._InvalidArgumentReason.REQUIRES_HYPHENATION
+                    or invalid_argument_reason is cls._InvalidArgumentReason.REQUIRES_BOTH
+                )
+            )
             else incorrect_name
+        )
+
+        corrected_name = (
+            corrected_name.lower()
+            if corrected_name is not None
+            else corrected_name
         )
 
         return (
@@ -92,7 +106,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
                 if invalid_argument_reason is not None
                 else "should be hyphenated and/or lowercased"
             } "
-            f"{f": '{hyphenated_name}'" if hyphenated_name else ""}"
+            f"{f": '{corrected_name}'" if corrected_name else ""}"
         )
 
     @override
@@ -100,13 +114,18 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         self.visit(tree)
 
     def _check_single_argument(self, argument: ast.expr, function_type: _FunctionType) -> None:
-        if not isinstance(argument, ast.Constant) or not isinstance(argument.value, str):
+        if not isinstance(argument, ast.Constant):
+            return
+
+        if not argument.value or not isinstance(argument.value, str):
             return
 
         reason: RuleCAR303._InvalidArgumentReason | Literal[False] = (
             self._InvalidArgumentReason.from_bools(
                 requires_hyphenation=(
-                    "." in argument.value or " " in argument.value or "_" in argument.value
+                    "." in argument.value[:-1]
+                    or " " in argument.value[:-1]
+                    or "_" in argument.value[:-1]
                 ),
                 requires_lowercasing=bool(re.search(r"[A-Z]", argument.value)),
             )
@@ -123,8 +142,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
 
     def _check_all_arguments(self, decorator_node: ast.Call, function_type: _FunctionType) -> None:  # noqa: E501
         if decorator_node.args:
-            positional_argument: ast.expr = decorator_node.args[0]
-            self._check_single_argument(positional_argument, function_type)
+            self._check_single_argument(decorator_node.args[0], function_type)
 
         keyword_argument: ast.keyword
         for keyword_argument in decorator_node.keywords:

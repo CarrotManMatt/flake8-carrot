@@ -20,7 +20,9 @@ class RuleCAR501(CarrotRule, ast.NodeVisitor):
     @classmethod
     @override
     def format_error_message(cls, ctx: Mapping[str, object]) -> str:
-        return "CAR501 Use of dataclass found, declare class manually without \"magic\" instead"
+        return (
+            "CAR501 Use of dataclass found, declare class manually without \"magic\" instead"
+        )
 
     @override
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501

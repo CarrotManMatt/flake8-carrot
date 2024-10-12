@@ -30,7 +30,7 @@ class RuleCAR151(CarrotRule, ast.NodeVisitor):
             raise TypeError
 
         return (
-            "CAR150 "
+            "CAR151 "
             f"{
                 invalid_argument_type.value
                 if invalid_argument_type is not None
