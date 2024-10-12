@@ -72,7 +72,12 @@ class RuleCAR307(CarrotRule, ast.NodeVisitor):
             return
 
         if function_type is self._FunctionType.COMMAND and argument.value.endswith((".", "_", " ")):
-            self.problems[(argument.lineno, argument.end_col_offset)] = {
+            COLUMN_OFFSET: Final[int] = (
+                argument.end_col_offset - 1
+                if argument.end_col_offset is not None
+                else argument.col_offset + len(argument.value) - 1
+            )
+            self.problems[(argument.lineno, COLUMN_OFFSET)] = {
                 "invalid_character": argument.value[-1],
                 "function_type": function_type,
                 "incorrect_name": argument.value,
