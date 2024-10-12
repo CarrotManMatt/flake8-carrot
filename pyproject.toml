@@ -39,7 +39,7 @@ classproperties = {git = "https://github.com/hottwaj/classproperties.git"}
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3"
 ruff = "^0.6"
-pre-commit = "^3.8"
+pre-commit = "^4.0"
 mypy = "^1.11"
 yamllint = "^1.35"
 astpretty = "^3.0"
