@@ -19,8 +19,8 @@ class RuleCAR141(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
-        return "CAR141 String function seems to have no effect"
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+        return "String function seems to have no effect"
 
     @override
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501

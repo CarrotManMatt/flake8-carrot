@@ -19,9 +19,8 @@ class RuleCAR130(CarrotRule):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return (
-            "CAR130 "
             "Incorrect ordering of raw & formatted string prefixes "
             "(use `fr\"...\"` not `rf\"...\"`)"
         )

@@ -19,13 +19,12 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         needs_to_be_plural: object | None = ctx.get("needs_to_be_plural", None)
         if needs_to_be_plural is not None and not isinstance(needs_to_be_plural, bool):
             raise TypeError
 
         return (
-            "CAR302 "
             "Pycord cog subclass name should end with "
             f"{
                 f"'Command{"s" if needs_to_be_plural else ""}Cog'"

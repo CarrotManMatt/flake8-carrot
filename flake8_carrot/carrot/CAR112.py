@@ -20,13 +20,12 @@ class RuleCAR112(CarrotRule, NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         definition_type: object | None = ctx.get("definition_type", None)
         if definition_type is not None and not isinstance(definition_type, str):
             raise TypeError
 
         return (
-            "CAR112 "
             f"{
                 f"{definition_type.strip().capitalize()} definition"
                 if definition_type is not None
@@ -40,7 +39,7 @@ class RuleCAR112(CarrotRule, NodeVisitor):
         self.visit(tree)
 
     @classmethod
-    def _check_bodied_ast(cls, start_line_number: int, end_line_number: int | None, body_parts: Iterable[Sequence[ast.stmt]]) -> bool:  # noqa: E501
+    def _check_bodied_ast(cls, start_line_number: int, end_line_number: int | None, body_parts: Iterable[Sequence[ast.stmt]]) -> bool:  # BUG: Incorrectly adds a problem if the fucntion body is on same line as heading  # noqa: E501
         body: Sequence[ast.stmt]
         for body in body_parts:
             if len(body) == 0:
@@ -56,7 +55,7 @@ class RuleCAR112(CarrotRule, NodeVisitor):
                         decorator_list=[ast.expr(lineno=first_decorator_line_number), *_],
                     )
                 ):
-                    return first_decorator_line_number - 1 != start_line_number  # BUG: Adds problem if newline between header & body
+                    return first_decorator_line_number - 1 != start_line_number  # BUG: Incorrectly adds a problem if a newline exists between header & body
 
                 case _:
                     return body[0].lineno - 1 != start_line_number

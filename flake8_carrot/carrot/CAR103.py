@@ -19,7 +19,7 @@ class RuleCAR103(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return "`__all__` export should be annotated as `Sequence[str]`"
 
     @override

@@ -44,7 +44,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         function_type: object | None = ctx.get("function_type", None)
         if function_type is not None and not isinstance(function_type, cls._FunctionType):
             raise TypeError
@@ -94,7 +94,6 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         )
 
         return (
-            "CAR303 "
             f"Pycord {
                 function_type.value
                 if function_type is not None

@@ -18,8 +18,8 @@ class RuleCAR110(CarrotRule):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
-        return "CAR110 Double newline is required after `__all__` export"
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+        return "Double newline is required after `__all__` export"
 
     @override
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501

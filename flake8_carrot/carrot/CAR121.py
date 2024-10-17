@@ -11,14 +11,13 @@ import tokenize
 from collections.abc import Mapping
 from enum import Enum
 from tokenize import TokenInfo
-from typing import TypeAlias, override
+from typing import override
 
 from flake8_carrot.utils import CarrotRule, ProblemsContainer
 
-# noinspection PyProtectedMember
-_ErrorLocationContext: TypeAlias = tuple["_IgnoreCommentType", bool]
-_ErrorLocationsMapping: TypeAlias = Mapping[int, _ErrorLocationContext]
-_ErrorLocationsDict: TypeAlias = dict[int, _ErrorLocationContext]
+type _ErrorLocationContext = tuple[_IgnoreCommentType, bool]
+type _ErrorLocationsMapping = Mapping[int, _ErrorLocationContext]
+type _ErrorLocationsDict = dict[int, _ErrorLocationContext]
 
 
 class _IgnoreCommentType(Enum):
@@ -34,7 +33,7 @@ class RuleCAR121(CarrotRule):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         ignore_comment_type: object | None = ctx.get("ignore_comment_type", None)
         if ignore_comment_type is not None and not isinstance(ignore_comment_type, _IgnoreCommentType):  # noqa: E501
             raise TypeError
@@ -44,7 +43,6 @@ class RuleCAR121(CarrotRule):
             raise TypeError
 
         return (
-            "CAR121 "
             f"{
                 ignore_comment_type.value[1] if ignore_comment_type is not None else "Ignore"
             } "
@@ -187,7 +185,7 @@ class RuleCAR121(CarrotRule):
                 }
                 for file_token in file_tokens
                 for match_location, (ignore_comment_type, multiple_commas) in self._get_all_error_locations(  # noqa: E501
-                    file_token.string.rstrip()
+                    file_token.string.rstrip(),
                 ).items()
                 if file_token.type == tokenize.COMMENT
             },

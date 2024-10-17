@@ -20,8 +20,8 @@ class RuleCAR122(CarrotRule):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
-        return "CAR122 NOQA comment should be placed after `type: ignore` comment"
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+        return "NOQA comment should be placed after `type: ignore` comment"
 
     @override
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501

@@ -18,9 +18,8 @@ class RuleCAR111(CarrotRule):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return (
-            "CAR111 "
             "Preamble lines (imports, `__all__` declaration, module docstring, etc.) "
             "should be seperated by a single newline"
         )

@@ -19,7 +19,7 @@ class RuleCAR106(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         imported_class: object | None = ctx.get("imported_class", None)
         if imported_class is not None and not isinstance(imported_class, str):
             raise TypeError
@@ -27,14 +27,11 @@ class RuleCAR106(CarrotRule, ast.NodeVisitor):
         if imported_class:
             imported_class = imported_class.strip().strip("`").strip()
 
-        return (
-            "CAR106 "
-            f"{
-                f"Importing `{imported_class}`, from `collections.abc`, is not"
-                if imported_class
-                else "Only `Sequence` import, from `collections.abc`, is"
-            } allowed above `__all__` export"
-        )
+        return f"{
+            f"Importing `{imported_class}`, from `collections.abc`, is not"
+            if imported_class
+            else "Only `Sequence` import, from `collections.abc`, is"
+        } allowed above `__all__` export"
 
     @override
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
