@@ -56,7 +56,7 @@ class RuleCAR112(CarrotRule, NodeVisitor):
                         decorator_list=[ast.expr(lineno=first_decorator_line_number), *_],
                     )
                 ):
-                    return first_decorator_line_number - 1 != start_line_number
+                    return first_decorator_line_number - 1 != start_line_number  # BUG: Adds problem if newline between header & body
 
                 case _:
                     return body[0].lineno - 1 != start_line_number

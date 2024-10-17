@@ -33,7 +33,6 @@ class RuleCAR105(CarrotRule):
             }`"
 
         return (
-            "CAR105 "
             f"{
                 f"{line} is not"
                 if line

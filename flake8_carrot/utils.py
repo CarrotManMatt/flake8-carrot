@@ -33,7 +33,7 @@ from collections.abc import Callable, Generator, Iterable, Mapping
 from collections.abc import Set as AbstractSet
 from enum import Enum
 from tokenize import TokenInfo
-from typing import TYPE_CHECKING, Final, Generic, TypeAlias, TypeVar, override
+from typing import TYPE_CHECKING, Final, Generic, TypeAlias, TypeVar, override, final
 
 from classproperties import classproperty
 
@@ -201,8 +201,16 @@ class BaseRule(abc.ABC, Generic[T_plugin]):
 
     @classmethod
     @abc.abstractmethod
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         """"""
+
+    @classmethod
+    @final
+    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+        return (
+            f"{cls.__name__.lower().removeprefix("rule").upper()} "
+            f"{cls.format_error_message(ctx)}"
+        )
 
 
 class CarrotRule(BaseRule["CarrotPlugin"], abc.ABC):

@@ -7,16 +7,15 @@ __all__: Sequence[str] = ("TestRuleCAR001",)
 
 import abc
 import itertools
+import re
 from collections.abc import Set as AbstractSet
-from typing import TYPE_CHECKING
 
 import pytest
 
 from flake8_carrot import CarrotPlugin
 from tests._testing_utils import apply_plugin_to_ast
 
-if TYPE_CHECKING:
-    from flake8_carrot.utils import CarrotRule
+from flake8_carrot.utils import CarrotRule
 
 
 class BaseTestCarrotPlugin(abc.ABC):  # noqa: B024
@@ -29,19 +28,42 @@ class BaseTestCarrotPlugin(abc.ABC):  # noqa: B024
 class TestRuleMessages(BaseTestCarrotPlugin):
     """"""
 
-    def test_message_never_ends_with_full_stop_without_ctx(self) -> None:
+    # noinspection PyPep8Naming
+    @pytest.mark.parametrize(
+        "RULE_CLASS",
+        CarrotPlugin.RULES,
+    )
+    def test_message_never_ends_with_full_stop_without_ctx(self, RULE_CLASS: type[CarrotRule]) -> None:  # noqa: E501
         """"""
-        RuleClass: type[CarrotRule]
-        for RuleClass in CarrotPlugin.RULES:
-            assert not RuleClass.format_error_message(ctx={}).endswith(".")
+        assert not RULE_CLASS.format_error_message(ctx={}).endswith(".")
 
-    def test_rule_code_matches(self) -> None:
+    # noinspection PyPep8Naming
+    @pytest.mark.parametrize(
+        "RULE_CLASS",
+        CarrotPlugin.RULES,
+    )
+    def test_rule_code_matches(self, RULE_CLASS: type[CarrotRule]) -> None:
         """"""
-        RuleClass: type[CarrotRule]
-        for RuleClass in CarrotPlugin.RULES:
-            assert RuleClass.__name__.removeprefix("Rule").upper() in (
-                RuleClass.format_error_message(ctx={})
+        assert bool(
+            re.fullmatch(
+                r"\ACAR[0-9]{1:3} .+\Z",
+                RULE_CLASS._format_error_message(ctx={}),
             )
+        )
+
+    # noinspection PyPep8Naming
+    @pytest.mark.parametrize(
+        "RULE_CLASS",
+        CarrotPlugin.RULES,
+    )
+    def test_no_rule_code_in_class_method(self, RULE_CLASS: type[CarrotRule]) -> None:
+        """"""
+        assert not bool(
+            re.fullmatch(
+                r"\ACAR[0-9]{1:3} .+\Z",
+                RULE_CLASS._format_error_message(ctx={}),
+            )
+        )
 
 
 class TestRuleCAR001(BaseTestCarrotPlugin):

@@ -19,7 +19,7 @@ class RuleCAR101(CarrotRule):
     @classmethod
     @override
     def format_error_message(cls, ctx: Mapping[str, object]) -> str:
-        return "CAR101 Missing `__all__` export at the top of the module"
+        return "Missing `__all__` export at the top of the module"
 
     @classmethod
     def get_error_position(cls, tree_body: Sequence[ast.stmt], lines: Sequence[str]) -> tuple[int, int]:  # NOTE: I'm sorry to whoever has to work out what is going on here  # noqa: E501
