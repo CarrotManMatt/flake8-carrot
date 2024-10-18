@@ -5,7 +5,7 @@ name: Tests
     pull_request:
         branches: [main]
     push:
-        branches: [main]
+        branches: [main, dev]
 
 jobs:  # yamllint disable-line rule:key-ordering
     asciidoctor:
