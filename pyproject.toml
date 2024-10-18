@@ -186,7 +186,6 @@ ignore = [
     "Q003",
     "TD002",
     "TD003",
-    "UP040",  # NOTE: mypy does not currently support PEP 695 type aliases, so they should not be used
     "SIM910",
     "PIE808",
 ]
