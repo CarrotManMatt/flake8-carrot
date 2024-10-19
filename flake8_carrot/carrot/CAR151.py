@@ -24,19 +24,16 @@ class RuleCAR151(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         invalid_argument_type: object | None = ctx.get("invalid_argument_type", None)
         if invalid_argument_type is not None and not isinstance(invalid_argument_type, cls._InvalidArgumentType):
             raise TypeError
 
-        return (
-            "CAR151 "
-            f"{
-                invalid_argument_type.value
-                if invalid_argument_type is not None
-                else "`*args` or `**kwargs`"
-            } passed to super-function call"
-        )
+        return f"{
+            invalid_argument_type.value
+            if invalid_argument_type is not None
+            else "`*args` or `**kwargs`"
+        } passed to super-function call"
 
     @override
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501

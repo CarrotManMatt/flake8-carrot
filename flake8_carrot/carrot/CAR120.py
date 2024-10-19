@@ -27,13 +27,12 @@ class RuleCAR120(CarrotRule):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         replacement_message: object | None = ctx.get("replacement_message", None)
         if replacement_message is not None and not isinstance(replacement_message, str):
             raise TypeError
 
         return (
-            "CAR120 "
             "Incorrect amount of whitespace in ignore comment"
             f"{f" ({replacement_message})" if replacement_message else ""}"
         )

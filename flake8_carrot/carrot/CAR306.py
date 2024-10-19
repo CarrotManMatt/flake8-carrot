@@ -44,13 +44,12 @@ class RuleCAR306(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         context_command_type: object | None = ctx.get("context_command_type", None)
         if context_command_type is not None and not isinstance(context_command_type, RuleCAR306._ContextCommandType):
             raise TypeError
 
         return (
-            "CAR306 "
             f"Pycord {cls._ContextCommandType.format_value(context_command_type)}"
             "context command name should be capitalized"
         )

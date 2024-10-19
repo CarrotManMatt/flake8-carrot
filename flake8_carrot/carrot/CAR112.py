@@ -20,13 +20,12 @@ class RuleCAR112(CarrotRule, NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         definition_type: object | None = ctx.get("definition_type", None)
         if definition_type is not None and not isinstance(definition_type, str):
             raise TypeError
 
         return (
-            "CAR112 "
             f"{
                 f"{definition_type.strip().capitalize()} definition"
                 if definition_type is not None

@@ -19,7 +19,7 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         function_name: object | None = ctx.get("function_name", None)
         if function_name is not None and not isinstance(function_name, str):
             raise TypeError
@@ -28,7 +28,6 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
             function_name = function_name.strip().strip("'").strip()
 
         return (
-            "CAR305 "
             "Return annotation of autocomplete function "
             f"{f"'{function_name}' " if function_name else ""}"
             "should be `AbstractSet[discord.OptionChoice] | AbstractSet[str]`"

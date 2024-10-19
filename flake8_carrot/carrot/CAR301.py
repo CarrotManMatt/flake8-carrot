@@ -19,7 +19,7 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         positional_argument: object | None = ctx.get("positional_argument", None)
         if positional_argument is not None:
             if not isinstance(positional_argument, str):
@@ -43,7 +43,6 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
             )
 
         return (
-            "CAR301 "
             f"Pycord function{f" `{function_name}()`" if function_name else ""} "
             "should not be called with positional argument"
             f"{f" `{positional_argument}`" if positional_argument else "s"} "

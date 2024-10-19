@@ -19,8 +19,8 @@ class RuleCAR104(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
-        return "CAR104 Simple `__all__` export should be of type `tuple`, not `list`"
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+        return "Simple `__all__` export should be of type `tuple`, not `list`"
 
     @override
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501

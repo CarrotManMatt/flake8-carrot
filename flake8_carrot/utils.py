@@ -197,8 +197,16 @@ class BaseRule[T_plugin: BasePlugin](abc.ABC):
 
     @classmethod
     @abc.abstractmethod
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str: ...
+
+    @classmethod
+    @final
     def format_error_message(cls, ctx: Mapping[str, object]) -> str:
         """"""
+        return (
+            f"{cls.__name__.lower().removeprefix("rule").upper()} "
+            f"{cls._format_error_message(ctx)}"
+        )
 
 
 class CarrotRule(BaseRule["CarrotPlugin"], abc.ABC):

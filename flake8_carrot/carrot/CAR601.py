@@ -19,8 +19,8 @@ class RuleCAR601(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
-        return "CAR601 Prefer to use `re.fullmatch()` over `re.match()`"
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+        return "Prefer to use `re.fullmatch()` over `re.match()`"
 
     @override
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501

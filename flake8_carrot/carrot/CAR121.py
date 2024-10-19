@@ -33,7 +33,7 @@ class RuleCAR121(CarrotRule):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         ignore_comment_type: object | None = ctx.get("ignore_comment_type", None)
         if ignore_comment_type is not None and not isinstance(ignore_comment_type, _IgnoreCommentType):  # noqa: E501
             raise TypeError
@@ -43,7 +43,6 @@ class RuleCAR121(CarrotRule):
             raise TypeError
 
         return (
-            "CAR121 "
             f"{
                 ignore_comment_type.value[1] if ignore_comment_type is not None else "Ignore"
             } "

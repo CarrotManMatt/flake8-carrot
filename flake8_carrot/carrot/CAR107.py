@@ -19,13 +19,13 @@ class RuleCAR107(CarrotRule, ast.NodeVisitor):  # NOTE: This rule can be removed
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         export_object_name: object | None = ctx.get("export_object_name", None)
         if export_object_name is not None and not isinstance(export_object_name, str):
             raise TypeError
 
         if export_object_name is None:
-            return "CAR107 `__all__` export should be in alphabetical order"
+            return "`__all__` export should be in alphabetical order"
 
         correct_index: object | None = ctx.get("correct_index", None)
         if correct_index is not None and not isinstance(correct_index, int):
@@ -34,7 +34,6 @@ class RuleCAR107(CarrotRule, ast.NodeVisitor):  # NOTE: This rule can be removed
         export_object_name = export_object_name.strip().strip("`").strip()
 
         return (
-            "CAR107 "
             f"Object `{export_object_name}` "
             "within `__all__` export should be in alphabetical order"
             f"{f" (correct index: {correct_index})" if correct_index is not None else ""}"

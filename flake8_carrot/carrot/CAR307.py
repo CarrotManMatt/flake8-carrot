@@ -25,7 +25,7 @@ class RuleCAR307(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         function_type: object | None = ctx.get("context_command_type", None)
         if function_type is not None and not isinstance(function_type, RuleCAR307._FunctionType):
             raise TypeError
@@ -48,7 +48,6 @@ class RuleCAR307(CarrotRule, ast.NodeVisitor):
             incorrect_name = incorrect_name.strip().strip("'").strip()
 
         return (
-            "CAR307 "
             f"Invalid character: {
                 f"'{invalid_character}'" if invalid_character is not None else ""
             }"
