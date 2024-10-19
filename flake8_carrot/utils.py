@@ -241,33 +241,32 @@ def _function_call_is_pycord_function_from_commands_module(node: ast.Call, pycor
     if NAMES is None:
         raise RuntimeError
 
-    return bool(  # TODO: Convert to match case
-        (isinstance(node.func, ast.Name) and node.func.id in NAMES)
-        or bool(
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Name)
-            and node.func.value.id == "discord"
-            and node.func.attr in NAMES  # noqa: COM812
-        )
-        or bool(
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Attribute)
-            and isinstance(node.func.value.value, ast.Name)
-            and node.func.value.value.id == "discord"
-            and node.func.value.attr == "commands"
-            and node.func.attr in NAMES  # noqa: COM812
-        )
-        or bool(
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Attribute)
-            and isinstance(node.func.value.value, ast.Attribute)
-            and isinstance(node.func.value.value.value, ast.Name)
-            and node.func.value.value.value.id == "discord"
-            and node.func.value.value.attr == "commands"
-            and node.func.value.attr in ("core", "options")
-            and node.func.attr in NAMES  # noqa: COM812
-        )  # noqa: COM812
-    )
+    function_name: str
+    match node.func:
+        case (
+            ast.Name(id=function_name)
+            | ast.Attribute(
+                value=(
+                    ast.Name(id="discord")
+                    | ast.Attribute(
+                        value=ast.Name(id="discord"),
+                        attr="commands",
+                    )
+                    | ast.Attribute(
+                        value=ast.Attribute(
+                            value=ast.Name(id="discord"),
+                            attr="commands",
+                        ),
+                        attr=("core" | "options"),
+                    )
+                ),
+                attr=function_name,
+            )
+        ):
+            return function_name in NAMES
+
+        case _:
+            return False
 
 def function_call_is_pycord_slash_command_decorator(node: ast.Call) -> bool:
     """"""
