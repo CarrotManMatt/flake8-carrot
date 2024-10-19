@@ -38,9 +38,9 @@ classproperties = {git = "https://github.com/hottwaj/classproperties.git"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3"
-ruff = "^0.6"
+ruff = "^0.7"
 pre-commit = "^4.0"
-mypy = "^1.11"
+mypy = "^1.12"
 yamllint = "^1.35"
 astpretty = "^3.0"
 
@@ -186,7 +186,6 @@ ignore = [
     "Q003",
     "TD002",
     "TD003",
-    "UP040",  # NOTE: mypy does not currently support PEP 695 type aliases, so they should not be used
     "SIM910",
     "PIE808",
 ]
