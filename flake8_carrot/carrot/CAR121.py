@@ -11,14 +11,13 @@ import tokenize
 from collections.abc import Mapping
 from enum import Enum
 from tokenize import TokenInfo
-from typing import TypeAlias, override
+from typing import override
 
 from flake8_carrot.utils import CarrotRule, ProblemsContainer
 
-# noinspection PyProtectedMember
-_ErrorLocationContext: TypeAlias = tuple["_IgnoreCommentType", bool]
-_ErrorLocationsMapping: TypeAlias = Mapping[int, _ErrorLocationContext]
-_ErrorLocationsDict: TypeAlias = dict[int, _ErrorLocationContext]
+type _ErrorLocationContext = tuple[_IgnoreCommentType, bool]
+type _ErrorLocationsMapping = Mapping[int, _ErrorLocationContext]
+type _ErrorLocationsDict = dict[int, _ErrorLocationContext]
 
 
 class _IgnoreCommentType(Enum):

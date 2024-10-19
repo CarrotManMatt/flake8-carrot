@@ -33,7 +33,7 @@ from collections.abc import Callable, Generator, Iterable, Mapping
 from collections.abc import Set as AbstractSet
 from enum import Enum
 from tokenize import TokenInfo
-from typing import TYPE_CHECKING, Final, Generic, TypeAlias, TypeVar, override
+from typing import TYPE_CHECKING, Final, final, override
 
 from classproperties import classproperty
 
@@ -45,14 +45,10 @@ if TYPE_CHECKING:
     from flake8_carrot.carrot import CarrotPlugin
     from flake8_carrot.tex_bot import TeXBotPlugin
 
-T_plugin = TypeVar("T_plugin", bound="BasePlugin")
-T_Visitor = TypeVar("T_Visitor", bound=ast.NodeVisitor)
-T_Node = TypeVar("T_Node", bound=ast.AST)
-_ProblemsContainerKey: TypeAlias = tuple[int, int]
-_ProblemsContainerValue: TypeAlias = Mapping[str, object]
-_ProblemsContainerMapping: TypeAlias = Mapping[_ProblemsContainerKey, _ProblemsContainerValue]
-_ProblemsContainerDict: TypeAlias = dict[_ProblemsContainerKey, _ProblemsContainerValue]
-_ProblemsContainerIterable: TypeAlias = Iterable[
+type _ProblemsContainerKey = tuple[int, int]
+type _ProblemsContainerValue = Mapping[str, object]
+type _ProblemsContainerMapping = Mapping[_ProblemsContainerKey, _ProblemsContainerValue]
+type _ProblemsContainerIterable = Iterable[
     tuple[_ProblemsContainerKey, _ProblemsContainerValue]
 ]
 
@@ -130,7 +126,7 @@ class BasePlugin(abc.ABC):
                 yield line_number, column_number, rule.format_error_message(ctx), type(self)
 
 
-class ProblemsContainer(_ProblemsContainerDict):
+class ProblemsContainer(dict[_ProblemsContainerKey, _ProblemsContainerValue]):
     """"""
 
     @classmethod
@@ -185,7 +181,7 @@ class ProblemsContainer(_ProblemsContainerDict):
         self[problem_location] = {}
 
 
-class BaseRule(abc.ABC, Generic[T_plugin]):
+class BaseRule[T_plugin: BasePlugin](abc.ABC):
     """"""
 
     @override
@@ -384,7 +380,7 @@ def function_call_is_any_pycord_decorator(node: ast.Call) -> bool:
         or function_call_is_pycord_event_listener_decorator(node)  # noqa: COM812
     )
 
-def generic_visit_before_return(func: Callable[[T_Visitor, T_Node], None]) -> Callable[[T_Visitor, T_Node], None]:  # noqa: E501
+def generic_visit_before_return[T_Visitor: ast.NodeVisitor, T_Node: ast.AST](func: Callable[[T_Visitor, T_Node], None]) -> Callable[[T_Visitor, T_Node], None]:  # noqa: E501
     """"""
     @functools.wraps(func)
     def wrapper(self: T_Visitor, node: T_Node) -> None:
