@@ -85,7 +85,7 @@ class RuleCAR307(CarrotRule, ast.NodeVisitor):
         for invalid_character in "`!¬£$€%^&*+=,<>?#~`":
             invalid_character_match: re.Match[str]
             for invalid_character_match in re.finditer(fr"\{invalid_character}", argument.value):
-                self.problems[(argument.lineno, argument.col_offset + invalid_character_match.span()[0] + 1)] = {
+                self.problems[(argument.lineno, argument.col_offset + invalid_character_match.span()[0] + 1)] = {  # noqa: E501
                     "invalid_character": invalid_character,
                     "function_type": function_type,
                     "incorrect_name": argument.value,

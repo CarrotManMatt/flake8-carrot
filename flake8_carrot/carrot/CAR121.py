@@ -184,8 +184,9 @@ class RuleCAR121(CarrotRule):
                     "multiple_commas": multiple_commas,
                 }
                 for file_token in file_tokens
-                for match_location, (ignore_comment_type, multiple_commas)
-                in self._get_all_error_locations(file_token.string.rstrip()).items()
+                for match_location, (ignore_comment_type, multiple_commas) in self._get_all_error_locations(  # noqa: E501
+                    file_token.string.rstrip(),
+                ).items()
                 if file_token.type == tokenize.COMMENT
             },
         )

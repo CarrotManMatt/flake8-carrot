@@ -195,8 +195,9 @@ class RuleCAR120(CarrotRule):
                         "replacement_message": replacement_message,
                     }
                     for file_token in file_tokens
-                    for match_location, replacement_message
-                    in self._get_all_error_locations(file_token.string.rstrip()).items()
+                    for match_location, replacement_message in self._get_all_error_locations(
+                        file_token.string.rstrip(),
+                    ).items()
                     if file_token.type == tokenize.COMMENT
                 }
             ),
