@@ -455,3 +455,78 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
                 RAW_TEST_AST,
             )
         )
+
+
+class TestRuleCAR112(BaseTestCarrotPlugin):
+    """"""
+
+    # noinspection PyPep8Naming
+    @pytest.mark.parametrize(
+        "RAW_TEST_AST",
+        (
+            "def foo(bar: str) -> None: ...",
+            "def foo(bar: str) -> None: ...\n",
+            "def foo(bar: str) -> None: pass\n",
+            "def foo(bar: str) -> str: ...\n",
+            "def foo(bar: str) -> str: pass\n",
+            "class Foo:\n    def foo(self, bar: str) -> None: ...\n",
+            "class Foo:\n    @abc.abstractmethod\n    def foo(self, bar: str) -> None: ...\n",
+            (
+                "class Foo(abc.ABC):\n"
+                "    @abc.abstractmethod\n"
+                "    def foo(self, bar: str) -> None: ...\n"
+            ),
+            "class Foo(Protocol):\n    def foo(self, bar: str) -> None: ...\n",
+            "class Foo(Protocol):\n    def foo(self, bar: str) -> None: pass\n",
+            "class Foo:\n    @abc.abstractmethod\n    def foo(self, bar: str) -> None: pass\n",
+            (
+                "class Foo(abc.ABC):\n"
+                "    @abc.abstractmethod\n"
+                "    def foo(self, bar: str) -> None: pass"
+            ),
+            (
+                "class Foo(abc.ABC):\n"
+                "    @abc.abstractmethod\n"
+                "    def foo(self, bar: str) -> None:\n"
+                "        \"\"\"A test docstring.\"\"\""
+            ),
+        ),
+    )
+    def test_allow_empty_body(self, RAW_TEST_AST: str) -> None:  # noqa: N803
+        assert not any(
+            "CAR112" in error
+            for error in self._apply_carrot_plugin_to_ast(RAW_TEST_AST)
+        )
+
+    # noinspection PyPep8Naming
+    @pytest.mark.parametrize(
+        "RAW_TEST_AST",
+        (
+            (
+                    "class Foo:\n"
+                    "    def foo(self, bar: str) -> str:\n"
+                    "\n"
+                    "        return f\"A Test {bar}.\""
+            ),
+            "def foo(bar: str) -> str:\n\n    return f\"A Test {bar}.\"",
+            "def foo() -> str:\n\n    return \"A Test Message.\"",
+            "def foo() -> None:\n\n    print(\"A Test Message.\")",
+            (
+                "def foo() -> None:\n"
+                "    \"\"\"A docstring.\"\"\"\n"
+                "\n"
+                "    print(\"A Test Message.\")"
+            ),
+            (
+                "def foo() -> None:\n"
+                "\n"
+                "    \"\"\"A docstring.\"\"\"\n"
+                "    print(\"A Test Message.\")"
+            ),
+        ),
+    )
+    def test_allow_gap_between_body_and_heading(self, RAW_TEST_AST: str) -> None:  # noqa: N803
+        assert not any(
+            "CAR112" in error
+            for error in self._apply_carrot_plugin_to_ast(RAW_TEST_AST)
+        )
