@@ -6,17 +6,28 @@ __all__: Sequence[str] = ("RuleCAR112",)
 
 
 import ast
+import tokenize
 from ast import NodeVisitor
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
+from io import StringIO
 from tokenize import TokenInfo
-from typing import Final, override
+from typing import TYPE_CHECKING, Final, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
 
+if TYPE_CHECKING:
+    from flake8_carrot.carrot import CarrotPlugin
+
 
 class RuleCAR112(CarrotRule, NodeVisitor):
     """"""
+
+    @override
+    def __init__(self, plugin: "CarrotPlugin") -> None:
+        self.source: str | None = None
+
+        super().__init__(plugin)
 
     @classmethod
     @override
@@ -36,130 +47,137 @@ class RuleCAR112(CarrotRule, NodeVisitor):
 
     @override
     def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+        self.source = "".join(lines)
         self.visit(tree)
 
-    @classmethod
-    def _check_function_is_multiline(cls, start_line_number: int, returns: ast.expr | None, args: ast.arguments, type_params: Sequence[ast.type_param]) -> bool:  # noqa: E501
-        if returns is not None:
-            return start_line_number != (returns.end_lineno or returns.lineno)
+    def _check_ast_is_multiline(self, node: ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef | ast.While | ast.For | ast.AsyncFor | ast.If) -> tuple[int, int] | None:  # noqa: E501
+        CHECK_VALUES: Final[Collection[str]] = ("def", "class", "if", "while", "for")
 
-        ALL_ARGS: Sequence[ast.arg] = [
-            *args.posonlyargs,
-            *args.args,
-            *([args.vararg] if args.vararg is not None else []),
-            *args.kwonlyargs,
-            *([args.kwarg] if args.kwarg is not None else []),
-        ]
-        if ALL_ARGS:
-            return start_line_number != (ALL_ARGS[-1].end_lineno or ALL_ARGS[-1].lineno)
+        TOKENS: Final[Sequence[TokenInfo]] = list(
+            tokenize.generate_tokens(
+                StringIO(
+                    (
+                        ast.get_source_segment(self.source, node)
+                        if self.source is not None
+                        else ast.unparse(node)
+                    ),
+                ).readline,
+            ),
+        )
 
-        if type_params:
-            return start_line_number != (type_params[-1].end_lineno or type_params[-1].lineno)
+        token: TokenInfo
+        token_index: int
+        for token_index, token in enumerate(TOKENS):
+            if token.type == tokenize.NAME and token.string in CHECK_VALUES:
+                return (
+                    self._get_first_token_from_next_line(TOKENS[token_index:]).start
+                    if self._check_for_multiline_colon(token.start[0], TOKENS[token_index:])
+                    else None
+                )
 
-        return False
-
-    @classmethod
-    def _check_class_is_multiline(cls, start_line_number: int, keywords: Sequence[ast.keyword], bases: Sequence[ast.expr], type_params: Sequence[ast.type_param]) -> bool:  # noqa: E501
-        if keywords:
-            return start_line_number != (keywords[-1].end_lineno or keywords[-1].lineno)
-
-        if bases:
-            return start_line_number != (bases[-1].end_lineno or bases[-1].lineno)
-
-        if type_params:
-            return start_line_number != (type_params[-1].end_lineno or type_params[-1].lineno)
-
-        return False
+        return None
 
     @classmethod
-    def _check_for_loop_is_multiline(cls, start_line_number: int, for_iter: ast.expr) -> bool:
-        return start_line_number != (for_iter.end_lineno or for_iter.lineno)
+    def _check_for_multiline_colon(cls, correct_line: int, tokens: Sequence[TokenInfo]) -> bool:  # noqa: E501
+        token: TokenInfo
+        for token in tokens:
+            if token.exact_type != tokenize.COLON:
+                continue
+
+            return token.end[0] != correct_line
+
+        NO_COLON_FOUND_MESSAGE: Final[str] = (
+            "Invalid code provided; no ending stament colon found."
+        )
+        raise RuntimeError(NO_COLON_FOUND_MESSAGE)
 
     @classmethod
-    def _check_while_loop_is_multiline(cls, start_line_number: int, test: ast.expr) -> bool:
-        return start_line_number != (test.end_lineno or test.lineno)
+    def _get_first_token_from_next_line(cls, tokens: Sequence[TokenInfo]) -> TokenInfo:
+        FIRST_LINE: Final[int] = tokens[0].start[0]
 
-    @classmethod
-    def _check_if_statement_is_multiline(cls, start_line_number: int, test: ast.expr) -> bool:
-        return start_line_number != (test.end_lineno or test.lineno)
+        token: TokenInfo
+        for token in tokens:
+            if token.start[0] == FIRST_LINE:
+                continue
+
+            return token
+
+        TOKENS_WERE_SINGLE_LINE_MESSAGE: Final[str] = "Provided tokens were not multiline."
+        raise RuntimeError(TOKENS_WERE_SINGLE_LINE_MESSAGE)
 
     @utils.generic_visit_before_return
     @override
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
-        FUNCTION_IS_MULTILINE: Final[bool] = self._check_function_is_multiline(
-            node.lineno,
-            node.returns,
-            node.args,
-            node.type_params,
-        )
-        if FUNCTION_IS_MULTILINE:
-            self.problems[(node.lineno, node.col_offset)] = {
-                "definition_type": "function",
-            }
+        PROBLEM: Final[tuple[int, int] | None] = self._check_ast_is_multiline(node)
+        if PROBLEM is None:
             return
+
+        self.problems[(node.lineno + PROBLEM[0] - 1, PROBLEM[1])] = {
+            "definition_type": "function",
+        }
 
     @utils.generic_visit_before_return
     @override
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
-        FUNCTION_IS_MULTILINE: Final[bool] = self._check_function_is_multiline(
-            node.lineno,
-            node.returns,
-            node.args,
-            node.type_params,
-        )
-        if FUNCTION_IS_MULTILINE:
-            self.problems[(node.lineno, node.col_offset)] = {
-                "definition_type": "function",
-            }
+        PROBLEM: Final[tuple[int, int] | None] = self._check_ast_is_multiline(node)
+        if PROBLEM is None:
             return
+
+        self.problems[(node.lineno + PROBLEM[0] - 1, PROBLEM[1])] = {
+            "definition_type": "function",
+        }
 
     @utils.generic_visit_before_return
     @override
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
-        CLASS_IS_MULTILINE: Final[bool] = self._check_class_is_multiline(
-            node.lineno,
-            node.keywords,
-            node.bases,
-            node.type_params
-        )
-        if CLASS_IS_MULTILINE:
-            self.problems[(node.lineno, node.col_offset)] = {
-                "definition_type": "class",
-            }
+        PROBLEM: Final[tuple[int, int] | None] = self._check_ast_is_multiline(node)
+        if PROBLEM is None:
             return
+
+        self.problems[(node.lineno + PROBLEM[0] - 1, PROBLEM[1])] = {
+            "definition_type": "class",
+        }
 
     @utils.generic_visit_before_return
     @override
     def visit_For(self, node: ast.For) -> None:
-        if self._check_for_loop_is_multiline(node.lineno, node.iter):
-            self.problems[(node.lineno, node.col_offset)] = {
-                "definition_type": "for-loop",
-            }
+        PROBLEM: Final[tuple[int, int] | None] = self._check_ast_is_multiline(node)
+        if PROBLEM is None:
             return
+
+        self.problems[(node.lineno + PROBLEM[0] - 1, PROBLEM[1])] = {
+            "definition_type": "for-loop",
+        }
 
     @utils.generic_visit_before_return
     @override
     def visit_AsyncFor(self, node: ast.AsyncFor) -> None:
-        if self._check_for_loop_is_multiline(node.lineno, node.iter):
-            self.problems[(node.lineno, node.col_offset)] = {
-                "definition_type": "for-loop",
-            }
+        PROBLEM: Final[tuple[int, int] | None] = self._check_ast_is_multiline(node)
+        if PROBLEM is None:
             return
+
+        self.problems[(node.lineno + PROBLEM[0] - 1, PROBLEM[1])] = {
+            "definition_type": "for-loop",
+        }
 
     @utils.generic_visit_before_return
     @override
     def visit_While(self, node: ast.While) -> None:
-        if self._check_while_loop_is_multiline(node.lineno, node.test):
-            self.problems[(node.lineno, node.col_offset)] = {
-                "definition_type": "while-loop",
-            }
+        PROBLEM: Final[tuple[int, int] | None] = self._check_ast_is_multiline(node)
+        if PROBLEM is None:
             return
+
+        self.problems[(node.lineno + PROBLEM[0] - 1, PROBLEM[1])] = {
+            "definition_type": "while-loop",
+        }
 
     @utils.generic_visit_before_return
     @override
     def visit_If(self, node: ast.If) -> None:
-        if self._check_if_statement_is_multiline(node.lineno, node.test):
-            self.problems[(node.lineno, node.col_offset)] = {
-                "definition_type": "if-check",
-            }
+        PROBLEM: Final[tuple[int, int] | None] = self._check_ast_is_multiline(node)
+        if PROBLEM is None:
             return
+
+        self.problems[(node.lineno + PROBLEM[0] - 1, PROBLEM[1])] = {
+            "definition_type": "if-check",
+        }
