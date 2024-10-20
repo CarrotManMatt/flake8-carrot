@@ -32,7 +32,7 @@ class TestRuleMessages(BaseTestCarrotPlugin):
         "RULE_CLASS",
         CarrotPlugin.RULES,
     )
-    def test_message_never_ends_with_full_stop_without_ctx(self, RULE_CLASS: type[CarrotRule]) -> None:  # noqa: E501, N803
+    def test_message_never_ends_with_full_stop(self, RULE_CLASS: type[CarrotRule]) -> None:  # noqa: N803
         """"""
         assert not RULE_CLASS.format_error_message(ctx={}).endswith(".")
 
@@ -41,7 +41,16 @@ class TestRuleMessages(BaseTestCarrotPlugin):
         "RULE_CLASS",
         CarrotPlugin.RULES,
     )
-    def test_all_rule_classes_named_correctly(self, RULE_CLASS: type[CarrotRule]) -> None:  # noqa: N803
+    def test_no_double_zero_in_rule_code(self, RULE_CLASS: type[CarrotRule]) -> None:  # noqa: N803
+        """"""
+        assert "00" not in RULE_CLASS.__name__
+
+    # noinspection PyPep8Naming
+    @pytest.mark.parametrize(
+        "RULE_CLASS",
+        CarrotPlugin.RULES,
+    )
+    def test_all_rule_classes_named_with_rule_code(self, RULE_CLASS: type[CarrotRule]) -> None:  # noqa: N803
         """"""
         assert re.fullmatch(r"\ARuleCAR[0-9]{1,3}\Z", RULE_CLASS.__name__)
 
@@ -50,7 +59,7 @@ class TestRuleMessages(BaseTestCarrotPlugin):
         "RULE_CLASS",
         CarrotPlugin.RULES,
     )
-    def test_rule_code_matches(self, RULE_CLASS: type[CarrotRule]) -> None:  # noqa: N803
+    def test_correct_rule_code_in_error_message(self, RULE_CLASS: type[CarrotRule]) -> None:  # noqa: N803
         """"""
         rule_number_match: re.Match[str] | None = re.fullmatch(
             r"\A(?:Rule)?CAR([0-9]{1,3})\Z",
@@ -70,7 +79,7 @@ class TestRuleMessages(BaseTestCarrotPlugin):
         "RULE_CLASS",
         CarrotPlugin.RULES,
     )
-    def test_no_double_rule_code(self, RULE_CLASS: type[CarrotRule]) -> None:  # noqa: N803
+    def test_no_double_rule_code_in_error_message(self, RULE_CLASS: type[CarrotRule]) -> None:  # noqa: N803
         """"""
         assert not re.fullmatch(
             r"\A\s*CAR\s*[0-9]{1,4}.*\Z",

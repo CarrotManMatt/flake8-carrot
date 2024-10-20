@@ -1,0 +1,88 @@
+""""""  # noqa: N999
+
+from collections.abc import Sequence
+
+__all__: Sequence[str] = ("RuleCAR610",)
+
+
+import ast
+from collections.abc import Mapping, Collection
+from tokenize import TokenInfo
+import tokenize
+from io import StringIO
+from typing import Iterable, override, Final, TYPE_CHECKING
+
+from flake8_carrot import utils
+from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from flake8_carrot.carrot import CarrotPlugin
+
+
+class RuleCAR610(CarrotRule, ast.NodeVisitor):
+    """"""
+
+    @override
+    def __init__(self, plugin: "CarrotPlugin") -> None:
+        self.source: str | None = None
+
+        super().__init__(plugin)
+
+    @classmethod
+    @override
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+        return "Regex pattern string should use a raw string: `r\"...\"`"
+
+    @override
+    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+        self.source = "".join(lines)
+        self.visit(tree)
+
+    def _check_node_for_incorrect_string_type(self, argument: ast.Constant | ast.JoinedStr) -> None:
+        TOKENS: Final[Iterable[TokenInfo]] = tokenize.generate_tokens(
+            StringIO(
+                (
+                    ast.get_source_segment(self.source, argument)
+                    if self.source is not None
+                    else ast.unparse(argument)
+                ),
+            ).readline,
+        )
+
+        token: TokenInfo
+        for token in TOKENS:
+            if token.type == tokenize.STRING and not token.string.startswith("r\""):
+                self.problems.add_without_ctx(
+                    (argument.lineno - 1 + token.start[0], token.start[1]),
+                )
+
+    @utils.generic_visit_before_return
+    @override
+    def visit_Call(self, node: ast.Call) -> None:
+        RE_FUNCTION_NAMES: Final[Collection[str]] = (
+            "search",
+            "match",
+            "fullmatch",
+            "findall",
+            "finditer",
+            "compile",
+            "split",
+            "sub",
+            "subn",
+        )
+
+        function_name: str
+        argument: ast.Constant | ast.JoinedStr
+        match node:
+            case ast.Call(
+                func=(
+                    ast.Attribute(value=ast.Name(id="re"), attr=function_name)
+                    | ast.Name(id=function_name)
+                ),
+                args=[(ast.Constant(value=str()) | ast.JoinedStr()) as argument, *_],
+            ):
+                if function_name not in RE_FUNCTION_NAMES:
+                    return
+
+                self._check_node_for_incorrect_string_type(argument)
+                return

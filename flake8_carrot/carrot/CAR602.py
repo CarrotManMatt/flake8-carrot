@@ -21,7 +21,7 @@ class RuleCAR602(CarrotRule, ast.NodeVisitor):
     @override
     def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return (
-            "Use `re.fullmatch()` over `re.search()` when using begining & ending line anchors"
+            "Use `re.fullmatch()` over `re.search()` when using beginning & ending line anchors"
         )
 
     @override
@@ -54,7 +54,7 @@ class RuleCAR602(CarrotRule, ast.NodeVisitor):
             case ast.Call(
                 func=(
                     ast.Attribute(value=ast.Name(id="re"), attr="search")
-                    | ast.Name("search")
+                    | ast.Name(id="search")
                 ),
                 args=[ast.Constant(value=str(regex)), *remaining_args],
             ):

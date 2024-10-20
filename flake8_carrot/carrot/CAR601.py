@@ -31,7 +31,10 @@ class RuleCAR601(CarrotRule, ast.NodeVisitor):
     def visit_Call(self, node: ast.Call) -> None:
         match node:
             case ast.Call(
-                func=ast.Attribute(value=ast.Name(id="re"), attr="match") | ast.Name("match"),
+                func=(
+                    ast.Attribute(value=ast.Name(id="re"), attr="match")
+                    | ast.Name(id="match")
+                ),
                 args=[ast.Constant(value=str()), *_],
             ):
                 self.problems.add_without_ctx((node.func.lineno, node.func.col_offset))
@@ -40,7 +43,10 @@ class RuleCAR601(CarrotRule, ast.NodeVisitor):
         first_argument: str
         match node:
             case ast.Call(
-                func=ast.Attribute(value=ast.Name(id="re"), attr="match") | ast.Name("match"),
+                func=(
+                    ast.Attribute(value=ast.Name(id="re"), attr="match")
+                    | ast.Name(id="match")
+                ),
                 args=[ast.Name(id=first_argument), *_],
             ):
                 if first_argument.isupper():
