@@ -4,12 +4,11 @@ v0.1, 22/07/2024
 
 :docinfodir: .asciidoctor
 :docinfo: shared
+:project-root: .
 
 :!example-caption:
 :icons: font
 :experimental:
-
-:project-root: {asciidoctorconfigdir}
 
 :_url-github: https://github.com
 
