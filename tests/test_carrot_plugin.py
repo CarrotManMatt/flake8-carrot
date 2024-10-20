@@ -460,25 +460,66 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
 class TestRuleCAR112(BaseTestCarrotPlugin):
     """"""
 
+    @classmethod
+    def _get_message(cls, line_number: int, column_number: int, definition_type: str) -> str:
+        return (
+            f"{line_number}:{column_number} CAR112 "
+            f"{definition_type} definition should not spread over multiple lines"
+        )
+
     # noinspection PyPep8Naming
     @pytest.mark.parametrize(
         "RAW_TEST_AST",
         (
             "def foo(bar: str) -> None: ...",
+            "def foo() -> None: ...",
+            "def foo(): ...",
+            "def foo[T](): ...",
+            "def foo[T]() -> T: ...",
+            "def foo[T](bar: str) -> T: ...",
+            "def foo[T](bar: str): ...",
+            "def foo[T](bar: str): pass",
+            "def foo[T](): pass",
+            "def foo(bar: str): ...",
+            "async def foo(bar: str) -> None: ...",
+            "async def foo() -> None: ...",
+            "async def foo(): ...",
             "def foo(bar: str) -> None: ...\n",
+            "@dec\ndef foo(bar: str) -> None: ...\n",
             "def foo(bar: str) -> None: pass\n",
+            "@dec\ndef foo(bar: str) -> None: pass\n",
+            "async def foo(bar: str) -> None: pass\n",
+            "@dec\nasync def foo(bar: str) -> None: pass\n",
             "def foo(bar: str) -> str: ...\n",
+            "async def foo(bar: str) -> str: ...\n",
             "def foo(bar: str) -> str: pass\n",
+            "def foo() -> str: pass\n",
+            "def foo(): pass\n",
+            "def foo(bar: str): pass\n",
+            "async def foo(bar: str) -> str: pass\n",
             "class Foo:\n    def foo(self, bar: str) -> None: ...\n",
+            "class Foo:\n    async def foo(self, bar: str) -> None: ...\n",
             "class Foo:\n    @abc.abstractmethod\n    def foo(self, bar: str) -> None: ...\n",
             (
                 "class Foo(abc.ABC):\n"
                 "    @abc.abstractmethod\n"
                 "    def foo(self, bar: str) -> None: ...\n"
             ),
+            (
+                "class Foo(abc.ABC):\n"
+                "    @abc.abstractmethod\n"
+                "    async def foo(self, bar: str) -> None: ...\n"
+            ),
             "class Foo(Protocol):\n    def foo(self, bar: str) -> None: ...\n",
+            "class Foo(Protocol):\n    async def foo(self, bar: str) -> None: ...\n",
             "class Foo(Protocol):\n    def foo(self, bar: str) -> None: pass\n",
+            "class Foo(Protocol):\n    async def foo(self, bar: str) -> None: pass\n",
             "class Foo:\n    @abc.abstractmethod\n    def foo(self, bar: str) -> None: pass\n",
+            (
+                "class Foo:\n"
+                "    @abc.abstractmethod\n"
+                "    async def foo(self, bar: str) -> None: pass\n"
+            ),
             (
                 "class Foo(abc.ABC):\n"
                 "    @abc.abstractmethod\n"
@@ -487,14 +528,36 @@ class TestRuleCAR112(BaseTestCarrotPlugin):
             (
                 "class Foo(abc.ABC):\n"
                 "    @abc.abstractmethod\n"
+                "    async def foo(self, bar: str) -> None: pass"
+            ),
+            (
+                "class Foo(abc.ABC):\n"
+                "    @abc.abstractmethod\n"
                 "    def foo(self, bar: str) -> None:\n"
                 "        \"\"\"A test docstring.\"\"\""
             ),
+            (
+                "class Foo(abc.ABC):\n"
+                "    @abc.abstractmethod\n"
+                "    async def foo(self, bar: str) -> None:\n"
+                "        \"\"\"A test docstring.\"\"\""
+            ),
+            "class Foo: ...",
+            "class Foo: ...\n",
+            "class Foo: pass",
+            "while True: ...",
+            "while True: pass",
+            "for count in range(10): ...",
+            "async for count in range(10): ...",
+            "for count in range(10): pass",
+            "async for count in range(10): pass",
+            "if True: ...",
+            "if True: pass",
         ),
     )
-    def test_allow_empty_body(self, RAW_TEST_AST: str) -> None:  # noqa: N803
+    def test_allow_body_and_heading_on_single_line(self, RAW_TEST_AST: str) -> None:  # noqa: N803
         assert not any(
-            "CAR112" in error
+            "CAR112" in error.upper()
             for error in self._apply_carrot_plugin_to_ast(RAW_TEST_AST)
         )
 
@@ -508,9 +571,23 @@ class TestRuleCAR112(BaseTestCarrotPlugin):
                     "\n"
                     "        return f\"A Test {bar}.\""
             ),
+            (
+                    "class Foo:\n"
+                    "    async def foo(self, bar: str) -> str:\n"
+                    "\n"
+                    "        return f\"A Test {bar}.\""
+            ),
             "def foo(bar: str) -> str:\n\n    return f\"A Test {bar}.\"",
+            "async def foo(bar: str) -> str:\n\n    return f\"A Test {bar}.\"",
             "def foo() -> str:\n\n    return \"A Test Message.\"",
             "def foo() -> None:\n\n    print(\"A Test Message.\")",
+            "async def foo() -> None:\n\n    print(\"A Test Message.\")",
+            "for count in range(10):\n\n    print(f\"Test Message {count}.\")",
+            "async for count in range(10):\n\n    print(f\"Test Message {count}.\")",
+            "for count in range(10):\n\n    print(f\"Test Message {count}.\")\n",
+            "async for count in range(10):\n\n    print(f\"Test Message {count}.\")\n",
+            "while True:\n\n    print(f\"A Test Message.\")\n",
+            "if True:\n\n    print(f\"A Test Message.\")\n",
             (
                 "def foo() -> None:\n"
                 "    \"\"\"A docstring.\"\"\"\n"
@@ -518,15 +595,71 @@ class TestRuleCAR112(BaseTestCarrotPlugin):
                 "    print(\"A Test Message.\")"
             ),
             (
+                "async def foo() -> None:\n"
+                "    \"\"\"A docstring.\"\"\"\n"
+                "\n"
+                "    print(\"A Test Message.\")"
+            ),
+            (
                 "def foo() -> None:\n"
+                "\n"
+                "    \"\"\"A docstring.\"\"\"\n"
+                "    print(\"A Test Message.\")"
+            ),
+            (
+                "async def foo() -> None:\n"
                 "\n"
                 "    \"\"\"A docstring.\"\"\"\n"
                 "    print(\"A Test Message.\")"
             ),
         ),
     )
-    def test_allow_gap_between_body_and_heading(self, RAW_TEST_AST: str) -> None:  # noqa: N803
+    def test_allow_gap_between_body_and_single_line_heading(self, RAW_TEST_AST: str) -> None:  # noqa: N803
         assert not any(
-            "CAR112" in error
+            "CAR112" in error.upper()
             for error in self._apply_carrot_plugin_to_ast(RAW_TEST_AST)
+        )
+
+    # noinspection PyPep8Naming
+    @pytest.mark.parametrize(
+        ("RAW_TEST_AST", "EXPECTED_ERROR_POSITION", "DEFINITION_TYPE"),
+        (
+            ("for count in range(\n    10): ...", (1, 1), "for"),
+            ("for count in range(\n    10,\n): ...", (1, 1), "for"),
+            ("async for count in range(\n    10,\n): ...", (1, 1), "for"),
+            ("def foo(\n    bar: str,\n): ...", (1, 1), "function"),
+            ("def foo(\n    bar: str,\n):\n    ...", (1, 1), "function"),
+            ("async def foo(\n    bar: str,\n): ...", (1, 1), "function"),
+            ("async def foo(\n    bar: str,\n) -> None: ...", (1, 1), "function"),
+            ("def foo(\n    bar: str,\n) -> None: pass", (1, 1), "function"),
+            ("def foo(\n    bar: str,\n) -> None:\n    pass", (1, 1), "function"),
+            ("def foo(\n    bar: str) -> None: pass", (1, 1), "function"),
+            ("def foo(\n    bar: str,\n): pass", (1, 1), "function"),
+            ("def foo(\n    bar: str): pass", (1, 1), "function"),
+            ("def foo(\n    bar: str):\n    pass", (1, 1), "function"),
+            ("async def foo(\n    bar: str,\n) -> None: pass", (1, 1), "function"),
+            ("def foo[\n    T,\n]() -> None: pass", (1, 1), "function"),
+            ("def foo[\n    T,\n](): pass", (1, 1), "function"),
+            ("def foo[\n    T, **P\n]() -> None: pass", (1, 1), "function"),
+            ("async def foo[\n    T, **P\n](): pass", (1, 1), "function"),
+            ("def foo[\n    T, **P,\n]() -> None: pass", (1, 1), "function"),
+            ("def foo[\n    T, **P,\n]() -> None:\n    pass", (1, 1), "function"),
+            ("async def foo[\n    T, **P]() -> None: pass", (1, 1), "function"),
+            ("def foo[T,\n    **P]() -> None: pass", (1, 1), "function"),
+            ("def foo[T,\n    **P]() -> None:\n    pass", (1, 1), "function"),
+            ("async def foo() -> (\n    None\n): pass", (1, 1), "function"),
+            ("async def foo() -> (\n    None): pass", (1, 1), "function"),
+            ("def foo() -> (\n    None):\n    pass", (1, 1), "function"),  # TODO: Add tests for classes, method functions, while-loops & if-statements
+        )
+    )
+    def test_multilines(self, RAW_TEST_AST: str, EXPECTED_ERROR_POSITION: tuple[int, int], DEFINITION_TYPE: str) -> None:  # noqa: N803, E501
+        assert any(
+            (
+                error_message.startswith(
+                    f"{EXPECTED_ERROR_POSITION[0]}:{EXPECTED_ERROR_POSITION[1]} CAR112",
+                )
+                and DEFINITION_TYPE in error_message.lower()
+                and error_message.endswith("definition should not spread over multiple lines")
+            )
+            for error_message in self._apply_carrot_plugin_to_ast(RAW_TEST_AST)
         )
