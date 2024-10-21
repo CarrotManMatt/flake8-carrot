@@ -29,6 +29,7 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
     @utils.generic_visit_before_return
     @override
     def visit_Assign(self, node: ast.Assign) -> None:
+        # noinspection PyTypeChecker
         if "logger" in "".join(ast.unparse(target) for target in node.targets).lower():
             return
 
@@ -44,6 +45,7 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
     @utils.generic_visit_before_return
     @override
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
+        # noinspection PyTypeChecker
         if "logger" in ast.unparse(node.target).lower():
             return
 

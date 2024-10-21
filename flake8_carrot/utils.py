@@ -26,12 +26,10 @@ __all__: Sequence[str] = (
 
 import abc
 import ast
-import enum
 import functools
 import re
-from collections.abc import Callable, Generator, Iterable, Mapping
+from collections.abc import Callable, Generator, Iterable, Mapping, Collection
 from collections.abc import Set as AbstractSet
-from enum import Enum
 from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Final, final, override
 
@@ -225,30 +223,7 @@ class TeXBotRule(BaseRule["TeXBotPlugin"], abc.ABC):
         super().__init__(plugin)
 
 
-class _PycordCommandsModuleLookFor(Enum):
-    SLASH_COMMAND_DECORATORS = enum.auto()
-    CONTEXT_COMMAND_DECORATORS = enum.auto()
-    OPTION_DECORATORS = enum.auto()
-
-
-def _function_call_is_pycord_function_from_commands_module(node: ast.Call, pycord_commands_module_look_for: _PycordCommandsModuleLookFor) -> bool:  # noqa: E501
-    NAMES: Final[AbstractSet[str] | None] = (
-        PYCORD_SLASH_COMMAND_DECORATOR_NAMES
-        if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.SLASH_COMMAND_DECORATORS  # noqa: E501
-        else (
-            PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
-            if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.CONTEXT_COMMAND_DECORATORS  # noqa: E501
-            else (
-                PYCORD_OPTION_DECORATOR_NAMES
-                if pycord_commands_module_look_for is _PycordCommandsModuleLookFor.OPTION_DECORATORS  # noqa: E501
-                else None
-            )
-        )
-    )
-
-    if NAMES is None:
-        raise RuntimeError
-
+def _function_call_is_pycord_function_from_commands_module(node: ast.Call, decorator_names: Collection[str]) -> bool:  # noqa: E501
     function_name: str
     match node.func:
         case (
@@ -271,7 +246,7 @@ def _function_call_is_pycord_function_from_commands_module(node: ast.Call, pycor
                 attr=function_name,
             )
         ):
-            return function_name in NAMES
+            return function_name in decorator_names
 
         case _:
             return False
@@ -280,111 +255,114 @@ def function_call_is_pycord_slash_command_decorator(node: ast.Call) -> bool:
     """"""
     return _function_call_is_pycord_function_from_commands_module(
         node,
-        _PycordCommandsModuleLookFor.SLASH_COMMAND_DECORATORS,
+        PYCORD_SLASH_COMMAND_DECORATOR_NAMES,
     )
 
 def function_call_is_pycord_context_command_decorator(node: ast.Call) -> bool:
     """"""
     return _function_call_is_pycord_function_from_commands_module(
         node,
-        _PycordCommandsModuleLookFor.CONTEXT_COMMAND_DECORATORS,
+        PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES,
     )
 
 def function_call_is_pycord_option_decorator(node: ast.Call) -> bool:
     """"""
     return _function_call_is_pycord_function_from_commands_module(
         node,
-        _PycordCommandsModuleLookFor.OPTION_DECORATORS,
+        PYCORD_OPTION_DECORATOR_NAMES,
     )
 
 def function_call_is_pycord_task_decorator(node: ast.Call) -> bool:
     """"""
-    return bool(
-        bool(
-            isinstance(node.func, ast.Name)
-            and node.func.id in PYCORD_TASK_DECORATOR_NAMES  # noqa: COM812
-        )
-        or bool(
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Name)
-            and bool(
-                node.func.value.id in ("discord", "tasks")
-                or "bot" in node.func.value.id.lower()
-                or "client" in node.func.value.id.lower()  # noqa: COM812
+    function_name: str
+    match node.func:
+        case (
+            ast.Name(id=function_name)
+            | ast.Attribute(
+                value=(
+                    ast.Attribute(
+                        value=(
+                            ast.Name(id="discord")
+                            | ast.Attribute(value=ast.Name(id="discord"), attr="ext")
+                        ),
+                        attr="tasks",
+                    )
+                ),
+                attr=function_name,
             )
-            and node.func.attr in PYCORD_TASK_DECORATOR_NAMES  # noqa: COM812
-        )
-        or bool(
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Attribute)
-            and isinstance(node.func.value.value, ast.Name)
-            and node.func.value.value.id == "discord"
-            and node.func.value.attr == "tasks"
-            and node.func.attr in PYCORD_TASK_DECORATOR_NAMES  # noqa: COM812
-        )
-        or bool(
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Attribute)
-            and isinstance(node.func.value.value, ast.Attribute)
-            and isinstance(node.func.value.value.value, ast.Name)
-            and node.func.value.value.value.id == "discord"
-            and node.func.value.value.attr == "ext"
-            and node.func.value.attr == "tasks"
-            and node.func.attr in PYCORD_TASK_DECORATOR_NAMES  # noqa: COM812
-        )  # noqa: COM812
-    )
+        ):
+            return function_name in PYCORD_TASK_DECORATOR_NAMES
+
+    module_name: str
+    match node.func:
+        case ast.Attribute(
+            value=ast.Name(id=module_name),
+            attr=function_name,
+        ):
+            if function_name not in PYCORD_TASK_DECORATOR_NAMES:
+                return False
+
+            if "bot" in module_name.lower() or "client" in module_name.lower():
+                return True
+
+            return module_name in ("discord", "tasks")
+
+    return False
 
 def function_call_is_pycord_event_listener_decorator(node: ast.Call) -> bool:
     """"""
-    return bool(
-        bool(
-            isinstance(node.func, ast.Name)
-            and node.func.id in PYCORD_EVENT_LISTENER_DECORATOR_NAMES  # noqa: COM812
-        )
-        or bool(
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Name)
-            and bool(
-                node.func.value.id in ("discord", "commands")
-                or "bot" in node.func.value.id.lower()
-                or "client" in node.func.value.id.lower()
-                or "cog" in node.func.value.id.lower()  # noqa: COM812
+    function_name: str
+    match node.func:
+        case (
+            ast.Name(id=function_name)
+            | ast.Attribute(
+                value=ast.Attribute(
+                    value=ast.Attribute(
+                        value=ast.Name(id="discord"),
+                        attr="ext",
+                    ),
+                    attr="commands",
+                ),
+                attr=function_name,
             )
-            and node.func.attr in PYCORD_EVENT_LISTENER_DECORATOR_NAMES  # noqa: COM812
-        )
-        or bool(
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Attribute)
-            and isinstance(node.func.value.value, ast.Name)
-            and node.func.value.value.id == "discord"
-            and bool(
-                node.func.value.attr == "commands"
-                or "bot" in node.func.value.attr.lower()
-                or "client" in node.func.value.attr.lower()
-                or "cog" in node.func.value.attr.lower()  # noqa: COM812
-            )
-            and node.func.attr in PYCORD_EVENT_LISTENER_DECORATOR_NAMES  # noqa: COM812
-        )
-        or bool(
-            isinstance(node.func, ast.Attribute)
-            and isinstance(node.func.value, ast.Attribute)
-            and isinstance(node.func.value.value, ast.Attribute)
-            and isinstance(node.func.value.value.value, ast.Name)
-            and node.func.value.value.value.id == "discord"
-            and node.func.value.value.attr == "ext"
-            and node.func.value.attr == "commands"
-            and node.func.attr in PYCORD_EVENT_LISTENER_DECORATOR_NAMES  # noqa: COM812
-        )  # noqa: COM812
-    )
+        ):
+            return function_name in PYCORD_EVENT_LISTENER_DECORATOR_NAMES
+
+    module_name: str
+    match node.func:
+        case ast.Attribute(value=ast.Name(id=module_name), attr=function_name):
+            if function_name not in PYCORD_EVENT_LISTENER_DECORATOR_NAMES:
+                return False
+
+            if any(value in module_name.lower() for value in ("bot", "client", "cog")):
+                return True
+
+            return module_name in ("discord", "commands")
+
+        case ast.Attribute(
+            value=ast.Attribute(value=ast.Name(id="discord"), attr=module_name),
+            attr=function_name,
+        ):
+            if function_name not in PYCORD_EVENT_LISTENER_DECORATOR_NAMES:
+                return False
+
+            if any(value in module_name.lower() for value in ("bot", "client", "cog")):
+                return True
+
+            return module_name == "commands"
+
+    return False
 
 def function_call_is_any_pycord_decorator(node: ast.Call) -> bool:
     """"""
-    return bool(
-        function_call_is_pycord_slash_command_decorator(node)
-        or function_call_is_pycord_context_command_decorator(node)
-        or function_call_is_pycord_option_decorator(node)
-        or function_call_is_pycord_task_decorator(node)
-        or function_call_is_pycord_event_listener_decorator(node)  # noqa: COM812
+    return any(
+        (
+            function_call_is_pycord_slash_command_decorator(node),
+            function_call_is_pycord_context_command_decorator(node),
+            function_call_is_pycord_option_decorator(node),
+            function_call_is_pycord_task_decorator(node),
+            function_call_is_pycord_event_listener_decorator(node),
+        ),
     )
 
 def generic_visit_before_return[T_Visitor: ast.NodeVisitor, T_Node: ast.AST](func: Callable[[T_Visitor, T_Node], None]) -> Callable[[T_Visitor, T_Node], None]:  # noqa: E501

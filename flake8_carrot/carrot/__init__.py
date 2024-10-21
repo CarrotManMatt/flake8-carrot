@@ -144,40 +144,37 @@ class CarrotPlugin(BasePlugin):
                 self.found_slash_command_group_names: set[str] = set()
                 self.first_all_export_line_numbers: tuple[int, int] | None = None
                 self.pprint_imported_for_debugging: bool = False
+                self.found_loggers: set[ast.Assign | ast.AnnAssign] = set()  # TODO: Implement finding
 
             @classmethod
             def _node_is_slash_command_group_assignment(cls, node: ast.Assign | ast.AnnAssign) -> bool:  # noqa: E501
-                return bool(
-                    bool(
-                        isinstance(node.value, ast.Call)
-                        and isinstance(node.value.func, ast.Name)
-                        and node.value.func.id == "SlashCommandGroup"  # noqa: COM812
-                    ) or bool(
-                        isinstance(node.value, ast.Call)
-                        and isinstance(node.value.func, ast.Attribute)
-                        and isinstance(node.value.func.value, ast.Name)
-                        and node.value.func.value.id == "discord"
-                        and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
-                    ) or bool(
-                        isinstance(node.value, ast.Call)
-                        and isinstance(node.value.func, ast.Attribute)
-                        and isinstance(node.value.func.value, ast.Attribute)
-                        and isinstance(node.value.func.value.value, ast.Name)
-                        and node.value.func.value.value.id == "discord"
-                        and node.value.func.value.attr == "commands"
-                        and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
-                    ) or bool(
-                        isinstance(node.value, ast.Call)
-                        and isinstance(node.value.func, ast.Attribute)
-                        and isinstance(node.value.func.value, ast.Attribute)
-                        and isinstance(node.value.func.value.value, ast.Attribute)
-                        and isinstance(node.value.func.value.value.value, ast.Name)
-                        and node.value.func.value.value.value.id == "discord"
-                        and node.value.func.value.value.attr == "commands"
-                        and node.value.func.value.attr == "core"
-                        and node.value.func.attr == "SlashCommandGroup"  # noqa: COM812
-                    )  # noqa: COM812
-                )
+                match node.value:
+                    case ast.Call(
+                        func=(
+                            ast.Name(id="SlashCommandGroup")
+                            | ast.Attribute(
+                                value=(
+                                    ast.Name(id="discord")
+                                    | ast.Attribute(
+                                        value=ast.Name(id="discord"),
+                                        attr="commands",
+                                    )
+                                    | ast.Attribute(
+                                        value=ast.Attribute(
+                                            value=ast.Name(id="discord"),
+                                            attr="commands",
+                                        ),
+                                        attr="core",
+                                    )
+                                ),
+                                attr="SlashCommandGroup",
+                            )
+                        ),
+                    ):
+                        return True
+
+                    case _:
+                        return False
 
             @override
             def visit_Assign(self, node: ast.Assign) -> None:
