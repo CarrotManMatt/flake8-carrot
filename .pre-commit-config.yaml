@@ -33,19 +33,6 @@ repos:
               id: gitleaks
               stages: [pre-commit, pre-merge-commit, manual]
 
-    - repo: https://github.com/python-poetry/poetry
-      rev: 1.8.0
-      hooks:  # yamllint disable-line rule:key-ordering
-          - id: poetry-check
-            name: check poetry config in pyproject.toml is valid
-            args: [--no-interaction]  # yamllint disable-line rule:key-ordering
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: poetry-check
-            name: check poetry.lock file is valid
-            args: [--lock, --no-interaction]  # yamllint disable-line rule:key-ordering
-            stages: [pre-commit, pre-merge-commit, manual]
-
     - repo: https://github.com/pre-commit/pre-commit-hooks
       rev: v4.6.0
       hooks:  # yamllint disable-line rule:key-ordering
