@@ -97,12 +97,11 @@ dmypy.json
 .env.test
 .env.original
 .venv
-.venv/
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+env
+venv
+ENV
+env.bak
+venv.bak
 [Bb]in
 [Ii]nclude
 [Ll]ib
@@ -115,16 +114,16 @@ pip-selfcheck.json
 .env.bkp
 .env.bckp
 .env.bak
-env.test/
-venv.test/
-env.original/
-venv.original/
-env.backup/
-venv.backup/
-env.bkp/
-venv.bkp/
-env.bckp/
-venv.bckp/
+env.test
+venv.test
+env.original
+venv.original
+env.backup
+venv.backup
+env.bkp
+venv.bkp
+env.bckp
+venv.bckp
 
 # Local Files/Databases
 local/

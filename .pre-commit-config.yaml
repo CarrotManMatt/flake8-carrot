@@ -1,109 +1,92 @@
----
 default_install_hook_types: [pre-commit, commit-msg]
-
 default_language_version:
-    python: python3.12
+    python: python3.13
+default_stages: [pre-commit, pre-merge-commit, manual]
 
 repos:
-    - repo: https://github.com/python-jsonschema/check-jsonschema
-      rev: 0.29.0
-      hooks:  # yamllint disable-line rule:key-ordering
-          - id: check-github-workflows
-            stages: [pre-commit, pre-merge-commit, manual]
+    - repo: https://github.com/adrienverge/yamllint.git
+      rev: v1.37.1
+      hooks:
+        - id: yamllint
+          args: [--strict]
 
-    - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
-      rev: v1.3.3
-      hooks:  # yamllint disable-line rule:key-ordering
-          - id: python-safety-dependencies-check
-            # yamllint disable-line rule:key-ordering
-            args: ["--groups=dev,main", --short-report]
-            files: pyproject.toml  # yamllint disable-line rule:key-ordering
-            stages: [manual]
+    - repo: https://github.com/renovatebot/pre-commit-hooks
+      rev: 41.132.3
+      hooks:
+        - id: renovate-config-validator
+          args: [--strict]
+
+    - repo: https://github.com/python-jsonschema/check-jsonschema
+      rev: 0.34.0
+      hooks:
+        - id: check-github-workflows
 
     - repo: https://github.com/jorisroovers/gitlint
       rev: v0.19.1
-      hooks:  # yamllint disable-line rule:key-ordering
-          - id: gitlint
-          - id: gitlint-ci
+      hooks:
+        - id: gitlint
+        - id: gitlint-ci
 
     - repo: https://github.com/gitleaks/gitleaks
-      rev: v8.18.4
-      hooks:  # yamllint disable-line rule:key-ordering
-          -  # noinspection SpellCheckingInspection
-              id: gitleaks
-              stages: [pre-commit, pre-merge-commit, manual]
+      rev: v8.28.0
+      hooks:
+        - id: gitleaks
 
     - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.6.0
-      hooks:  # yamllint disable-line rule:key-ordering
-          - id: check-added-large-files
-          - id: trailing-whitespace
-          - id: check-executables-have-shebangs
-          - id: end-of-file-fixer
+      rev: v6.0.0
+      hooks:
+        - id: check-added-large-files
+        - id: trailing-whitespace
+        - id: check-executables-have-shebangs
+        - id: check-illegal-windows-names
+        - id: check-shebang-scripts-are-executable
+        - id: check-json
+        - id: check-xml
+        - id: check-symlinks
+        - id: check-merge-conflict
+        - id: check-vcs-permalinks
+        - id: destroyed-symlinks
+        - id: mixed-line-ending
+          args: [--fix=lf]
+        - id: check-case-conflict
+        - id: detect-private-key
+        - id: fix-byte-order-marker
+          args: [-h]
+        - id: name-tests-test
+          args: [--pytest-test-first]
+        - id: pretty-format-json
+          args: [--autofix, --indent, "4"]
 
-          - id: check-json
-            stages: [pre-commit, pre-merge-commit, manual]
+    - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+      rev: v2.15.0
+      hooks:
+        - id: pretty-format-ini
+          args: [--autofix]
 
-          - id: check-yaml
-            stages: [pre-commit, pre-merge-commit, manual]
+    - repo: https://github.com/ComPWA/taplo-pre-commit
+      rev: v0.9.3
+      hooks:
+        - id: taplo-format
 
-          - id: check-toml
-            stages: [pre-commit, pre-merge-commit, manual]
+        - id: taplo-lint
+          args: [--default-schema-catalogs]
+          stages: [manual]
 
-          - id: check-xml
-            stages: [pre-commit, pre-merge-commit, manual]
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.13.2
+      hooks:
+        - id: ruff
+          args: [--fix]
 
-          - id: check-symlinks
-            stages: [pre-commit, pre-merge-commit, manual]
+        - id: ruff-format
 
-          - id: check-merge-conflict
-            stages: [pre-commit, pre-merge-commit, manual]
+    - repo: https://github.com/astral-sh/uv-pre-commit
+      rev: 0.8.22
+      hooks:
+        - id: uv-lock
+          always_run: true
 
-          - id: check-vcs-permalinks
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: destroyed-symlinks
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: check-case-conflict
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: check-ast
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: detect-private-key
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: fix-byte-order-marker
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: fix-encoding-pragma
-            args: [--remove]  # yamllint disable-line rule:key-ordering
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: name-tests-test
-            args: [--pytest-test-first]  # yamllint disable-line rule:key-ordering
-            exclude: _testing_utils  # yamllint disable-line rule:key-ordering
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: pretty-format-json
-            args: [--autofix]  # yamllint disable-line rule:key-ordering
-            stages: [pre-commit, pre-merge-commit, manual]
-
-    - repo: https://github.com/pre-commit/pygrep-hooks
-      rev: v1.10.0
-      hooks:  # yamllint disable-line rule:key-ordering
-          - id: python-check-blanket-noqa
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: python-check-blanket-type-ignore
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: python-no-eval
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: python-no-log-warn
-            stages: [pre-commit, pre-merge-commit, manual]
-
-          - id: python-use-type-annotations
-            stages: [pre-commit, pre-merge-commit, manual]
+    - repo: https://github.com/google/yamlfmt
+      rev: v0.17.2
+      hooks:
+        - id: yamlfmt

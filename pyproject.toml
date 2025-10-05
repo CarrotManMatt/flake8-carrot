@@ -1,15 +1,24 @@
-[project]
-name = "flake8-carrot"
-version = "0.0.1"
-readme = {file = "README.adoc", content-type = "text/plain"}
-requires-python = ">=3.12"
-description = "A plugin for Flake8; Finding opinionated problems in your Python code. Ensures that your Python code adhere's to CarrotManMatt's style guide."
-dependencies = [
-    "flake8>6",
-    "classproperties",
+[build-system]
+build-backend = "hatchling.build"
+requires = ["Pydowndoc[bin]>=2.1.1", "hatch-vcs", "hatchling"]
+
+
+[dependency-groups]
+dev = [
+    "astpretty>=3.0",
+    { include-group = "lint-format" },
+    { include-group = "pre-commit" },
+    { include-group = "test" },
+    { include-group = "type-check" },
 ]
-authors = [{name = "Matt Norton", email = "matt@carrotmanmatt.com"}]
-keywords = ["python", "flake8", "flake8-plugin", "linter", "static analysis"]
+lint-format = ["ruff>=0.8"]
+pre-commit = ["pre-commit"]
+test = ["pytest"]
+type-check = ["mypy>=1.12", { include-group = "test" }]
+
+
+[project]
+authors = [{ name = "Matt Norton", email = "matt@carrotmanmatt.com" }]
 classifiers = [
     "Development Status :: 1 - Planning",
     "Environment :: Console",
@@ -18,41 +27,42 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.12",
-    "Topic :: Software Development :: Quality Assurance",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Quality Assurance",
     "Typing :: Typed",
 ]
+dependencies = ["flake8>=6", "typed_classproperties>=1.3"]
+description = "A plugin for Flake8; Finding opinionated problems in your Python code. Ensures that your Python code adhere's to CarrotManMatt's style guide."
+dynamic = ["readme", "version"]
+keywords = ["flake8", "flake8-plugin", "linter", "python", "static analysis"]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+name = "flake8-carrot"
+requires-python = ">=3.12"
 
 [project.urls]
+Issues = "https://github.com/CarrotManMatt/flake8-carrot/issues"
 Repository = "https://github.com/CarrotManMatt/flake8-carrot"
-
-[dependency-groups]
-dev = [
-    "pytest",
-    "ruff>=0.6",
-    "mypy>=1.12",
-    "pre-commit>=3.5",
-    "yamllint>=1.35",
-    "astpretty>=3.0",
-]
-
-[tool.uv.sources]
-classproperties = { git = "https://github.com/hottwaj/classproperties" }
-
-
-[project.entry-points.plugin-namespace]
-plugin-name1 = "pkg.subpkg1"
-plugin-name2 = "pkg.subpkg2:func"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
 
 [project.entry-points."flake8.extension"]
 CAR = "flake8_carrot:CarrotPlugin"
 TXB = "flake8_carrot:TeXBotPlugin"
+
+
+[tool.hatch.build]
+only-packages = true
+
+[tool.hatch.metadata.hooks]
+downdoc-readme = { path = "README.adoc" }
+
+[tool.hatch.version]
+raw-options = { local_scheme = "no-local-version", version_scheme = "python-simplified-semver" }
+source = "vcs"
 
 
 [tool.pytest.ini_options]
@@ -60,176 +70,129 @@ filterwarnings = ["ignore:'audioop':DeprecationWarning"]
 
 
 [tool.mypy]
-exclude = [".venv/", "examples/"]
-extra_checks = true
-warn_unused_configs = true
-disallow_untyped_calls = true
-disallow_untyped_defs = true
 check_untyped_defs = true
-disallow_any_generics = true
-disallow_any_unimported = true
 disallow_any_decorated = true
 disallow_any_explicit = true
-disallow_subclassing_any = true
-disallow_untyped_decorators = true
+disallow_any_generics = true
+disallow_any_unimported = true
 disallow_incomplete_defs = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_return_any = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+enable_error_code = [
+    "deprecated",
+    "explicit-override",
+    "ignore-without-code",
+    "mutable-override",
+    "narrowed-type-not-subtype",
+    "possibly-undefined",
+    "redundant-expr",
+    "redundant-self",
+    "truthy-bool",
+    "truthy-iterable",
+    "unused-awaitable",
+]
+exclude = ["examples/"]
+extra_checks = true
 no_implicit_reexport = true
 strict_equality = true
+warn_redundant_casts = true
+warn_return_any = true
 warn_unreachable = true
-
-[[tool.mypy.overrides]]
-module = [
-    "astpretty",
-]
-ignore_missing_imports = true
+warn_unused_configs = true
+warn_unused_ignores = true
 
 
 [tool.ruff]
-output-format = "concise"
+indent-width = 4
 line-length = 95
-target-version ="py312"
-extend-exclude = [
-    ".venv/",
-    "examples/",
-    ".vscode",
-    ".idea",
-    ".pytest_cache",
-    ".mypy_cache",
-    ".ruff_cache",
-    "__pycache__",
-]
+output-format = "concise"
 
 [tool.ruff.lint]
-select = [
-    "E",
-    "F",
-    "W",
-    "C",
-    "I",
-    "N",
-    "D",
-    "UP",
-    "YTT",
-    "ANN",
-    "ASYNC",
-    "S",
-    "BLE",
-    "FBT",
-    "B",
-    "A",
-    "COM",
-    "DTZ",
-    "T",
-    "EM",
-    "EXE",
-    "ISC",
-    "ICN",
-    "LOG",
-    "G",
-    "INP",
-    "PIE",
-    "PYI",
-    "PT",
-    "Q",
-    "RSE",
-    "RET",
-    "SLF",
-    "SLOT",
-    "SIM",
-    "TID",
-    "TCH",
-    "INT",
-    "ARG",
-    "PTH",
-    "TD",
-    "FIX",
-    "ERA",
-    "PGH",
-    "PL",
-    "TRY",
-    "FLY",
-    "PERF",
-    "FURB",
-    "DOC",
-    "RUF",
-]
-fixable = [
-    "I001",
-    "TCH",
-    "F401",
-    "F541",
-    "F632",
-    "F811",
-    "F901",
-    "E2",
-    "E3",
-    "E401",
-    "E502",
-    "E703",
-    "E71",
-    "W29",
-    "W391",
-    "D2",
-    "D3",
-    "D400",
-    "D406",
-    "D415",
-    "UP",
-    "YTT",
-    "B004",
-    "EXE004",
-    "G010",
-    "PIE",
-    "PYI009",
-]
+external = ["CAR", "TXB"]
 ignore = [
-    "D203",
+    "C90",
+    "COM812",
+    "COM819",
+    "CPY",
+    "D206",
     "D212",
+    "FA",
+    "ICN001",
+    "INP001",
+    "ISC001",
+    "ISC002",
     "N806",
-    "S603",
-    "ANN101",
-    "ANN102",
+    "PIE808",
+    "Q000",
+    "Q001",
+    "Q002",
     "Q003",
+    "S603",
+    "SIM910",
     "TD002",
     "TD003",
-    "SIM910",
-    "PIE808",
+    "UP037",
+    "W191",
 ]
-task-tags = [
-    "TODO",
-    "FIXME",
-    "HACK",
-    "BUG",
-    "NOBUG",
-    "REQ",
-    "IDEA",
-    "NOTE",
-    "ISSUE",
-    "DONE",
+select = ["ALL", "D204", "D213", "D401"]
+task-tags = ["BUG", "DONE", "FIXME", "HACK", "IDEA", "ISSUE", "NOBUG", "NOTE", "REQ", "TODO"]
+
+[tool.ruff.lint.flake8-import-conventions]
+banned-from = ["abc", "re"]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = true
+mark-parentheses = true
+parametrize-values-type = "tuple"
+
+[tool.ruff.lint.flake8-type-checking]
+exempt-modules = []
+quote-annotations = true
+strict = true
+
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = [
+    "typed_classproperties.cached_classproperty",
+    "typed_classproperties.classproperty",
 ]
-external = ["CAR", "TXB"]
+extend-ignore-names = ["BROKEN_*_MESSAGE", "INVALID_*_MESSAGE", "NO_*_MESSAGE"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/test_*.py" = ["S101"]
-
-[tool.ruff.lint.flake8-pytest-style]
-parametrize-values-type = "tuple"
-
-[tool.ruff.lint.mccabe]
-max-complexity = 18
 
 [tool.ruff.lint.pycodestyle]
 ignore-overlong-task-comments = true
 max-doc-length = 95
 
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+property-decorators = [
+    "typed_classproperties.cached_classproperty",
+    "typed_classproperties.classproperty",
+]
+
 [tool.ruff.lint.pylint]
-allow-magic-value-types = ["str", "bytes", "int"]
+allow-magic-value-types = ["bytes", "int", "str"]
 max-args = 7
-max-returns = 10
 max-branches = 19
 
 [tool.ruff.lint.pyupgrade]
 keep-runtime-typing = true
+max-returns = 10
+
+
+[tool.uv]
+default-groups = ["dev"]
+no-binary-package = ["flake8-carrot"]
+no-build = true
+package = true
+required-version = ">=0.5.21"
+trusted-publishing = "always"
+
+[[tool.uv.index]]
+explicit = true
+name = "Test-PyPI"
+publish-url = "https://test.pypi.org/legacy/"
+url = "https://test.pypi.org/simple/"

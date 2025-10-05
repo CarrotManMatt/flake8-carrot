@@ -1,5 +1,0 @@
----
-extends: default
-
-base:  # yamllint disable-line rule:key-ordering
-    font-family: Helvetica
