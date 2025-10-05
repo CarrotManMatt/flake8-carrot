@@ -1,17 +1,16 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR104",)
-
-
 import ast
-from collections.abc import Iterable, Mapping
-from tokenize import TokenInfo
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping, Sequence
+    from tokenize import TokenInfo
+
+__all__: "Sequence[str]" = ("RuleCAR104",)
 
 
 class RuleCAR104(CarrotRule, ast.NodeVisitor):
@@ -19,15 +18,17 @@ class RuleCAR104(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         return "Simple `__all__` export should be of type `tuple`, not `list`"
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
     @classmethod
-    def _targets_contain_all(cls, targets: Iterable[ast.expr]) -> bool:
+    def _targets_contain_all(cls, targets: "Iterable[ast.expr]") -> bool:
         target: ast.expr
         for target in targets:
             match target:

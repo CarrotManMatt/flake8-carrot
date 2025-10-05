@@ -1,17 +1,16 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR201",)
-
-
 import ast
-from collections.abc import Mapping
-from tokenize import TokenInfo
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+
+__all__: "Sequence[str]" = ("RuleCAR201",)
 
 
 class RuleCAR201(CarrotRule, ast.NodeVisitor):
@@ -19,11 +18,13 @@ class RuleCAR201(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         return "Assignment of `logging.Logger` object should be annotated as `Final[Logger]`"
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
     def _add_unannotated_problem(self, node: ast.Assign) -> None:
@@ -43,7 +44,7 @@ class RuleCAR201(CarrotRule, ast.NodeVisitor):
         )
 
     @classmethod
-    def _check_slice_elements(cls, slice_elements: Sequence[ast.expr]) -> bool:
+    def _check_slice_elements(cls, slice_elements: "Sequence[ast.expr]") -> bool:
         slice_element: ast.expr
         for slice_element in slice_elements:
             variable_name: str

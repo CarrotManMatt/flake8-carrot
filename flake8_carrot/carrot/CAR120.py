@@ -1,45 +1,49 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR120",)
-
-
-import ast
 import re
 import tokenize
-from collections.abc import Mapping
-from tokenize import TokenInfo
-from typing import Final, override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot.utils import CarrotRule, ProblemsContainer
+
+if TYPE_CHECKING:
+    import ast
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+    from typing import Final
+
+__all__: "Sequence[str]" = ("RuleCAR120",)
 
 
 class RuleCAR120(CarrotRule):
     """"""
 
-    TYPE_IGNORE_REGEX: Final[str] = (
-        r"\s*#(\s*)type(\s*):(\s*)ignore(?:(\s*)\[(\s*)[a-z_-]+(\s*)((?:,\s*[a-z_-]+\s*)*)(?:,(\s*))*])?"  # TODO: Move double space before comment check to new rule
+    TYPE_IGNORE_REGEX: "Final[str]" = (  # TODO: Move double space before comment check to new rule
+        r"\s*#(\s*)type(\s*):(\s*)ignore(?:(\s*)\[(\s*)"
+        r"[a-z_-]+(\s*)((?:,\s*[a-z_-]+\s*)*)(?:,(\s*))*])?"
     )
-    NOQA_REGEX: Final[str] = (
-        r"\s*#(\s*)noqa(?:(\s*):(\s*)[A-Z0-9]+((?:\s*,\s*[A-Z0-9]+)*)(?:\s*,)*)?"  # TODO: Move double space before comment check to new rule
+    NOQA_REGEX: "Final[str]" = (  # TODO: Move double space before comment check to new rule
+        r"\s*#(\s*)noqa(?:(\s*):(\s*)[A-Z0-9]+"
+        r"((?:\s*,\s*[A-Z0-9]+)*)(?:\s*,)*)?"
     )
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         replacement_message: object | None = ctx.get("replacement_message", None)
         if replacement_message is not None and not isinstance(replacement_message, str):
             raise TypeError
 
         return (
             "Incorrect amount of whitespace in ignore comment"
-            f"{f" ({replacement_message})" if replacement_message else ""}"
+            f"{f' ({replacement_message})' if replacement_message else ''}"
         )
 
     @classmethod
-    def _get_single_type_ignore_error_locations(cls, line: str, offset: int = 0) -> dict[int, str]:  # noqa: E501
-        match: re.Match[str] | None = re.search(fr"{cls.TYPE_IGNORE_REGEX}\Z", line)
+    def _get_single_type_ignore_error_locations(
+        cls, line: str, offset: int = 0
+    ) -> dict[int, str]:
+        match: re.Match[str] | None = re.search(rf"{cls.TYPE_IGNORE_REGEX}\Z", line)
         if match is None:
             return {}
 
@@ -72,7 +76,7 @@ class RuleCAR120(CarrotRule):
                         "Replace with a single space"
                     )
                 if group7_match.group(2) != "":
-                    error_locations[offset + GROUP7_MATCH_START +  group7_match.span(2)[0]] = (
+                    error_locations[offset + GROUP7_MATCH_START + group7_match.span(2)[0]] = (
                         "Remove all spaces"
                     )
 
@@ -84,7 +88,7 @@ class RuleCAR120(CarrotRule):
 
     @classmethod
     def _get_single_noqa_error_locations(cls, line: str, offset: int = 0) -> dict[int, str]:
-        match: re.Match[str] | None = re.search(fr"{cls.NOQA_REGEX}\Z", line)
+        match: re.Match[str] | None = re.search(rf"{cls.NOQA_REGEX}\Z", line)
         if match is None:
             return {}
 
@@ -112,62 +116,56 @@ class RuleCAR120(CarrotRule):
                         "Remove all spaces"
                     )
                 if group4_match.group(2) != " ":
-                    error_locations[offset + GROUP4_MATCH_START +  group4_match.span(2)[0]] = (
+                    error_locations[offset + GROUP4_MATCH_START + group4_match.span(2)[0]] = (
                         "Replace with a single space"
                     )
 
         return error_locations
 
     @classmethod
-    def _get_type_ignore_first_error_locations(cls, line: str) -> Mapping[int, str]:
+    def _get_type_ignore_first_error_locations(cls, line: str) -> "Mapping[int, str]":
         match: re.Match[str] | None = re.search(
-            fr"(?P<type_ignore>{cls.TYPE_IGNORE_REGEX})(?P<noqa>{cls.NOQA_REGEX})\Z",
+            rf"(?P<type_ignore>{cls.TYPE_IGNORE_REGEX})(?P<noqa>{cls.NOQA_REGEX})\Z",
             line,
         )
         if match is None:
             return {}
 
-        return (
-            cls._get_single_type_ignore_error_locations(
-                match.group("type_ignore"),
-                offset=match.span("type_ignore")[0],
-            )
-            | cls._get_single_noqa_error_locations(
-                match.group("noqa"),
-                offset=match.span("noqa")[0],
-            )
+        return cls._get_single_type_ignore_error_locations(
+            match.group("type_ignore"),
+            offset=match.span("type_ignore")[0],
+        ) | cls._get_single_noqa_error_locations(
+            match.group("noqa"),
+            offset=match.span("noqa")[0],
         )
 
     @classmethod
-    def _get_noqa_first_error_locations(cls, line: str) -> Mapping[int, str]:
+    def _get_noqa_first_error_locations(cls, line: str) -> "Mapping[int, str]":
         match: re.Match[str] | None = re.search(
-            fr"(?P<noqa>{cls.NOQA_REGEX})(?P<type_ignore>{cls.TYPE_IGNORE_REGEX})\Z",
+            rf"(?P<noqa>{cls.NOQA_REGEX})(?P<type_ignore>{cls.TYPE_IGNORE_REGEX})\Z",
             line,
         )
         if match is None:
             return {}
 
-        return (
-            cls._get_single_noqa_error_locations(
-                match.group("noqa"),
-                offset=match.span("noqa")[0],
-            )
-            | cls._get_single_type_ignore_error_locations(
-                match.group("type_ignore"),
-                offset=match.span("type_ignore")[0],
-            )
+        return cls._get_single_noqa_error_locations(
+            match.group("noqa"),
+            offset=match.span("noqa")[0],
+        ) | cls._get_single_type_ignore_error_locations(
+            match.group("type_ignore"),
+            offset=match.span("type_ignore")[0],
         )
 
     @classmethod
-    def _get_all_error_locations(cls, line: str) -> Mapping[int, str]:
+    def _get_all_error_locations(cls, line: str) -> "Mapping[int, str]":
         type_ignore_first_error_locations: Mapping[int, str] = (
             cls._get_type_ignore_first_error_locations(line)
         )
         if type_ignore_first_error_locations:
             return type_ignore_first_error_locations
 
-        noqa_first_error_locations: Mapping[int, str] = (
-            cls._get_noqa_first_error_locations(line)
+        noqa_first_error_locations: Mapping[int, str] = cls._get_noqa_first_error_locations(
+            line
         )
         if noqa_first_error_locations:
             return noqa_first_error_locations
@@ -178,8 +176,8 @@ class RuleCAR120(CarrotRule):
         if single_type_ignore_error_locations:
             return single_type_ignore_error_locations
 
-        single_noqa_error_locations: Mapping[int, str] = (
-            cls._get_single_noqa_error_locations(line)
+        single_noqa_error_locations: Mapping[int, str] = cls._get_single_noqa_error_locations(
+            line
         )
         if single_noqa_error_locations:
             return single_noqa_error_locations
@@ -187,10 +185,13 @@ class RuleCAR120(CarrotRule):
         return {}
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: "ast.Module", file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.problems = ProblemsContainer(
             (
-                self.problems | {
+                self.problems
+                | {
                     (file_token.start[0], file_token.start[1] + match_location): {
                         "replacement_message": replacement_message,
                     }

@@ -1,17 +1,16 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR102",)
-
-
 import ast
-from collections.abc import Iterable, Mapping
-from tokenize import TokenInfo
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping, Sequence
+    from tokenize import TokenInfo
+
+__all__: "Sequence[str]" = ("RuleCAR102",)
 
 
 class RuleCAR102(CarrotRule, ast.NodeVisitor):
@@ -19,23 +18,23 @@ class RuleCAR102(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         return "Multiple `__all__` exports found in a single module"
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
     @classmethod
-    def _get_all_assignment(cls, targets: Iterable[ast.expr]) -> ast.Name | None:
+    def _get_all_assignment(cls, targets: "Iterable[ast.expr]") -> ast.Name | None:
         target: ast.expr
         for target in targets:
             match target:
                 case ast.Name(id="__all__"):
-                    # noinspection PyTypeChecker
                     return target
                 case ast.Tuple():
-                    # noinspection PyUnresolvedReferences
                     return cls._get_all_assignment(target.elts)
 
         return None

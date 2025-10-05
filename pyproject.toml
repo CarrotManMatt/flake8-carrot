@@ -133,7 +133,6 @@ ignore = [
     "SIM910",
     "TD002",
     "TD003",
-    "UP037",
     "W191",
 ]
 select = ["ALL", "D204", "D213", "D401"]
@@ -177,10 +176,10 @@ property-decorators = [
 allow-magic-value-types = ["bytes", "int", "str"]
 max-args = 7
 max-branches = 19
+max-returns = 10
 
 [tool.ruff.lint.pyupgrade]
 keep-runtime-typing = true
-max-returns = 10
 
 
 [tool.uv]

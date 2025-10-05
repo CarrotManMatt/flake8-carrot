@@ -1,22 +1,21 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR610",)
-
-
 import ast
-from collections.abc import Mapping, Collection
-from tokenize import TokenInfo
 import tokenize
 from io import StringIO
-from typing import Iterable, override, Final, TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
 
 if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable, Mapping, Sequence
+    from tokenize import TokenInfo
+    from typing import Final
+
     from flake8_carrot.carrot import CarrotPlugin
+
+__all__: "Sequence[str]" = ("RuleCAR610",)
 
 
 class RuleCAR610(CarrotRule, ast.NodeVisitor):
@@ -30,15 +29,19 @@ class RuleCAR610(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
-        return "Regex pattern string should use a raw string: `r\"...\"`"
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
+        return 'Regex pattern string should use a raw string: `r"..."`'
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.source = "".join(lines)
         self.visit(tree)
 
-    def _check_node_for_incorrect_string_type(self, argument: ast.Constant | ast.JoinedStr) -> None:
+    def _check_node_for_incorrect_string_type(
+        self, argument: ast.Constant | ast.JoinedStr
+    ) -> None:
         TOKENS: Final[Iterable[TokenInfo]] = tokenize.generate_tokens(
             StringIO(
                 (
@@ -51,7 +54,7 @@ class RuleCAR610(CarrotRule, ast.NodeVisitor):
 
         token: TokenInfo
         for token in TOKENS:
-            if token.type == tokenize.STRING and not token.string.startswith("r\""):
+            if token.type == tokenize.STRING and not token.string.startswith('r"'):
                 self.problems.add_without_ctx(
                     (argument.lineno - 1 + token.start[0], token.start[1]),
                 )

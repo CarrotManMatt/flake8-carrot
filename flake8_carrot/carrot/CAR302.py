@@ -1,17 +1,17 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR302",)
-
-
 import ast
-from collections.abc import Iterable, Mapping
-from tokenize import TokenInfo
-from typing import Final, override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping, Sequence
+    from tokenize import TokenInfo
+    from typing import Final
+
+__all__: "Sequence[str]" = ("RuleCAR302",)
 
 
 class RuleCAR302(CarrotRule, ast.NodeVisitor):
@@ -19,7 +19,7 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         needs_to_be_plural: object | None = ctx.get("needs_to_be_plural", None)
         if needs_to_be_plural is not None and not isinstance(needs_to_be_plural, bool):
             raise TypeError
@@ -27,19 +27,21 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
         return (
             "Pycord cog subclass name should end with "
             f"{
-                f"'Command{"s" if needs_to_be_plural else ""}Cog'"
+                f"'Command{'s' if needs_to_be_plural else ''}Cog'"
                 if needs_to_be_plural is not None
                 else "'CommandCog' or 'CommandsCog'"
             }, "
             f"if that cog contains {
-                f"{"multiple commands" if needs_to_be_plural else "a single command"}"
+                f'{"multiple commands" if needs_to_be_plural else "a single command"}'
                 if needs_to_be_plural is not None
-                else "command(s)"
+                else 'command(s)'
             }"
         )
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
     def _function_is_command(self, node: ast.AsyncFunctionDef) -> bool:
@@ -48,7 +50,7 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
 
         INCORRECT_RETURN_ANNOTATION: Final[bool] = bool(
             node.returns is not None
-            and not (isinstance(node.returns, ast.Constant) and node.returns.value is None)  # noqa: COM812
+            and not (isinstance(node.returns, ast.Constant) and node.returns.value is None)
         )
         if INCORRECT_RETURN_ANNOTATION:
             return False
@@ -80,7 +82,10 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
                     value=ast.Name(id=possible_slash_command_group_name),
                     attr="command",
                 ):
-                    if possible_slash_command_group_name in self.plugin.found_slash_command_group_names:  # noqa: E501
+                    if (
+                        possible_slash_command_group_name
+                        in self.plugin.found_slash_command_group_names
+                    ):
                         has_slash_command_decorator = True
                         continue
 
@@ -99,19 +104,21 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
                 if "context" in second_argument.arg.lower():
                     return True
 
-                second_argument_annotation: str
+                second_argument_annotation: utils.ASTNameID
                 match second_argument.annotation:
                     case (
                         ast.Name(id=second_argument_annotation)
                         | ast.Constant(value=second_argument_annotation)
                     ):
-                        if "context" in second_argument_annotation.lower():
+                        if "context" in str(second_argument_annotation).lower():
                             return True
 
         return False
 
     @classmethod
-    def _is_class_a_cog_subclass(cls, class_name: str, class_bases: Iterable[ast.expr]) -> bool:  # noqa: E501
+    def _is_class_a_cog_subclass(
+        cls, class_name: str, class_bases: "Iterable[ast.expr]"
+    ) -> bool:
         if "cog" in class_name:
             return True
 
@@ -126,7 +133,9 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
         return False
 
     @classmethod
-    def _is_cog_class_mislabelled(cls, class_name: str, number_of_commands_in_class: int) -> bool:  # noqa: E501
+    def _is_cog_class_mislabelled(
+        cls, class_name: str, number_of_commands_in_class: int
+    ) -> bool:
         if "base" in class_name.lower():
             return False
 

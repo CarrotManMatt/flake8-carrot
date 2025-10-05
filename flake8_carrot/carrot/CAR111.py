@@ -1,16 +1,15 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR111",)
-
-
 import ast
-from collections.abc import Mapping
-from tokenize import TokenInfo
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+
+__all__: "Sequence[str]" = ("RuleCAR111",)
 
 
 class RuleCAR111(CarrotRule):
@@ -18,14 +17,16 @@ class RuleCAR111(CarrotRule):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         return (
             "Preamble lines (imports, `__all__` declaration, module docstring, etc.) "
             "should be seperated by a single newline"
         )
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         if len(lines) <= 1 or len(tree.body) < 2:
             return
 
@@ -82,7 +83,10 @@ class RuleCAR111(CarrotRule):
 
         if lines[first_line_end_index + 1].strip():
             self.problems.add_without_ctx((first_line_end_index + 1 + 1, 0))
-        elif len(lines[first_line_end_index:]) >= 4 and not lines[first_line_end_index + 2].strip():
+        elif (
+            len(lines[first_line_end_index:]) >= 4
+            and not lines[first_line_end_index + 2].strip()
+        ):
             self.problems.add_without_ctx((first_line_end_index + 2 + 1, 0))
 
         if not len(tree.body) >= 3:
@@ -101,5 +105,8 @@ class RuleCAR111(CarrotRule):
 
         if lines[second_line_end_index + 1].strip():
             self.problems.add_without_ctx((second_line_end_index + 1 + 1, 0))
-        elif len(lines[second_line_end_index:]) >= 4 and not lines[second_line_end_index + 2].strip():
+        elif (
+            len(lines[second_line_end_index:]) >= 4
+            and not lines[second_line_end_index + 2].strip()
+        ):
             self.problems.add_without_ctx((second_line_end_index + 2 + 1, 0))

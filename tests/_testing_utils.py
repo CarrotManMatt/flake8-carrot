@@ -1,28 +1,30 @@
 """"""
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("apply_plugin_to_ast",)
-
-
 import ast
 import tokenize
-from collections.abc import Set as AbstractSet
 from io import StringIO
+from typing import TYPE_CHECKING
 
-from flake8_carrot.utils import BasePlugin
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from collections.abc import Set as AbstractSet
+
+    from flake8_carrot.utils import BasePlugin
+
+__all__: "Sequence[str]" = ("apply_plugin_to_ast",)
 
 
-def apply_plugin_to_ast(raw_testing_ast: str, plugin_class: type[BasePlugin]) -> AbstractSet[str]:  # noqa: E501
+def apply_plugin_to_ast(
+    raw_testing_ast: str, plugin_class: type["BasePlugin"]
+) -> "AbstractSet[str]":
     """"""
     converted_lines: Sequence[str] = raw_testing_ast.split("\n")
     if not converted_lines[-1]:
         converted_lines = [f"{line}\n" for line in converted_lines[:-1]]
     else:
-        converted_lines = (
-            [f"{line}\n" for line in converted_lines[:-1]]
-            + [converted_lines[-1]]
-        )
+        converted_lines = [f"{line}\n" for line in converted_lines[:-1]] + [
+            converted_lines[-1]
+        ]
 
     return {
         f"{line}:{column + 1} {message}"

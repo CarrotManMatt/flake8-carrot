@@ -1,17 +1,16 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR106",)
-
-
 import ast
-from collections.abc import Mapping
-from tokenize import TokenInfo
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+
+__all__: "Sequence[str]" = ("RuleCAR106",)
 
 
 class RuleCAR106(CarrotRule, ast.NodeVisitor):
@@ -19,7 +18,7 @@ class RuleCAR106(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         imported_class: object | None = ctx.get("imported_class", None)
         if imported_class is not None and not isinstance(imported_class, str):
             raise TypeError
@@ -28,13 +27,15 @@ class RuleCAR106(CarrotRule, ast.NodeVisitor):
             imported_class = imported_class.strip().strip("`").strip()
 
         return f"{
-            f"Importing `{imported_class}`, from `collections.abc`, is not"
+            f'Importing `{imported_class}`, from `collections.abc`, is not'
             if imported_class
-            else "Only `Sequence` import, from `collections.abc`, is"
+            else 'Only `Sequence` import, from `collections.abc`, is'
         } allowed above `__all__` export"
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
     @utils.generic_visit_before_return

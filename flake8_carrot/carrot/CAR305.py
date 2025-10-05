@@ -1,17 +1,17 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR305",)
-
-
 import ast
-from collections.abc import Mapping
-from tokenize import TokenInfo
-from typing import Final, override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+    from typing import Final
+
+__all__: "Sequence[str]" = ("RuleCAR305",)
 
 
 class RuleCAR305(CarrotRule, ast.NodeVisitor):
@@ -19,7 +19,7 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         function_name: object | None = ctx.get("function_name", None)
         if function_name is not None and not isinstance(function_name, str):
             raise TypeError
@@ -29,20 +29,20 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
 
         return (
             "Return annotation of autocomplete function "
-            f"{f"'{function_name}' " if function_name else ""}"
+            f"{f"'{function_name}' " if function_name else ''}"
             "should be `AbstractSet[discord.OptionChoice] | AbstractSet[str]`"
         )
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
     @classmethod
     def _function_is_autocomplete_getter(cls, node: ast.AsyncFunctionDef) -> bool:
         ALL_ARGS: Final[Sequence[ast.arg]] = (
-            node.args.posonlyargs
-            + node.args.args
-            + node.args.kwonlyargs
+            node.args.posonlyargs + node.args.args + node.args.kwonlyargs
         )
 
         if "autocomplete" in node.name.lower():
@@ -54,10 +54,10 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
         if "context" in ALL_ARGS[0].arg:
             return True
 
-        annotation_value: str
+        annotation_value: utils.ASTNameID
         match ALL_ARGS[0].annotation:
             case ast.Name(id=annotation_value) | ast.Constant(value=annotation_value):
-                if "context" in annotation_value.lower():
+                if "context" in str(annotation_value).lower():
                     return True
 
         docstring: str | None = ast.get_docstring(node)
@@ -65,9 +65,7 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
 
     def _check_function(self, node: ast.AsyncFunctionDef) -> None:
         ALL_ARGS: Final[Sequence[ast.arg]] = (
-            node.args.posonlyargs
-            + node.args.args
-            + node.args.kwonlyargs
+            node.args.posonlyargs + node.args.args + node.args.kwonlyargs
         )
 
         if node.name.startswith("_"):
@@ -86,7 +84,7 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
         if FUNCTION_IS_CLASSMETHOD:
             return
 
-        return_value: str
+        return_value: utils.ASTNameID
         match node.returns:
             case ast.Constant(value=return_value) | ast.Name(id=return_value):
                 if return_value in ("str", "int", "bool", "None"):

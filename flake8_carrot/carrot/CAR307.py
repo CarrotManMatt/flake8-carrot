@@ -1,19 +1,19 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR307",)
-
-
 import ast
 import re
-from collections.abc import Mapping
 from enum import Enum
-from tokenize import TokenInfo
-from typing import Final, override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+    from typing import Final
+
+__all__: "Sequence[str]" = ("RuleCAR307",)
 
 
 class RuleCAR307(CarrotRule, ast.NodeVisitor):
@@ -25,9 +25,11 @@ class RuleCAR307(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         function_type: object | None = ctx.get("context_command_type", None)
-        if function_type is not None and not isinstance(function_type, RuleCAR307._FunctionType):
+        if function_type is not None and not isinstance(
+            function_type, RuleCAR307._FunctionType
+        ):
             raise TypeError
 
         incorrect_name: object | None = ctx.get("incorrect_name", None)
@@ -49,28 +51,32 @@ class RuleCAR307(CarrotRule, ast.NodeVisitor):
 
         return (
             f"Invalid character: {
-                f"'{invalid_character}'" if invalid_character is not None else ""
+                f"'{invalid_character}'" if invalid_character is not None else ''
             }"
             f" found within Pycord {
-                function_type.value
-                if function_type is not None
-                else "slash-command/option"
+                function_type.value if function_type is not None else 'slash-command/option'
             } name"
-            f"{f" '{incorrect_name}'" if incorrect_name else ""}"
+            f"{f" '{incorrect_name}'" if incorrect_name else ''}"
         )
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
-    def _check_single_argument(self, argument: ast.expr, function_type: "RuleCAR307._FunctionType") -> None:  # noqa: E501
+    def _check_single_argument(
+        self, argument: ast.expr, function_type: "RuleCAR307._FunctionType"
+    ) -> None:
         if not isinstance(argument, ast.Constant):
             return
 
         if not argument.value or not isinstance(argument.value, str):
             return
 
-        if function_type is self._FunctionType.COMMAND and argument.value.endswith((".", "_", " ")):
+        if function_type is self._FunctionType.COMMAND and argument.value.endswith(
+            (".", "_", " ")
+        ):
             COLUMN_OFFSET: Final[int] = (
                 argument.end_col_offset - 1
                 if argument.end_col_offset is not None
@@ -84,14 +90,23 @@ class RuleCAR307(CarrotRule, ast.NodeVisitor):
 
         for invalid_character in "`!¬£$€%^&*+=,<>?#~`":
             invalid_character_match: re.Match[str]
-            for invalid_character_match in re.finditer(fr"\{invalid_character}", argument.value):
-                self.problems[(argument.lineno, argument.col_offset + invalid_character_match.span()[0] + 1)] = {  # noqa: E501
+            for invalid_character_match in re.finditer(
+                rf"\{invalid_character}", argument.value
+            ):
+                self.problems[
+                    (
+                        argument.lineno,
+                        argument.col_offset + invalid_character_match.span()[0] + 1,
+                    )
+                ] = {
                     "invalid_character": invalid_character,
                     "function_type": function_type,
                     "incorrect_name": argument.value,
                 }
 
-    def _check_all_arguments(self, decorator_node: ast.Call, function_type: _FunctionType) -> None:  # noqa: E501
+    def _check_all_arguments(
+        self, decorator_node: ast.Call, function_type: _FunctionType
+    ) -> None:
         if decorator_node.args:
             self._check_single_argument(decorator_node.args[0], function_type)
 
@@ -101,7 +116,6 @@ class RuleCAR307(CarrotRule, ast.NodeVisitor):
                 self._check_single_argument(keyword_argument.value, function_type)
                 return
 
-    # noinspection DuplicatedCode
     def _check_decorator(self, decorator_node: ast.expr) -> None:
         if not isinstance(decorator_node, ast.Call):
             return
@@ -126,19 +140,22 @@ class RuleCAR307(CarrotRule, ast.NodeVisitor):
                 attr=possible_pycord_decorator_name,
             ):
                 COMMAND_FUNCTION: Final[bool] = bool(
-                    possible_slash_command_group_name in self.plugin.found_slash_command_group_names  # noqa: E501
-                    and possible_pycord_decorator_name in (
+                    possible_slash_command_group_name
+                    in self.plugin.found_slash_command_group_names
+                    and possible_pycord_decorator_name
+                    in (
                         utils.PYCORD_SLASH_COMMAND_DECORATOR_NAMES
                         | utils.PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
-                    )  # noqa: COM812
+                    )
                 )
                 if COMMAND_FUNCTION:
                     self._check_all_arguments(decorator_node, self._FunctionType.COMMAND)
                     return
 
                 OPTION_FUNCTION: Final[bool] = bool(
-                    possible_slash_command_group_name in self.plugin.found_slash_command_group_names  # noqa: E501
-                    and possible_pycord_decorator_name in utils.PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
+                    possible_slash_command_group_name
+                    in self.plugin.found_slash_command_group_names
+                    and possible_pycord_decorator_name in utils.PYCORD_OPTION_DECORATOR_NAMES
                 )
                 if OPTION_FUNCTION:
                     self._check_all_arguments(decorator_node, self._FunctionType.OPTION)

@@ -1,18 +1,17 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR150",)
-
-
 import ast
-from collections.abc import Mapping
 from enum import Enum
-from tokenize import TokenInfo
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+
+__all__: "Sequence[str]" = ("RuleCAR150",)
 
 
 class RuleCAR150(CarrotRule, ast.NodeVisitor):
@@ -24,19 +23,23 @@ class RuleCAR150(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         invalid_argument_type: object | None = ctx.get("invalid_argument_type", None)
-        if invalid_argument_type is not None and not isinstance(invalid_argument_type, cls._InvalidArgumentType):
+        if invalid_argument_type is not None and not isinstance(
+            invalid_argument_type, cls._InvalidArgumentType
+        ):
             raise TypeError
 
         return f"Use of {
             invalid_argument_type.value
             if invalid_argument_type is not None
-            else "`*args` or `**kwargs`"
+            else '`*args` or `**kwargs`'
         } in function definition"
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
     def _check_args(self, args: ast.arguments) -> None:

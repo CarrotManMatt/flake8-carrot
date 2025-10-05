@@ -1,17 +1,16 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR202",)
-
-
 import ast
-from collections.abc import Mapping
-from tokenize import TokenInfo
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+
+__all__: "Sequence[str]" = ("RuleCAR202",)
 
 
 class RuleCAR202(CarrotRule, ast.NodeVisitor):
@@ -19,17 +18,18 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         return "`logging.Logger` variable name should contain the word 'logger'"
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
     @utils.generic_visit_before_return
     @override
     def visit_Assign(self, node: ast.Assign) -> None:
-        # noinspection PyTypeChecker
         if "logger" in "".join(ast.unparse(target) for target in node.targets).lower():
             return
 
@@ -45,7 +45,6 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
     @utils.generic_visit_before_return
     @override
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
-        # noinspection PyTypeChecker
         if "logger" in ast.unparse(node.target).lower():
             return
 
@@ -62,10 +61,7 @@ class RuleCAR202(CarrotRule, ast.NodeVisitor):
             case (
                 ast.Constant(
                     value=(
-                        "Logger"
-                        | "logging.Logger"
-                        | "FinalLogger]"
-                        | "Final[logging.Logger]"
+                        "Logger" | "logging.Logger" | "FinalLogger]" | "Final[logging.Logger]"
                     ),
                 )
                 | ast.Name(id="Logger")

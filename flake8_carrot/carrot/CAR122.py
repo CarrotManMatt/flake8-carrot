@@ -1,18 +1,17 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR122",)
-
-
-import ast
 import re
 import tokenize
-from collections.abc import Mapping
-from tokenize import TokenInfo
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    import ast
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+
+__all__: "Sequence[str]" = ("RuleCAR122",)
 
 
 class RuleCAR122(CarrotRule):
@@ -20,11 +19,13 @@ class RuleCAR122(CarrotRule):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         return "NOQA comment should be placed after `type: ignore` comment"
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: "ast.Module", file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         file_token: TokenInfo
         for file_token in file_tokens:
             if file_token.type != tokenize.COMMENT:

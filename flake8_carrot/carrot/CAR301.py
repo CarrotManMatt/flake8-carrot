@@ -1,17 +1,17 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR301",)
-
-
 import ast
-from collections.abc import Mapping
-from tokenize import TokenInfo
-from typing import Final, override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+    from typing import Final
+
+__all__: "Sequence[str]" = ("RuleCAR301",)
 
 
 class RuleCAR301(CarrotRule, ast.NodeVisitor):
@@ -19,7 +19,7 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         positional_argument: object | None = ctx.get("positional_argument", None)
         if positional_argument is not None:
             if not isinstance(positional_argument, str):
@@ -37,20 +37,20 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
                 raise TypeError
 
             function_name = (
-                f"{function_name[:35]}..."
-                if len(function_name) > 35
-                else function_name
+                f"{function_name[:35]}..." if len(function_name) > 35 else function_name
             )
 
         return (
-            f"Pycord function{f" `{function_name}()`" if function_name else ""} "
+            f"Pycord function{f' `{function_name}()`' if function_name else ''} "
             "should not be called with positional argument"
-            f"{f" `{positional_argument}`" if positional_argument else "s"} "
+            f"{f' `{positional_argument}`' if positional_argument else 's'} "
             "(use named keyword arguments instead)"
         )
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
     def _check_for_positional_arguments(self, node: ast.Call) -> None:
@@ -76,8 +76,9 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
                 attr=possible_pycord_function_name,
             ):
                 FUNCTION_CALL_IS_PYCORD_FUNCTION: Final[bool] = bool(
-                    possible_slash_command_group_name in self.plugin.found_slash_command_group_names  # noqa: E501
-                    and possible_pycord_function_name in utils.ALL_PYCORD_FUNCTION_NAMES  # noqa: COM812
+                    possible_slash_command_group_name
+                    in self.plugin.found_slash_command_group_names
+                    and possible_pycord_function_name in utils.ALL_PYCORD_FUNCTION_NAMES
                 )
                 if FUNCTION_CALL_IS_PYCORD_FUNCTION:
                     self._check_for_positional_arguments(node)

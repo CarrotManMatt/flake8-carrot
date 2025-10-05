@@ -1,18 +1,18 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR304",)
-
-
 import ast
-from collections.abc import Mapping
 from enum import Enum
-from tokenize import TokenInfo
-from typing import Final, override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+    from typing import Final
+
+__all__: "Sequence[str]" = ("RuleCAR304",)
 
 
 class RuleCAR304(CarrotRule, ast.NodeVisitor):
@@ -24,22 +24,22 @@ class RuleCAR304(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         function_type: object | None = ctx.get("function_type", None)
         if function_type is not None and not isinstance(function_type, cls._FunctionType):
             raise TypeError
 
         return f"Pycord {
-            function_type.value
-            if function_type is not None
-            else "command/option"
+            function_type.value if function_type is not None else 'command/option'
         } description should end with a full-stop"
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
-    def _check_single_argument(self, argument: ast.expr, function_type: _FunctionType) -> None:  # noqa: C901, PLR0911, PLR0912
+    def _check_single_argument(self, argument: ast.expr, function_type: _FunctionType) -> None:  # noqa: PLR0911, PLR0912
         if not isinstance(argument, ast.Constant):
             return
 
@@ -64,8 +64,8 @@ class RuleCAR304(CarrotRule, ast.NodeVisitor):
             return
         if argument.value.endswith(">") and "<" in argument.value:
             return
-        if argument.value.endswith("\""):
-            double_quote_count: int = argument.value.count("\"")
+        if argument.value.endswith('"'):
+            double_quote_count: int = argument.value.count('"')
             if double_quote_count > 1 and double_quote_count % 2 == 0:
                 return
         if argument.value.endswith("'"):
@@ -90,15 +90,15 @@ class RuleCAR304(CarrotRule, ast.NodeVisitor):
                 return
 
         column_offset: int = (
-            (argument.end_col_offset - 1)
-            if argument.end_col_offset
-            else argument.col_offset
+            (argument.end_col_offset - 1) if argument.end_col_offset else argument.col_offset
         )
         self.problems[(argument.lineno, column_offset)] = {
             "function_type": function_type,
         }
 
-    def _check_all_arguments(self, decorator_node: ast.Call, function_type: _FunctionType) -> None:  # noqa: E501
+    def _check_all_arguments(
+        self, decorator_node: ast.Call, function_type: _FunctionType
+    ) -> None:
         if len(decorator_node.args) >= 2:
             self._check_single_argument(decorator_node.args[1], function_type)
 
@@ -108,7 +108,6 @@ class RuleCAR304(CarrotRule, ast.NodeVisitor):
                 self._check_single_argument(keyword_argument.value, function_type)
                 return
 
-    # noinspection DuplicatedCode
     def _check_decorator(self, decorator_node: ast.expr) -> None:
         if not isinstance(decorator_node, ast.Call):
             return
@@ -133,19 +132,22 @@ class RuleCAR304(CarrotRule, ast.NodeVisitor):
                 attr=possible_pycord_decorator_name,
             ):
                 COMMAND_FUNCTION: Final[bool] = bool(
-                    possible_slash_command_group_name in self.plugin.found_slash_command_group_names  # noqa: E501
-                    and possible_pycord_decorator_name in (
+                    possible_slash_command_group_name
+                    in self.plugin.found_slash_command_group_names
+                    and possible_pycord_decorator_name
+                    in (
                         utils.PYCORD_SLASH_COMMAND_DECORATOR_NAMES
                         | utils.PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
-                    )  # noqa: COM812
+                    )
                 )
                 if COMMAND_FUNCTION:
                     self._check_all_arguments(decorator_node, self._FunctionType.COMMAND)
                     return
 
                 OPTION_FUNCTION: Final[bool] = bool(
-                    possible_slash_command_group_name in self.plugin.found_slash_command_group_names  # noqa: E501
-                    and possible_pycord_decorator_name in utils.PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
+                    possible_slash_command_group_name
+                    in self.plugin.found_slash_command_group_names
+                    and possible_pycord_decorator_name in utils.PYCORD_OPTION_DECORATOR_NAMES
                 )
                 if OPTION_FUNCTION:
                     self._check_all_arguments(decorator_node, self._FunctionType.OPTION)

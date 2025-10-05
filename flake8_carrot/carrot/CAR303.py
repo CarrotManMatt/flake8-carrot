@@ -1,19 +1,19 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR303",)
-
-
 import ast
 import re
-from collections.abc import Mapping
 from enum import Enum
-from tokenize import TokenInfo
-from typing import Final, Literal, override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+    from typing import Final, Literal
+
+__all__: "Sequence[str]" = ("RuleCAR303",)
 
 
 class RuleCAR303(CarrotRule, ast.NodeVisitor):
@@ -29,7 +29,9 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         REQUIRES_BOTH = "should be both hyphenated and lowercased"
 
         @classmethod
-        def from_bools(cls, *, requires_hyphenation: bool, requires_lowercasing: bool) -> "RuleCAR303._InvalidArgumentReason | Literal[False]":  # noqa: E501
+        def from_bools(
+            cls, *, requires_hyphenation: bool, requires_lowercasing: bool
+        ) -> "RuleCAR303._InvalidArgumentReason | Literal[False]":
             """"""
             if requires_hyphenation and requires_lowercasing:
                 return cls.REQUIRES_BOTH
@@ -44,7 +46,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         function_type: object | None = ctx.get("function_type", None)
         if function_type is not None and not isinstance(function_type, cls._FunctionType):
             raise TypeError
@@ -56,7 +58,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         invalid_argument_reason: object | None = ctx.get("invalid_argument_reason", None)
         INVALID_ARGUMENT_REASON_IS_INVALID_TYPE: Final[bool] = bool(
             invalid_argument_reason is not None
-            and not isinstance(invalid_argument_reason, cls._InvalidArgumentReason)  # noqa: COM812
+            and not isinstance(invalid_argument_reason, cls._InvalidArgumentReason)
         )
         if INVALID_ARGUMENT_REASON_IS_INVALID_TYPE:
             raise TypeError
@@ -66,15 +68,18 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
 
         corrected_name: str | None = (
             f"{
-                incorrect_name[:-1].replace(
-                    ".",
-                    "-",
-                ).replace(
-                    " ",
-                    "-",
-                ).replace(
-                    "_",
-                    "-",
+                incorrect_name[:-1]
+                .replace(
+                    '.',
+                    '-',
+                )
+                .replace(
+                    ' ',
+                    '-',
+                )
+                .replace(
+                    '_',
+                    '-',
                 )
             }{incorrect_name[-1]}"
             if (
@@ -88,28 +93,26 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         )
 
         corrected_name = (
-            corrected_name.lower()
-            if corrected_name is not None
-            else corrected_name
+            corrected_name.lower() if corrected_name is not None else corrected_name
         )
 
         return (
             f"Pycord {
-                function_type.value
-                if function_type is not None
-                else "slash-command/option"
+                function_type.value if function_type is not None else 'slash-command/option'
             } name"
-            f"{f" '{incorrect_name}'" if incorrect_name else ""} "
+            f"{f" '{incorrect_name}'" if incorrect_name else ''} "
             f"{
                 invalid_argument_reason.value  # type: ignore[attr-defined]
                 if invalid_argument_reason is not None
-                else "should be hyphenated and/or lowercased"
+                else 'should be hyphenated and/or lowercased'
             } "
-            f"{f": '{corrected_name}'" if corrected_name else ""}"
+            f"{f": '{corrected_name}'" if corrected_name else ''}"
         )
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
     def _check_single_argument(self, argument: ast.expr, function_type: _FunctionType) -> None:
@@ -132,14 +135,15 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         if reason is False:
             return
 
-        # noinspection PyTypeChecker
         self.problems[(argument.lineno, argument.col_offset + 1)] = {
             "function_type": function_type,
             "incorrect_name": argument.value,
             "invalid_argument_reason": reason,
         }
 
-    def _check_all_arguments(self, decorator_node: ast.Call, function_type: _FunctionType) -> None:  # noqa: E501
+    def _check_all_arguments(
+        self, decorator_node: ast.Call, function_type: _FunctionType
+    ) -> None:
         if decorator_node.args:
             self._check_single_argument(decorator_node.args[0], function_type)
 
@@ -169,16 +173,19 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
                 attr=possible_pycord_decorator_name,
             ):
                 COMMAND_FUNCTION: Final[bool] = bool(
-                    possible_slash_command_group_name in self.plugin.found_slash_command_group_names  # noqa: E501
-                    and possible_pycord_decorator_name in utils.PYCORD_SLASH_COMMAND_DECORATOR_NAMES  # noqa: E501, COM812
+                    possible_slash_command_group_name
+                    in self.plugin.found_slash_command_group_names
+                    and possible_pycord_decorator_name
+                    in utils.PYCORD_SLASH_COMMAND_DECORATOR_NAMES
                 )
                 if COMMAND_FUNCTION:
                     self._check_all_arguments(decorator_node, self._FunctionType.COMMAND)
                     return
 
                 OPTION_FUNCTION: Final[bool] = bool(
-                    possible_slash_command_group_name in self.plugin.found_slash_command_group_names  # noqa: E501
-                    and possible_pycord_decorator_name in utils.PYCORD_OPTION_DECORATOR_NAMES  # noqa: COM812
+                    possible_slash_command_group_name
+                    in self.plugin.found_slash_command_group_names
+                    and possible_pycord_decorator_name in utils.PYCORD_OPTION_DECORATOR_NAMES
                 )
                 if OPTION_FUNCTION:
                     self._check_all_arguments(decorator_node, self._FunctionType.OPTION)

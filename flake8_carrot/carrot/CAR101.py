@@ -1,16 +1,15 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR101",)
-
-
 import ast
-from collections.abc import Mapping
-from tokenize import TokenInfo
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+
+__all__: "Sequence[str]" = ("RuleCAR101",)
 
 
 class RuleCAR101(CarrotRule):
@@ -18,11 +17,13 @@ class RuleCAR101(CarrotRule):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         return "Missing `__all__` export at the top of the module"
 
     @classmethod
-    def get_error_position(cls, tree_body: Sequence[ast.stmt], lines: Sequence[str]) -> tuple[int, int]:  # NOTE: I'm sorry to whoever has to work out what is going on here  # noqa: E501
+    def get_error_position(
+        cls, tree_body: "Sequence[ast.stmt]", lines: "Sequence[str]"
+    ) -> tuple[int, int]:  # NOTE: I'm sorry to whoever has to work out what is going on here
         """"""
         if not tree_body:
             return 1, 0
@@ -52,24 +53,22 @@ class RuleCAR101(CarrotRule):
             )
 
         second_child_node: ast.stmt = tree_body[1]
-        second_child_end_lineno: int = (
-            second_child_node.end_lineno
-            or second_child_node.lineno
-        )
+        second_child_end_lineno: int = second_child_node.end_lineno or second_child_node.lineno
 
         match second_child_node:
             case ast.ImportFrom(module="collections.abc", names=[ast.alias(name="Sequence")]):
                 pass
             case _:
-                if len(lines[first_child_end_lineno:second_child_end_lineno - 1]) in (1, 2):
+                if len(lines[first_child_end_lineno : second_child_end_lineno - 1]) in (1, 2):
                     return first_child_end_lineno + 1, 0
 
                 return (
                     min(
                         first_child_end_lineno + 2,
                         (
-                            len(lines[first_child_end_lineno:second_child_end_lineno - 1])
-                            + first_child_end_lineno + 1
+                            len(lines[first_child_end_lineno : second_child_end_lineno - 1])
+                            + first_child_end_lineno
+                            + 1
                         ),
                     ),
                     0,
@@ -83,32 +82,35 @@ class RuleCAR101(CarrotRule):
                 )
 
             return (
-                 min(
-                     second_child_end_lineno + 2,
-                     len(lines[second_child_end_lineno:]) + second_child_end_lineno + 1,
-                 ),
-                 0,
+                min(
+                    second_child_end_lineno + 2,
+                    len(lines[second_child_end_lineno:]) + second_child_end_lineno + 1,
+                ),
+                0,
             )
 
         third_child_node: ast.stmt = tree_body[2]
         third_child_end_lineno: int = third_child_node.end_lineno or third_child_node.lineno
 
-        if len(lines[second_child_end_lineno:third_child_end_lineno - 1]) in (1, 2):
+        if len(lines[second_child_end_lineno : third_child_end_lineno - 1]) in (1, 2):
             return second_child_end_lineno + 1, 0
 
         return (
             min(
                 second_child_end_lineno + 2,
                 (
-                    len(lines[second_child_end_lineno:third_child_end_lineno - 1])
-                    + second_child_end_lineno + 1
+                    len(lines[second_child_end_lineno : third_child_end_lineno - 1])
+                    + second_child_end_lineno
+                    + 1
                 ),
             ),
             0,
         )
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         if self.plugin.first_all_export_line_numbers is not None:
             return
 

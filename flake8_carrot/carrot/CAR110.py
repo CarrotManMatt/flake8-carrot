@@ -1,16 +1,15 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR110",)
-
-
-import ast
-from collections.abc import Iterator, Mapping
-from tokenize import TokenInfo
-from typing import override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    import ast
+    from collections.abc import Iterator, Mapping, Sequence
+    from tokenize import TokenInfo
+
+__all__: "Sequence[str]" = ("RuleCAR110",)
 
 
 class RuleCAR110(CarrotRule):
@@ -18,11 +17,13 @@ class RuleCAR110(CarrotRule):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         return "Double newline is required after `__all__` export"
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: "ast.Module", file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         if self.plugin.first_all_export_line_numbers is None:
             return
 
@@ -30,7 +31,7 @@ class RuleCAR110(CarrotRule):
             return
 
         remaining_lines: Iterator[str] = iter(
-            lines[self.plugin.first_all_export_line_numbers[1]:],
+            lines[self.plugin.first_all_export_line_numbers[1] :],
         )
 
         first_line_after: str | None = next(remaining_lines, None)

@@ -88,7 +88,7 @@ jobs:
 
             - uses: actions/cache@v4
               with:
-                key: mypy|${{steps.store-hashed-python-version.outputs.hashed_python_version}}|package
+                key: mypy|${{steps.store-hashed-python-version.outputs.hashed_python_version}}
                 path: ./.mypy_cache
 
             - name: Run mypy

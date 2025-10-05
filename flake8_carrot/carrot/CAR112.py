@@ -1,23 +1,22 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR112",)
-
-
 import ast
 import tokenize
 from ast import NodeVisitor
-from collections.abc import Collection, Mapping
 from io import StringIO
-from tokenize import TokenInfo
-from typing import TYPE_CHECKING, Final, override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
 
 if TYPE_CHECKING:
+    from collections.abc import Collection, Mapping, Sequence
+    from tokenize import TokenInfo
+    from typing import Final
+
     from flake8_carrot.carrot import CarrotPlugin
+
+__all__: "Sequence[str]" = ("RuleCAR112",)
 
 
 class RuleCAR112(CarrotRule, NodeVisitor):
@@ -31,26 +30,37 @@ class RuleCAR112(CarrotRule, NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         definition_type: object | None = ctx.get("definition_type", None)
         if definition_type is not None and not isinstance(definition_type, str):
             raise TypeError
 
         return (
             f"{
-                f"{definition_type.strip().capitalize()} definition"
+                f'{definition_type.strip().capitalize()} definition'
                 if definition_type is not None
-                else "Function/class/for-loop/if-check/while-loop definitions"
+                else 'Function/class/for-loop/if-check/while-loop definitions'
             } "
             "should not spread over multiple lines"
         )
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.source = "".join(lines)
         self.visit(tree)
 
-    def _check_ast_is_multiline(self, node: ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef | ast.While | ast.For | ast.AsyncFor | ast.If) -> tuple[int, int] | None:  # noqa: E501
+    def _check_ast_is_multiline(
+        self,
+        node: ast.FunctionDef
+        | ast.AsyncFunctionDef
+        | ast.ClassDef
+        | ast.While
+        | ast.For
+        | ast.AsyncFor
+        | ast.If,
+    ) -> tuple[int, int] | None:
         CHECK_VALUES: Final[Collection[str]] = ("def", "class", "if", "while", "for")
 
         TOKENS: Final[Sequence[TokenInfo]] = list(
@@ -78,7 +88,9 @@ class RuleCAR112(CarrotRule, NodeVisitor):
         return None
 
     @classmethod
-    def _check_for_multiline_colon(cls, correct_line: int, tokens: Sequence[TokenInfo]) -> bool:  # noqa: E501
+    def _check_for_multiline_colon(
+        cls, correct_line: int, tokens: "Sequence[TokenInfo]"
+    ) -> bool:
         token: TokenInfo
         for token in tokens:
             if token.exact_type != tokenize.COLON:
@@ -92,7 +104,7 @@ class RuleCAR112(CarrotRule, NodeVisitor):
         raise RuntimeError(NO_COLON_FOUND_MESSAGE)
 
     @classmethod
-    def _get_first_token_from_next_line(cls, tokens: Sequence[TokenInfo]) -> TokenInfo:
+    def _get_first_token_from_next_line(cls, tokens: "Sequence[TokenInfo]") -> "TokenInfo":
         FIRST_LINE: Final[int] = tokens[0].start[0]
 
         token: TokenInfo

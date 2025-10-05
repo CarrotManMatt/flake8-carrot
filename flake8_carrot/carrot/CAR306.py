@@ -1,18 +1,18 @@
 """"""  # noqa: N999
 
-from collections.abc import Sequence
-
-__all__: Sequence[str] = ("RuleCAR306",)
-
-
 import ast
-from collections.abc import Mapping
 from enum import Enum
-from tokenize import TokenInfo
-from typing import Final, Self, override
+from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
 from flake8_carrot.utils import CarrotRule
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+    from tokenize import TokenInfo
+    from typing import Final, Self
+
+__all__: "Sequence[str]" = ("RuleCAR306",)
 
 
 class RuleCAR306(CarrotRule, ast.NodeVisitor):
@@ -23,12 +23,14 @@ class RuleCAR306(CarrotRule, ast.NodeVisitor):
         USER = "user"
 
         @classmethod
-        def format_value(cls, instance: Self | None) -> str:
+        def format_value(cls, instance: "Self | None") -> str:
             """"""
             return f"{instance.value.strip()}-" if instance is not None else ""
 
         @classmethod
-        def get_from_decorator_node(cls, decorator_node: ast.Call) -> "RuleCAR306._ContextCommandType":  # noqa: E501
+        def get_from_decorator_node(
+            cls, decorator_node: ast.Call
+        ) -> "RuleCAR306._ContextCommandType":
             unparsed_decorator_node: str = ast.unparse(decorator_node).lower()
 
             if "message" in unparsed_decorator_node:
@@ -44,9 +46,11 @@ class RuleCAR306(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         context_command_type: object | None = ctx.get("context_command_type", None)
-        if context_command_type is not None and not isinstance(context_command_type, RuleCAR306._ContextCommandType):
+        if context_command_type is not None and not isinstance(
+            context_command_type, RuleCAR306._ContextCommandType
+        ):
             raise TypeError
 
         return (
@@ -55,10 +59,14 @@ class RuleCAR306(CarrotRule, ast.NodeVisitor):
         )
 
     @override
-    def run_check(self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]) -> None:  # noqa: E501
+    def run_check(
+        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+    ) -> None:
         self.visit(tree)
 
-    def _check_single_argument(self, argument: ast.expr, context_command_type: "RuleCAR306._ContextCommandType") -> None:  # noqa: E501
+    def _check_single_argument(
+        self, argument: ast.expr, context_command_type: "RuleCAR306._ContextCommandType"
+    ) -> None:
         if not isinstance(argument, ast.Constant):
             return
 
@@ -84,7 +92,6 @@ class RuleCAR306(CarrotRule, ast.NodeVisitor):
                 self._check_single_argument(keyword_argument.value, context_command_type)
                 return
 
-    # noinspection DuplicatedCode
     def _check_decorator(self, decorator_node: ast.expr) -> None:
         if not isinstance(decorator_node, ast.Call):
             return
@@ -101,8 +108,10 @@ class RuleCAR306(CarrotRule, ast.NodeVisitor):
                 attr=possible_pycord_decorator_name,
             ):
                 COMMAND_FUNCTION: Final[bool] = bool(
-                    possible_slash_command_group_name in self.plugin.found_slash_command_group_names  # noqa: E501
-                    and possible_pycord_decorator_name in utils.PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES  # noqa: E501, COM812
+                    possible_slash_command_group_name
+                    in self.plugin.found_slash_command_group_names
+                    and possible_pycord_decorator_name
+                    in utils.PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
                 )
                 if COMMAND_FUNCTION:
                     self._check_all_arguments(decorator_node)
