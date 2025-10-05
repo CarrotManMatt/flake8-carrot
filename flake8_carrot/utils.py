@@ -129,11 +129,11 @@ class BasePlugin(abc.ABC):
                 yield line_number, column_number, rule.format_error_message(ctx), type(self)
 
 
-class ProblemsContainer(dict[_ProblemsContainerKey, _ProblemsContainerValue]):
+class ProblemsContainer(dict["_ProblemsContainerKey", "_ProblemsContainerValue"]):
     """"""
 
     @classmethod
-    def clean_key(cls, key: _ProblemsContainerKey | str) -> _ProblemsContainerKey:
+    def clean_key(cls, key: "_ProblemsContainerKey | str") -> "_ProblemsContainerKey":
         """"""
         if isinstance(key, str):
             match: re.Match[str] | None = re.fullmatch(
@@ -159,9 +159,9 @@ class ProblemsContainer(dict[_ProblemsContainerKey, _ProblemsContainerValue]):
     @override
     def __init__(
         self,
-        mapping: _ProblemsContainerMapping | _ProblemsContainerIterable | None = None,
+        mapping: "_ProblemsContainerMapping | _ProblemsContainerIterable | None" = None,
         /,
-        **kwargs: _ProblemsContainerValue,
+        **kwargs: "_ProblemsContainerValue",
     ) -> None:
         mapping = (
             {}
@@ -181,11 +181,11 @@ class ProblemsContainer(dict[_ProblemsContainerKey, _ProblemsContainerValue]):
 
     @override
     def __setitem__(
-        self, key: _ProblemsContainerKey, value: _ProblemsContainerValue, /
+        self, key: "_ProblemsContainerKey", value: "_ProblemsContainerValue", /
     ) -> None:
         super().__setitem__(self.clean_key(key), value)
 
-    def add_without_ctx(self, problem_location: _ProblemsContainerKey) -> None:
+    def add_without_ctx(self, problem_location: "_ProblemsContainerKey") -> None:
         """"""
         self[problem_location] = {}
 
