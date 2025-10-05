@@ -3,8 +3,6 @@
 import ast
 from typing import TYPE_CHECKING, override
 
-from mypy.fastparse import Constant
-
 from flake8_carrot.utils import CarrotRule
 
 if TYPE_CHECKING:
@@ -46,7 +44,7 @@ class RuleCAR105(CarrotRule):
 
             if node == tree.body[0]:
                 match node:
-                    case ast.Expr(value=Constant()):
+                    case ast.Expr(value=ast.Constant()):
                         continue
 
             match node:
