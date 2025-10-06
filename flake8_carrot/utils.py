@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from collections.abc import Set as AbstractSet
     from tokenize import TokenInfo
     from types import EllipsisType
-    from typing import Final
+    from typing import Final, Self
 
     from flake8_carrot.carrot import CarrotPlugin
     from flake8_carrot.tex_bot import TeXBotPlugin
@@ -92,7 +92,7 @@ class BasePlugin(abc.ABC):
 
     @classproperty
     @abc.abstractmethod
-    def RULES(cls) -> frozenset[type["BaseRule[BasePlugin]"]]:  # noqa: D102, N802
+    def RULES(cls) -> "Collection[type[BaseRule[Self]]]":  # noqa: D102, N802
         pass
 
     def __init__(
@@ -115,11 +115,11 @@ class BasePlugin(abc.ABC):
         self._file_tokens: Sequence[TokenInfo] = file_tokens
         self._lines: Sequence[str] = lines
 
-    def run(self) -> "Generator[tuple[int, int, str, type[BasePlugin]], None, None]":
+    def run(self) -> "Generator[tuple[int, int, str, type[Self]], None, None]":
         """"""
-        RuleClass: type[BaseRule[BasePlugin]]
+        RuleClass: type[BaseRule[Self]]
         for RuleClass in self.RULES:
-            rule: BaseRule[BasePlugin] = RuleClass(plugin=self)
+            rule: BaseRule[Self] = RuleClass(plugin=self)
             rule.run_check(tree=self._tree, file_tokens=self._file_tokens, lines=self._lines)
 
             line_number: int

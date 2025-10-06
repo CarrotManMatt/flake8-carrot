@@ -20,7 +20,7 @@ class RuleCAR111(CarrotRule):
     def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
         return (
             "Preamble lines (imports, `__all__` declaration, module docstring, etc.) "
-            "should be seperated by a single newline"
+            "should be separated by a single newline"
         )
 
     @override

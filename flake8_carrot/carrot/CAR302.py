@@ -48,11 +48,9 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
         if node.name.startswith("_") or node.name.startswith("autocomplete_"):
             return False
 
-        INCORRECT_RETURN_ANNOTATION: Final[bool] = bool(
-            node.returns is not None
-            and not (isinstance(node.returns, ast.Constant) and node.returns.value is None)
-        )
-        if INCORRECT_RETURN_ANNOTATION:
+        if node.returns is not None and not (
+            isinstance(node.returns, ast.Constant) and node.returns.value is None
+        ):
             return False
 
         has_slash_command_decorator: bool = False

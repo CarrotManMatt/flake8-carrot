@@ -77,11 +77,10 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
         if len(node.args.kw_defaults) + len(node.args.defaults) < len(ALL_ARGS) - 1:
             return
 
-        FUNCTION_IS_CLASSMETHOD: Final[bool] = any(
+        if any(
             isinstance(decorator, ast.Name) and decorator.id == "classmethod"
             for decorator in node.decorator_list
-        )
-        if FUNCTION_IS_CLASSMETHOD:
+        ):
             return
 
         return_value: utils.ASTNameID

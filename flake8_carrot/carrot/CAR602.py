@@ -9,7 +9,6 @@ from flake8_carrot.utils import CarrotRule
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
     from tokenize import TokenInfo
-    from typing import Final
 
 __all__: "Sequence[str]" = ("RuleCAR602",)
 
@@ -64,10 +63,11 @@ class RuleCAR602(CarrotRule, ast.NodeVisitor):
                     self.problems.add_without_ctx((node.func.lineno, node.func.col_offset))
                     return
 
-                IS_MULTILINE: Final[bool] = any(
-                    self._look_for_single_re_multiline(arg) for arg in remaining_args
-                )
-                if IS_MULTILINE and regex.startswith(r"^") and regex.endswith(r"$"):
+                if (
+                    any(self._look_for_single_re_multiline(arg) for arg in remaining_args)
+                    and regex.startswith(r"^")
+                    and regex.endswith(r"$")
+                ):
                     self.problems.add_without_ctx((node.func.lineno, node.func.col_offset))
                     return
 

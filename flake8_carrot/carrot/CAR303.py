@@ -11,7 +11,7 @@ from flake8_carrot.utils import CarrotRule
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from tokenize import TokenInfo
-    from typing import Final, Literal
+    from typing import Literal
 
 __all__: "Sequence[str]" = ("RuleCAR303",)
 
@@ -56,11 +56,9 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
             raise TypeError
 
         invalid_argument_reason: object | None = ctx.get("invalid_argument_reason", None)
-        INVALID_ARGUMENT_REASON_IS_INVALID_TYPE: Final[bool] = bool(
-            invalid_argument_reason is not None
-            and not isinstance(invalid_argument_reason, cls._InvalidArgumentReason)
-        )
-        if INVALID_ARGUMENT_REASON_IS_INVALID_TYPE:
+        if invalid_argument_reason is not None and not isinstance(
+            invalid_argument_reason, cls._InvalidArgumentReason
+        ):
             raise TypeError
 
         if incorrect_name:
@@ -102,7 +100,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
             } name"
             f"{f" '{incorrect_name}'" if incorrect_name else ''} "
             f"{
-                invalid_argument_reason.value  # type: ignore[attr-defined]
+                invalid_argument_reason.value
                 if invalid_argument_reason is not None
                 else 'should be hyphenated and/or lowercased'
             } "
@@ -172,22 +170,20 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
                 value=ast.Name(id=possible_slash_command_group_name),
                 attr=possible_pycord_decorator_name,
             ):
-                COMMAND_FUNCTION: Final[bool] = bool(
+                if (
                     possible_slash_command_group_name
                     in self.plugin.found_slash_command_group_names
                     and possible_pycord_decorator_name
                     in utils.PYCORD_SLASH_COMMAND_DECORATOR_NAMES
-                )
-                if COMMAND_FUNCTION:
+                ):
                     self._check_all_arguments(decorator_node, self._FunctionType.COMMAND)
                     return
 
-                OPTION_FUNCTION: Final[bool] = bool(
+                if (
                     possible_slash_command_group_name
                     in self.plugin.found_slash_command_group_names
                     and possible_pycord_decorator_name in utils.PYCORD_OPTION_DECORATOR_NAMES
-                )
-                if OPTION_FUNCTION:
+                ):
                     self._check_all_arguments(decorator_node, self._FunctionType.OPTION)
                     return
 

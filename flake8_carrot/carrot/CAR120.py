@@ -18,11 +18,11 @@ __all__: "Sequence[str]" = ("RuleCAR120",)
 class RuleCAR120(CarrotRule):
     """"""
 
-    TYPE_IGNORE_REGEX: "Final[str]" = (  # TODO: Move double space before comment check to new rule
+    TYPE_IGNORE_REGEX: "Final[str]" = (
         r"\s*#(\s*)type(\s*):(\s*)ignore(?:(\s*)\[(\s*)"
         r"[a-z_-]+(\s*)((?:,\s*[a-z_-]+\s*)*)(?:,(\s*))*])?"
     )
-    NOQA_REGEX: "Final[str]" = (  # TODO: Move double space before comment check to new rule
+    NOQA_REGEX: "Final[str]" = (
         r"\s*#(\s*)noqa(?:(\s*):(\s*)[A-Z0-9]+"
         r"((?:\s*,\s*[A-Z0-9]+)*)(?:\s*,)*)?"
     )

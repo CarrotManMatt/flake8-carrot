@@ -9,7 +9,6 @@ from flake8_carrot.utils import CarrotRule
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from tokenize import TokenInfo
-    from typing import Final
 
 __all__: "Sequence[str]" = ("RuleCAR301",)
 
@@ -75,11 +74,10 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
                 value=ast.Name(id=possible_slash_command_group_name),
                 attr=possible_pycord_function_name,
             ):
-                FUNCTION_CALL_IS_PYCORD_FUNCTION: Final[bool] = bool(
+                if (
                     possible_slash_command_group_name
                     in self.plugin.found_slash_command_group_names
                     and possible_pycord_function_name in utils.ALL_PYCORD_FUNCTION_NAMES
-                )
-                if FUNCTION_CALL_IS_PYCORD_FUNCTION:
+                ):
                     self._check_for_positional_arguments(node)
                     return

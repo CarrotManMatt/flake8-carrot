@@ -10,7 +10,6 @@ from flake8_carrot.utils import CarrotRule
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from tokenize import TokenInfo
-    from typing import Final
 
 __all__: "Sequence[str]" = ("RuleCAR304",)
 
@@ -131,7 +130,7 @@ class RuleCAR304(CarrotRule, ast.NodeVisitor):
                 value=ast.Name(id=possible_slash_command_group_name),
                 attr=possible_pycord_decorator_name,
             ):
-                COMMAND_FUNCTION: Final[bool] = bool(
+                if (
                     possible_slash_command_group_name
                     in self.plugin.found_slash_command_group_names
                     and possible_pycord_decorator_name
@@ -139,17 +138,15 @@ class RuleCAR304(CarrotRule, ast.NodeVisitor):
                         utils.PYCORD_SLASH_COMMAND_DECORATOR_NAMES
                         | utils.PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
                     )
-                )
-                if COMMAND_FUNCTION:
+                ):
                     self._check_all_arguments(decorator_node, self._FunctionType.COMMAND)
                     return
 
-                OPTION_FUNCTION: Final[bool] = bool(
+                if (
                     possible_slash_command_group_name
                     in self.plugin.found_slash_command_group_names
                     and possible_pycord_decorator_name in utils.PYCORD_OPTION_DECORATOR_NAMES
-                )
-                if OPTION_FUNCTION:
+                ):
                     self._check_all_arguments(decorator_node, self._FunctionType.OPTION)
                     return
 

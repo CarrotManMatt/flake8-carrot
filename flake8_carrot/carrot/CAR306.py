@@ -107,13 +107,12 @@ class RuleCAR306(CarrotRule, ast.NodeVisitor):
                 value=ast.Name(id=possible_slash_command_group_name),
                 attr=possible_pycord_decorator_name,
             ):
-                COMMAND_FUNCTION: Final[bool] = bool(
+                if (
                     possible_slash_command_group_name
                     in self.plugin.found_slash_command_group_names
                     and possible_pycord_decorator_name
                     in utils.PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
-                )
-                if COMMAND_FUNCTION:
+                ):
                     self._check_all_arguments(decorator_node)
                     return
 

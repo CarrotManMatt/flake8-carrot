@@ -3,6 +3,8 @@
 import ast
 from typing import TYPE_CHECKING, override
 
+import astpretty
+
 from flake8_carrot.utils import CarrotRule
 
 if TYPE_CHECKING:
@@ -27,7 +29,7 @@ class RuleCAR105(CarrotRule):
             line = f"`{line if len(line) < 30 else f'{line[:30]}...'}`"
 
         return f"{
-            f'{line} is not' if line else "Only `Sequence` import & module's docstring are"
+            f'{line} is not' if line else "Only import statements & the module's docstring are"
         } allowed above `__all__` export"
 
     @override
@@ -42,14 +44,14 @@ class RuleCAR105(CarrotRule):
             if node.lineno >= self.plugin.first_all_export_line_numbers[0]:
                 return
 
-            if node == tree.body[0]:
-                match node:
-                    case ast.Expr(value=ast.Constant()):
-                        continue
-
             match node:
-                case ast.ImportFrom(module="collections.abc" | "typing"):
-                    if any(name.name == "Sequence" for name in node.names):
-                        continue
+                case ast.Expr(value=ast.Constant(value=str())) if node == tree.body[0]:
+                    continue
+                case (
+                    ast.ImportFrom()
+                    | ast.Import()
+                    | ast.If(test=ast.Name(id="TYPE_CHECKING"), orelse=[])
+                ):
+                    continue
 
             self.problems[(node.lineno, 0)] = {"line": ast.unparse(node).split("\n")[0]}
