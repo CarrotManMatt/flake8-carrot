@@ -11,12 +11,12 @@ if TYPE_CHECKING:
 
     from flake8_carrot.utils import BasePlugin
 
-__all__: "Sequence[str]" = ("apply_plugin_to_ast",)
+__all__: Sequence[str] = ("apply_plugin_to_ast",)
 
 
 def apply_plugin_to_ast(
-    raw_testing_ast: str, plugin_class: type["BasePlugin"]
-) -> "AbstractSet[str]":
+    raw_testing_ast: str, plugin_class: type[BasePlugin]
+) -> AbstractSet[str]:
     """"""
     converted_lines: Sequence[str] = raw_testing_ast.split("\n")
     if not converted_lines[-1]:

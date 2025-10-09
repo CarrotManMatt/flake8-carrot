@@ -3,15 +3,13 @@
 import ast
 from typing import TYPE_CHECKING, override
 
-import astpretty
-
 from flake8_carrot.utils import CarrotRule
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from tokenize import TokenInfo
 
-__all__: "Sequence[str]" = ("RuleCAR105",)
+__all__: Sequence[str] = ("RuleCAR105",)
 
 
 class RuleCAR105(CarrotRule):
@@ -19,7 +17,7 @@ class RuleCAR105(CarrotRule):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         line: object | None = ctx.get("line", None)
         if line is not None and not isinstance(line, str):
             raise TypeError
@@ -34,7 +32,7 @@ class RuleCAR105(CarrotRule):
 
     @override
     def run_check(
-        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         if self.plugin.first_all_export_line_numbers is None or len(tree.body) < 2:
             return

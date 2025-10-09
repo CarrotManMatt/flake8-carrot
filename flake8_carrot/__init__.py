@@ -8,4 +8,4 @@ from .tex_bot import TeXBotPlugin
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-__all__: "Sequence[str]" = ("CarrotPlugin", "TeXBotPlugin")
+__all__: Sequence[str] = ("CarrotPlugin", "TeXBotPlugin")

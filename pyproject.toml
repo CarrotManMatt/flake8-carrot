@@ -41,7 +41,7 @@ keywords = ["flake8", "flake8-plugin", "linter", "python", "static analysis"]
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 name = "flake8-carrot"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 
 [project.urls]
 Issues = "https://github.com/CarrotManMatt/flake8-carrot/issues"

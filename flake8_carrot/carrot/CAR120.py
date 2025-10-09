@@ -12,24 +12,24 @@ if TYPE_CHECKING:
     from tokenize import TokenInfo
     from typing import Final
 
-__all__: "Sequence[str]" = ("RuleCAR120",)
+__all__: Sequence[str] = ("RuleCAR120",)
 
 
 class RuleCAR120(CarrotRule):
     """"""
 
-    TYPE_IGNORE_REGEX: "Final[str]" = (
+    TYPE_IGNORE_REGEX: Final[str] = (
         r"\s*#(\s*)type(\s*):(\s*)ignore(?:(\s*)\[(\s*)"
         r"[a-z_-]+(\s*)((?:,\s*[a-z_-]+\s*)*)(?:,(\s*))*])?"
     )
-    NOQA_REGEX: "Final[str]" = (
+    NOQA_REGEX: Final[str] = (
         r"\s*#(\s*)noqa(?:(\s*):(\s*)[A-Z0-9]+"
         r"((?:\s*,\s*[A-Z0-9]+)*)(?:\s*,)*)?"
     )
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         replacement_message: object | None = ctx.get("replacement_message", None)
         if replacement_message is not None and not isinstance(replacement_message, str):
             raise TypeError
@@ -123,7 +123,7 @@ class RuleCAR120(CarrotRule):
         return error_locations
 
     @classmethod
-    def _get_type_ignore_first_error_locations(cls, line: str) -> "Mapping[int, str]":
+    def _get_type_ignore_first_error_locations(cls, line: str) -> Mapping[int, str]:
         match: re.Match[str] | None = re.search(
             rf"(?P<type_ignore>{cls.TYPE_IGNORE_REGEX})(?P<noqa>{cls.NOQA_REGEX})\Z",
             line,
@@ -140,7 +140,7 @@ class RuleCAR120(CarrotRule):
         )
 
     @classmethod
-    def _get_noqa_first_error_locations(cls, line: str) -> "Mapping[int, str]":
+    def _get_noqa_first_error_locations(cls, line: str) -> Mapping[int, str]:
         match: re.Match[str] | None = re.search(
             rf"(?P<noqa>{cls.NOQA_REGEX})(?P<type_ignore>{cls.TYPE_IGNORE_REGEX})\Z",
             line,
@@ -157,7 +157,7 @@ class RuleCAR120(CarrotRule):
         )
 
     @classmethod
-    def _get_all_error_locations(cls, line: str) -> "Mapping[int, str]":
+    def _get_all_error_locations(cls, line: str) -> Mapping[int, str]:
         type_ignore_first_error_locations: Mapping[int, str] = (
             cls._get_type_ignore_first_error_locations(line)
         )
@@ -186,7 +186,7 @@ class RuleCAR120(CarrotRule):
 
     @override
     def run_check(
-        self, tree: "ast.Module", file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         self.problems = ProblemsContainer(
             (

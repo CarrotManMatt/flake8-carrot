@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from tokenize import TokenInfo
 
-__all__: "Sequence[str]" = ("RuleCAR151",)
+__all__: Sequence[str] = ("RuleCAR151",)
 
 
 class RuleCAR151(CarrotRule, ast.NodeVisitor):
@@ -23,7 +23,7 @@ class RuleCAR151(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         invalid_argument_type: object | None = ctx.get("invalid_argument_type", None)
         if invalid_argument_type is not None and not isinstance(
             invalid_argument_type, cls._InvalidArgumentType
@@ -38,7 +38,7 @@ class RuleCAR151(CarrotRule, ast.NodeVisitor):
 
     @override
     def run_check(
-        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         self.visit(tree)
 

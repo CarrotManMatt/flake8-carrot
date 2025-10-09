@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from tokenize import TokenInfo
 
-__all__: "Sequence[str]" = ("RuleCAR101",)
+__all__: Sequence[str] = ("RuleCAR101",)
 
 
 class RuleCAR101(CarrotRule):
@@ -17,12 +17,12 @@ class RuleCAR101(CarrotRule):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return "Missing `__all__` export at the top of the module"
 
     @classmethod
     def get_error_position(
-        cls, tree_body: "Sequence[ast.stmt]", lines: "Sequence[str]"
+        cls, tree_body: Sequence[ast.stmt], lines: Sequence[str]
     ) -> tuple[int, int]:  # NOTE: I'm sorry to whoever has to work out what is going on here
         """"""
         if not tree_body:
@@ -109,7 +109,7 @@ class RuleCAR101(CarrotRule):
 
     @override
     def run_check(
-        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         if self.plugin.first_all_export_line_numbers is not None:
             return

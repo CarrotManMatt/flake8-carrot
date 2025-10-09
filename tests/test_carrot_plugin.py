@@ -17,12 +17,12 @@ if TYPE_CHECKING:
 
     from flake8_carrot.utils import CarrotRule
 
-__all__: "Sequence[str]" = ("TestRuleCAR001",)
+__all__: Sequence[str] = ("TestRuleCAR001",)
 
 
 class BaseTestCarrotPlugin(abc.ABC):  # noqa: B024
     @classmethod
-    def _apply_carrot_plugin_to_ast(cls, raw_testing_ast: str) -> "AbstractSet[str]":
+    def _apply_carrot_plugin_to_ast(cls, raw_testing_ast: str) -> AbstractSet[str]:
         """"""
         return apply_plugin_to_ast(raw_testing_ast, CarrotPlugin)
 
@@ -34,7 +34,7 @@ class TestRuleMessages(BaseTestCarrotPlugin):
         "rule_class",
         CarrotPlugin.RULES,
     )
-    def test_message_never_ends_with_full_stop(self, rule_class: type["CarrotRule"]) -> None:
+    def test_message_never_ends_with_full_stop(self, rule_class: type[CarrotRule]) -> None:
         """"""
         assert not rule_class.format_error_message(ctx={}).endswith(".")
 
@@ -42,7 +42,7 @@ class TestRuleMessages(BaseTestCarrotPlugin):
         "rule_class",
         CarrotPlugin.RULES,
     )
-    def test_no_double_zero_in_rule_code(self, rule_class: type["CarrotRule"]) -> None:
+    def test_no_double_zero_in_rule_code(self, rule_class: type[CarrotRule]) -> None:
         """"""
         assert "00" not in rule_class.__name__
 
@@ -50,9 +50,7 @@ class TestRuleMessages(BaseTestCarrotPlugin):
         "rule_class",
         CarrotPlugin.RULES,
     )
-    def test_all_rule_classes_named_with_rule_code(
-        self, rule_class: type["CarrotRule"]
-    ) -> None:
+    def test_all_rule_classes_named_with_rule_code(self, rule_class: type[CarrotRule]) -> None:
         """"""
         assert re.fullmatch(r"\ARuleCAR[0-9]{1,3}\Z", rule_class.__name__)
 
@@ -60,7 +58,7 @@ class TestRuleMessages(BaseTestCarrotPlugin):
         "rule_class",
         CarrotPlugin.RULES,
     )
-    def test_correct_rule_code_in_error_message(self, rule_class: type["CarrotRule"]) -> None:
+    def test_correct_rule_code_in_error_message(self, rule_class: type[CarrotRule]) -> None:
         """"""
         rule_number_match: re.Match[str] | None = re.fullmatch(
             r"\A(?:Rule)?CAR([0-9]{1,3})\Z",
@@ -79,9 +77,7 @@ class TestRuleMessages(BaseTestCarrotPlugin):
         "rule_class",
         CarrotPlugin.RULES,
     )
-    def test_no_double_rule_code_in_error_message(
-        self, rule_class: type["CarrotRule"]
-    ) -> None:
+    def test_no_double_rule_code_in_error_message(self, rule_class: type[CarrotRule]) -> None:
         """"""
         assert not re.fullmatch(
             r"\A\s*CAR\s*[0-9]{1,4}.*\Z",

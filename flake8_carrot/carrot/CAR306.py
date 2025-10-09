@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from tokenize import TokenInfo
     from typing import Final, Self
 
-__all__: "Sequence[str]" = ("RuleCAR306",)
+__all__: Sequence[str] = ("RuleCAR306",)
 
 
 class RuleCAR306(CarrotRule, ast.NodeVisitor):
@@ -23,14 +23,14 @@ class RuleCAR306(CarrotRule, ast.NodeVisitor):
         USER = "user"
 
         @classmethod
-        def format_value(cls, instance: "Self | None") -> str:
+        def format_value(cls, instance: Self | None) -> str:
             """"""
             return f"{instance.value.strip()}-" if instance is not None else ""
 
         @classmethod
         def get_from_decorator_node(
             cls, decorator_node: ast.Call
-        ) -> "RuleCAR306._ContextCommandType":
+        ) -> RuleCAR306._ContextCommandType:
             unparsed_decorator_node: str = ast.unparse(decorator_node).lower()
 
             if "message" in unparsed_decorator_node:
@@ -46,7 +46,7 @@ class RuleCAR306(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         context_command_type: object | None = ctx.get("context_command_type", None)
         if context_command_type is not None and not isinstance(
             context_command_type, RuleCAR306._ContextCommandType
@@ -60,12 +60,12 @@ class RuleCAR306(CarrotRule, ast.NodeVisitor):
 
     @override
     def run_check(
-        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         self.visit(tree)
 
     def _check_single_argument(
-        self, argument: ast.expr, context_command_type: "RuleCAR306._ContextCommandType"
+        self, argument: ast.expr, context_command_type: RuleCAR306._ContextCommandType
     ) -> None:
         if not isinstance(argument, ast.Constant):
             return

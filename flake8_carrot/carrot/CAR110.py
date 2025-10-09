@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, Sequence
     from tokenize import TokenInfo
 
-__all__: "Sequence[str]" = ("RuleCAR110",)
+__all__: Sequence[str] = ("RuleCAR110",)
 
 
 class RuleCAR110(CarrotRule):
@@ -17,12 +17,12 @@ class RuleCAR110(CarrotRule):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return "Double newline is required after `__all__` export"
 
     @override
     def run_check(
-        self, tree: "ast.Module", file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         if self.plugin.first_all_export_line_numbers is None:
             return

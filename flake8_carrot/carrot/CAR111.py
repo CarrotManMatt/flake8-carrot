@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from tokenize import TokenInfo
 
-__all__: "Sequence[str]" = ("RuleCAR111",)
+__all__: Sequence[str] = ("RuleCAR111",)
 
 
 class RuleCAR111(CarrotRule):
@@ -17,7 +17,7 @@ class RuleCAR111(CarrotRule):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return (
             "Preamble lines (imports, `__all__` declaration, module docstring, etc.) "
             "should be separated by a single newline"
@@ -25,7 +25,7 @@ class RuleCAR111(CarrotRule):
 
     @override
     def run_check(
-        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         if len(lines) <= 1 or len(tree.body) < 2:
             return

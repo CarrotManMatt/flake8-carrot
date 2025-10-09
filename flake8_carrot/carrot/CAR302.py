@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from tokenize import TokenInfo
     from typing import Final
 
-__all__: "Sequence[str]" = ("RuleCAR302",)
+__all__: Sequence[str] = ("RuleCAR302",)
 
 
 class RuleCAR302(CarrotRule, ast.NodeVisitor):
@@ -19,7 +19,7 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         needs_to_be_plural: object | None = ctx.get("needs_to_be_plural", None)
         if needs_to_be_plural is not None and not isinstance(needs_to_be_plural, bool):
             raise TypeError
@@ -40,7 +40,7 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
 
     @override
     def run_check(
-        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         self.visit(tree)
 
@@ -115,7 +115,7 @@ class RuleCAR302(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     def _is_class_a_cog_subclass(
-        cls, class_name: str, class_bases: "Iterable[ast.expr]"
+        cls, class_name: str, class_bases: Iterable[ast.expr]
     ) -> bool:
         if "cog" in class_name:
             return True

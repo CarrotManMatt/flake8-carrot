@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from tokenize import TokenInfo
 
-__all__: "Sequence[str]" = ("RuleCAR123",)
+__all__: Sequence[str] = ("RuleCAR123",)
 
 
 class RuleCAR123(CarrotRule):
@@ -19,12 +19,12 @@ class RuleCAR123(CarrotRule):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return "Line comment should be placed before NOQA or `type: ignore` comment"
 
     @override
     def run_check(
-        self, tree: "ast.Module", file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         file_token: TokenInfo
         for file_token in file_tokens:

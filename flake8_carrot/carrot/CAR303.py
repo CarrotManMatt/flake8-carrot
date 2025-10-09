@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from tokenize import TokenInfo
     from typing import Literal
 
-__all__: "Sequence[str]" = ("RuleCAR303",)
+__all__: Sequence[str] = ("RuleCAR303",)
 
 
 class RuleCAR303(CarrotRule, ast.NodeVisitor):
@@ -31,7 +31,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         @classmethod
         def from_bools(
             cls, *, requires_hyphenation: bool, requires_lowercasing: bool
-        ) -> "RuleCAR303._InvalidArgumentReason | Literal[False]":
+        ) -> RuleCAR303._InvalidArgumentReason | Literal[False]:
             """"""
             if requires_hyphenation and requires_lowercasing:
                 return cls.REQUIRES_BOTH
@@ -46,7 +46,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         function_type: object | None = ctx.get("function_type", None)
         if function_type is not None and not isinstance(function_type, cls._FunctionType):
             raise TypeError
@@ -109,7 +109,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
 
     @override
     def run_check(
-        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         self.visit(tree)
 

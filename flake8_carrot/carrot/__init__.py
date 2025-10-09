@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     from collections.abc import Set as AbstractSet
     from tokenize import TokenInfo
 
-__all__: "Sequence[str]" = (
+__all__: Sequence[str] = (
     "CarrotPlugin",
     "CarrotRule",
     "RuleCAR101",
@@ -168,7 +168,7 @@ class CarrotPlugin(BasePlugin):
 
     @classproperty
     @override
-    def RULES(cls) -> "Collection[type[CarrotRule]]":
+    def RULES(cls) -> Collection[type[CarrotRule]]:
         return {
             RuleCAR101,
             RuleCAR102,
@@ -203,7 +203,7 @@ class CarrotPlugin(BasePlugin):
 
     @override
     def __init__(
-        self, tree: ast.AST, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         context_values_finder: _ContextValuesFinder = _ContextValuesFinder()
         context_values_finder.visit(tree)
@@ -221,7 +221,7 @@ class CarrotPlugin(BasePlugin):
         super().__init__(tree=tree, file_tokens=file_tokens, lines=lines)
 
     @property
-    def found_slash_command_group_names(self) -> "AbstractSet[str]":
+    def found_slash_command_group_names(self) -> AbstractSet[str]:
         """"""
         return self._found_slash_command_group_names
 

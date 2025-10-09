@@ -9,9 +9,9 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from collections.abc import Set as AbstractSet
 
-__all__: "Sequence[str]" = ()
+__all__: Sequence[str] = ()
 
 
-def _apply_tex_bot_plugin_to_ast(raw_testing_ast: str) -> "AbstractSet[str]":
+def _apply_tex_bot_plugin_to_ast(raw_testing_ast: str) -> AbstractSet[str]:
     """"""
     return apply_plugin_to_ast(raw_testing_ast, TeXBotPlugin)

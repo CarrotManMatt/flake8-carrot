@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from tokenize import TokenInfo
 
-__all__: "Sequence[str]" = ("RuleCAR121",)
+__all__: Sequence[str] = ("RuleCAR121",)
 
 type _ErrorLocationContext = tuple[_IgnoreCommentType, bool]
 type _ErrorLocationsMapping = Mapping[int, _ErrorLocationContext]
@@ -173,7 +173,7 @@ class RuleCAR121(CarrotRule):
 
     @override
     def run_check(
-        self, tree: "ast.Module", file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         self.problems = ProblemsContainer(
             self.problems

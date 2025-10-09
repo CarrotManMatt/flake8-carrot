@@ -15,26 +15,26 @@ if TYPE_CHECKING:
 
     from flake8_carrot.carrot import CarrotPlugin
 
-__all__: "Sequence[str]" = ("RuleCAR610",)
+__all__: Sequence[str] = ("RuleCAR610",)
 
 
 class RuleCAR610(CarrotRule, ast.NodeVisitor):
     """"""
 
     @override
-    def __init__(self, plugin: "CarrotPlugin") -> None:
+    def __init__(self, plugin: CarrotPlugin) -> None:
         self.source: str | None = None
 
         super().__init__(plugin)
 
     @classmethod
     @override
-    def _format_error_message(cls, ctx: "Mapping[str, object]") -> str:
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         return 'Regex pattern string should use a raw string: `r"..."`'
 
     @override
     def run_check(
-        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         self.source = "".join(lines)
         self.visit(tree)

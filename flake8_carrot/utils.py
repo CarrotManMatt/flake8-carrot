@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from flake8_carrot.carrot import CarrotPlugin
     from flake8_carrot.tex_bot import TeXBotPlugin
 
-__all__: "Sequence[str]" = (
+__all__: Sequence[str] = (
     "ALL_PYCORD_FUNCTION_NAMES",
     "PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES",
     "PYCORD_EVENT_LISTENER_DECORATOR_NAMES",
@@ -42,7 +42,7 @@ __all__: "Sequence[str]" = (
 )
 
 if __name__ == "__main__":
-    CANNOT_RUN_AS_SCRIPT_MESSAGE: "Final[str]" = "This module cannot be run as a script."
+    CANNOT_RUN_AS_SCRIPT_MESSAGE: Final[str] = "This module cannot be run as a script."
     raise RuntimeError(CANNOT_RUN_AS_SCRIPT_MESSAGE)
 
 if TYPE_CHECKING:
@@ -55,8 +55,8 @@ if TYPE_CHECKING:
         tuple[_ProblemsContainerKey, _ProblemsContainerValue]
     ]
 
-PPRINT_MODULES: "Final[AbstractSet[str]]" = {"astpretty"}
-PYCORD_SLASH_COMMAND_DECORATOR_NAMES: "Final[AbstractSet[str]]" = {
+PPRINT_MODULES: Final[AbstractSet[str]] = {"astpretty"}
+PYCORD_SLASH_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = {
     "application_command",
     "command",
     "slash_command",
@@ -64,21 +64,21 @@ PYCORD_SLASH_COMMAND_DECORATOR_NAMES: "Final[AbstractSet[str]]" = {
     "SlashCommand",
     "SlashCommandGroup",
 }
-PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES: "Final[AbstractSet[str]]" = {
+PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = {
     "user_command",
     "message_command",
     "UserCommand",
     "MessageCommand",
 }
-PYCORD_OPTION_DECORATOR_NAMES: "Final[AbstractSet[str]]" = {
+PYCORD_OPTION_DECORATOR_NAMES: Final[AbstractSet[str]] = {
     "option",
     "Option",
     "ThreadOption",
     "OptionChoice",
 }
-PYCORD_TASK_DECORATOR_NAMES: "Final[AbstractSet[str]]" = {"loop", "Loop", "SleepHandle"}
-PYCORD_EVENT_LISTENER_DECORATOR_NAMES: "Final[AbstractSet[str]]" = {"listen", "listener"}
-ALL_PYCORD_FUNCTION_NAMES: "Final[AbstractSet[str]]" = (
+PYCORD_TASK_DECORATOR_NAMES: Final[AbstractSet[str]] = {"loop", "Loop", "SleepHandle"}
+PYCORD_EVENT_LISTENER_DECORATOR_NAMES: Final[AbstractSet[str]] = {"listen", "listener"}
+ALL_PYCORD_FUNCTION_NAMES: Final[AbstractSet[str]] = (
     PYCORD_SLASH_COMMAND_DECORATOR_NAMES
     | PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
     | PYCORD_OPTION_DECORATOR_NAMES
@@ -92,11 +92,11 @@ class BasePlugin(abc.ABC):
 
     @classproperty
     @abc.abstractmethod
-    def RULES(cls) -> "Collection[type[BaseRule[Self]]]":  # noqa: D102, N802
+    def RULES(cls) -> Collection[type[BaseRule[Self]]]:  # noqa: D102, N802
         pass
 
     def __init__(
-        self, tree: ast.AST, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         """"""
         if isinstance(tree, ast.Module):
@@ -115,7 +115,7 @@ class BasePlugin(abc.ABC):
         self._file_tokens: Sequence[TokenInfo] = file_tokens
         self._lines: Sequence[str] = lines
 
-    def run(self) -> "Generator[tuple[int, int, str, type[Self]], None, None]":
+    def run(self) -> Generator[tuple[int, int, str, type[Self]]]:
         """"""
         RuleClass: type[BaseRule[Self]]
         for RuleClass in self.RULES:
@@ -133,7 +133,7 @@ class ProblemsContainer(dict["_ProblemsContainerKey", "_ProblemsContainerValue"]
     """"""
 
     @classmethod
-    def clean_key(cls, key: "_ProblemsContainerKey | str") -> "_ProblemsContainerKey":
+    def clean_key(cls, key: _ProblemsContainerKey | str) -> _ProblemsContainerKey:
         """"""
         if isinstance(key, str):
             match: re.Match[str] | None = re.fullmatch(
@@ -159,9 +159,9 @@ class ProblemsContainer(dict["_ProblemsContainerKey", "_ProblemsContainerValue"]
     @override
     def __init__(
         self,
-        mapping: "_ProblemsContainerMapping | _ProblemsContainerIterable | None" = None,
+        mapping: _ProblemsContainerMapping | _ProblemsContainerIterable | None = None,
         /,
-        **kwargs: "_ProblemsContainerValue",
+        **kwargs: _ProblemsContainerValue,
     ) -> None:
         mapping = (
             {}
@@ -181,11 +181,11 @@ class ProblemsContainer(dict["_ProblemsContainerKey", "_ProblemsContainerValue"]
 
     @override
     def __setitem__(
-        self, key: "_ProblemsContainerKey", value: "_ProblemsContainerValue", /
+        self, key: _ProblemsContainerKey, value: _ProblemsContainerValue, /
     ) -> None:
         super().__setitem__(self.clean_key(key), value)
 
-    def add_without_ctx(self, problem_location: "_ProblemsContainerKey") -> None:
+    def add_without_ctx(self, problem_location: _ProblemsContainerKey) -> None:
         """"""
         self[problem_location] = {}
 
@@ -202,7 +202,7 @@ class BaseRule[T_plugin: BasePlugin](abc.ABC):
 
     @abc.abstractmethod
     def run_check(
-        self, tree: ast.Module, file_tokens: "Sequence[TokenInfo]", lines: "Sequence[str]"
+        self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
         """"""
 
@@ -224,7 +224,7 @@ class CarrotRule(BaseRule["CarrotPlugin"], abc.ABC):
     """"""
 
     @override
-    def __init__(self, plugin: "CarrotPlugin") -> None:
+    def __init__(self, plugin: CarrotPlugin) -> None:
         super().__init__(plugin)
 
 
@@ -232,12 +232,12 @@ class TeXBotRule(BaseRule["TeXBotPlugin"], abc.ABC):
     """"""
 
     @override
-    def __init__(self, plugin: "TeXBotPlugin") -> None:
+    def __init__(self, plugin: TeXBotPlugin) -> None:
         super().__init__(plugin)
 
 
 def _function_call_is_pycord_function_from_commands_module(
-    node: ast.Call, decorator_names: "Collection[str]"
+    node: ast.Call, decorator_names: Collection[str]
 ) -> bool:
     function_name: str
     match node.func:
@@ -388,8 +388,8 @@ def function_call_is_any_pycord_decorator(node: ast.Call) -> bool:
 
 
 def generic_visit_before_return[T_Visitor: ast.NodeVisitor, T_Node: ast.AST](
-    func: "Callable[[T_Visitor, T_Node], None]",
-) -> "Callable[[T_Visitor, T_Node], None]":
+    func: Callable[[T_Visitor, T_Node], None],
+) -> Callable[[T_Visitor, T_Node], None]:
     """"""
 
     @functools.wraps(func)
