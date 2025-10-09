@@ -30,53 +30,40 @@ class BaseTestCarrotPlugin(abc.ABC):  # noqa: B024
 class TestRuleMessages(BaseTestCarrotPlugin):
     """"""
 
-    @pytest.mark.parametrize(
-        "rule_class",
-        CarrotPlugin.RULES,
-    )
+    @pytest.mark.parametrize("rule_class", CarrotPlugin.RULES)
     def test_message_never_ends_with_full_stop(self, rule_class: type[CarrotRule]) -> None:
         """"""
         assert not rule_class.format_error_message(ctx={}).endswith(".")
 
-    @pytest.mark.parametrize(
-        "rule_class",
-        CarrotPlugin.RULES,
-    )
+    @pytest.mark.parametrize("rule_class", CarrotPlugin.RULES)
     def test_no_double_zero_in_rule_code(self, rule_class: type[CarrotRule]) -> None:
         """"""
         assert "00" not in rule_class.__name__
 
-    @pytest.mark.parametrize(
-        "rule_class",
-        CarrotPlugin.RULES,
-    )
+    @pytest.mark.parametrize("rule_class", CarrotPlugin.RULES)
     def test_all_rule_classes_named_with_rule_code(self, rule_class: type[CarrotRule]) -> None:
         """"""
         assert re.fullmatch(r"\ARuleCAR[0-9]{1,3}\Z", rule_class.__name__)
 
-    @pytest.mark.parametrize(
-        "rule_class",
-        CarrotPlugin.RULES,
-    )
+    @pytest.mark.parametrize("rule_class", CarrotPlugin.RULES)
     def test_correct_rule_code_in_error_message(self, rule_class: type[CarrotRule]) -> None:
         """"""
         rule_number_match: re.Match[str] | None = re.fullmatch(
-            r"\A(?:Rule)?CAR([0-9]{1,3})\Z",
-            rule_class.__name__,
-            re.IGNORECASE,
+            r"\A(?:Rule)?CAR([0-9]{1,3})\Z", rule_class.__name__, re.IGNORECASE
         )
 
         assert re.fullmatch(
-            rf"\ACAR{
-                rule_number_match.group(1) if rule_number_match is not None else r'[0-9]{1,3}'
-            } .+\Z",
+            (
+                rf"\ACAR{
+                    rule_number_match.group(1)
+                    if rule_number_match is not None
+                    else r'[0-9]{1,3}'
+                } .+\Z"
+            ),
             rule_class.format_error_message(ctx={}),
         )
 
-    @pytest.mark.parametrize(
-        "rule_class",
-        CarrotPlugin.RULES,
-    )
+    @pytest.mark.parametrize("rule_class", CarrotPlugin.RULES)
     def test_no_double_rule_code_in_error_message(self, rule_class: type[CarrotRule]) -> None:
         """"""
         assert not re.fullmatch(
@@ -111,60 +98,39 @@ class TestRuleCAR001(BaseTestCarrotPlugin):
             ('"""This is a docstring."""', (1, 27)),
             ('"""This is a docstring."""\n', (2, 1)),
             *(
-                (
-                    f'"""This is a docstring."""\n{"\n" * count}',
-                    (3, 1),
-                )
+                (f'"""This is a docstring."""\n{"\n" * count}', (3, 1))
                 for count in range(1, 5)
             ),
             ('"""\nThis is a docstring.\nwow!\n"""', (4, 4)),
             ('"""\nThis is a docstring.\nwow!\n"""\n', (5, 1)),
             *(
-                (
-                    f'"""\nThis is a docstring.\nwow!\n"""\n{"\n" * count}',
-                    (6, 1),
-                )
+                (f'"""\nThis is a docstring.\nwow!\n"""\n{"\n" * count}', (6, 1))
                 for count in range(1, 5)
             ),
             *(
-                (
-                    f'"""This is a docstring."""{"\n" * count}x=3\n',
-                    (2, 1),
-                )
+                (f'"""This is a docstring."""{"\n" * count}x=3\n', (2, 1))
                 for count in range(1, 4)
             ),
             *(
-                (
-                    f'"""This is a docstring."""\n\n\n{"\n" * count}x=3\n',
-                    (3, 1),
-                )
+                (f'"""This is a docstring."""\n\n\n{"\n" * count}x=3\n', (3, 1))
                 for count in range(1, 4)
             ),
             *(
-                (
-                    f'"""\nThis is a docstring.\nwow!\n"""{"\n" * count}x=3\n',
-                    (5, 1),
-                )
+                (f'"""\nThis is a docstring.\nwow!\n"""{"\n" * count}x=3\n', (5, 1))
                 for count in range(1, 4)
             ),
             *(
-                (
-                    f'"""\nThis is a docstring.\nwow!\n"""\n\n\n{"\n" * count}x=3\n',
-                    (6, 1),
-                )
+                (f'"""\nThis is a docstring.\nwow!\n"""\n\n\n{"\n" * count}x=3\n', (6, 1))
                 for count in range(1, 4)
             ),
-            (
-                '"""This is a docstring."""\n\nfrom collections.abc import Sequence',
-                (3, 37),
-            ),
-            (
-                '"""This is a docstring."""\n\nfrom collections.abc import Sequence\n',
-                (4, 1),
-            ),
+            ('"""This is a docstring."""\n\nfrom collections.abc import Sequence', (3, 37)),
+            ('"""This is a docstring."""\n\nfrom collections.abc import Sequence\n', (4, 1)),
             *(
                 (
-                    f'"""This is a docstring."""\n\nfrom collections.abc import Sequence\n{"\n" * count}',  # noqa: E501
+                    (
+                        '"""This is a docstring."""\n\n'
+                        f"from collections.abc import Sequence\n{'\n' * count}"
+                    ),
                     (5, 1),
                 )
                 for count in range(1, 5)
@@ -175,35 +141,50 @@ class TestRuleCAR001(BaseTestCarrotPlugin):
             ),
             *(
                 (
-                    f'"""\nThis is a docstring.\nwow!\n"""\n\nfrom collections.abc import Sequence\n{"\n" * count}',  # noqa: E501
+                    (
+                        '"""\nThis is a docstring.\nwow!\n"""\n\n'
+                        f"from collections.abc import Sequence\n{'\n' * count}"
+                    ),
                     (8, 1),
                 )
                 for count in range(1, 5)
             ),
             *(
                 (
-                    f'"""This is a docstring."""\n\nfrom collections.abc import Sequence{"\n" * count}x=3\n',  # noqa: E501
+                    (
+                        '"""This is a docstring."""\n\n'
+                        f"from collections.abc import Sequence{'\n' * count}x=3\n"
+                    ),
                     (4, 1),
                 )
                 for count in range(1, 4)
             ),
             *(
                 (
-                    f'"""This is a docstring."""\n\nfrom collections.abc import Sequence\n\n\n{"\n" * count}x=3\n',  # noqa: E501
+                    (
+                        '"""This is a docstring."""\n\n'
+                        f"from collections.abc import Sequence\n\n\n{'\n' * count}x=3\n"
+                    ),
                     (5, 1),
                 )
                 for count in range(1, 4)
             ),
             *(
                 (
-                    f'"""\nThis is a docstring.\nwow!\n"""\n\nfrom collections.abc import Sequence{"\n" * count}x=3\n',  # noqa: E501
+                    (
+                        '"""\nThis is a docstring.\nwow!\n"""\n\n'
+                        f"from collections.abc import Sequence{'\n' * count}x=3\n"
+                    ),
                     (7, 1),
                 )
                 for count in range(1, 4)
             ),
             *(
                 (
-                    f'"""\nThis is a docstring.\nwow!\n"""\n\nfrom collections.abc import Sequence\n\n\n{"\n" * count}x=3\n',  # noqa: E501
+                    (
+                        '"""\nThis is a docstring.\nwow!\n"""\n\n'
+                        f"from collections.abc import Sequence\n\n\n{'\n' * count}x=3\n"
+                    ),
                     (8, 1),
                 )
                 for count in range(1, 3)
@@ -215,7 +196,7 @@ class TestRuleCAR001(BaseTestCarrotPlugin):
     ) -> None:
         """"""
         assert self._get_message(*expected_error_position) in self._apply_carrot_plugin_to_ast(
-            raw_test_ast,
+            raw_test_ast
         )
 
 
@@ -250,7 +231,7 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
         return (
             f"{line_number}:{column_number} CAR111 "
             "Preamble lines (imports, `__all__` declaration, module docstring, etc.) "
-            "should be seperated by a single newline"
+            "should be separated by a single newline"
         )
 
     @pytest.mark.parametrize(
@@ -326,8 +307,8 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
                 '__all__: Sequence[str] = ("foo",)\n\n'
                 "import random\n"
             ),
-            ('"""This is a docstring."""\n\nimport random\n'),
-            ('\n"""This is a docstring."""\n\nimport random\n'),
+            '"""This is a docstring."""\n\nimport random\n',
+            '\n"""This is a docstring."""\n\nimport random\n',
             *(
                 f'{"\n" * count_pre}"""This is a docstring."""{"\n" * count_post}'
                 for count_post in range(0, 5)
@@ -360,7 +341,7 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
             ),
             "import random\nx = random.random()\n",
             "import random\nx = random.random()\n\nx = 5\n",
-            ('"""This is a docstring."""\nx = 4\n\n\ny = 5\n'),
+            '"""This is a docstring."""\nx = 4\n\n\ny = 5\n',
         ),
     )
     def test_successful_single_newline_between_preamble(self, raw_test_ast: str) -> None:
@@ -373,8 +354,9 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
         (
             *(
                 (
-                    (f"{'\n' * count}{line1}\n{line2}\n"),
-                    (2 + count, 1),  # NOTE: Test for missing single newline (first break)
+                    f"{'\n' * count}{line1}\n{line2}\n",
+                    (2 + count, 1),
+                    # NOTE: Test for missing single newline (first break)
                 )
                 for line1, line2 in itertools.combinations(
                     (
@@ -393,10 +375,8 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
                         f'"""This is a docstring."""{"\n" * count_post}'
                         "from collections.abc import Sequence\n"
                     ),
-                    (
-                        3 + count_pre,
-                        1,
-                    ),  # NOTE: Test that always second newline is flagged when > 1 newlines (first break)
+                    (3 + count_pre, 1),
+                    # NOTE: Test that always second newline is flagged when > 1 newlines (first break)
                 )
                 for count_post in range(3, 6)
                 for count_pre in range(0, 4)
@@ -409,10 +389,8 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
                         f"from collections.abc import Sequence{'\n' * count_post2}"
                         "__all__: Sequence[str] = ()\n"
                     ),
-                    (
-                        3 + count_pre,
-                        1,
-                    ),  # NOTE: Test that always second newline is flagged when > 1 newlines (first break) and incorrect newlines below
+                    (3 + count_pre, 1),
+                    # NOTE: Test that always second newline is flagged when > 1 newlines (first break) and incorrect newlines below
                 )
                 for count_post1 in range(3, 6)
                 for count_pre in range(0, 4)
@@ -426,7 +404,8 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
                         "from collections.abc import Sequence\n"
                         "__all__: Sequence[str] = ()\n"
                     ),
-                    (4 + count, 1),  # NOTE: Test for missing single newline (second break)
+                    (4 + count, 1),
+                    # NOTE: Test for missing single newline (second break)
                 )
                 for count in range(0, 4)
             ),
@@ -437,10 +416,8 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
                         f"from collections.abc import Sequence{'\n' * count_post}"
                         "__all__: Sequence[str] = ()\n"
                     ),
-                    (
-                        5 + count_pre,
-                        1,
-                    ),  # NOTE: Test that always second newline is flagged when > 1 newlines (second break)
+                    (5 + count_pre, 1),
+                    # NOTE: Test that always second newline is flagged when > 1 newlines (second break)
                 )
                 for count_pre in range(0, 4)
                 for count_post in range(3, 6)
@@ -453,10 +430,8 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
                         f"from collections.abc import Sequence{'\n' * count_post2}"
                         "__all__: Sequence[str] = ()\n"
                     ),
-                    (
-                        3 + count_pre + count_post1,
-                        1,
-                    ),  # NOTE: Test that always second newline is flagged when > 1 newlines (second break) and newlines above
+                    (3 + count_pre + count_post1, 1),
+                    # NOTE: Test that always second newline is flagged when > 1 newlines (second break) and newlines above
                 )
                 for count_post1 in range(1, 6)
                 for count_pre in range(0, 4)
@@ -469,5 +444,5 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
         self, raw_test_ast: str, expected_error_position: tuple[int, int]
     ) -> None:
         assert self._get_message(*expected_error_position) in self._apply_carrot_plugin_to_ast(
-            raw_test_ast,
+            raw_test_ast
         )
