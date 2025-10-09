@@ -33,26 +33,27 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
             raise TypeError
 
         incorrect_name: object | None = ctx.get("incorrect_name", None)
-        if incorrect_name is not None and not isinstance(incorrect_name, str):
-            raise TypeError
+        if incorrect_name is not None:
+            if not isinstance(incorrect_name, str):
+                raise TypeError
 
-        invalid_character: object | None = ctx.get("invalid_character", None)
-        if invalid_character is not None and not isinstance(invalid_character, str):
-            raise TypeError
-
-        if invalid_character is not None and len(invalid_character) != 1:
-            MULTIPLE_INVALID_CHARACTERS_MESSAGE: Final[str] = (
-                "Multiple invalid characters were given."
-            )
-            raise ValueError(MULTIPLE_INVALID_CHARACTERS_MESSAGE)
-
-        if incorrect_name:
             incorrect_name = incorrect_name.strip().strip("'").strip()
 
+        invalid_character: object | None = ctx.get("invalid_character", None)
+        if invalid_character is not None:
+            if not isinstance(invalid_character, str):
+                raise TypeError
+
+            invalid_character = invalid_character.strip()
+
+            if len(invalid_character) != 1:
+                MULTIPLE_INVALID_CHARACTERS_MESSAGE: Final[str] = (
+                    "Multiple invalid characters were given."
+                )
+                raise ValueError(MULTIPLE_INVALID_CHARACTERS_MESSAGE)
+
         return (
-            f"Invalid character: {
-                f"'{invalid_character}'" if invalid_character is not None else ''
-            }"
+            f"Invalid character: {f"'{invalid_character}'" if invalid_character else ''}"
             f" found within Pycord {
                 function_type.value if function_type is not None else 'slash-command/option'
             } name"

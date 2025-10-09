@@ -19,21 +19,27 @@ class RuleCAR160(CarrotRule, ast.NodeVisitor):
     @override
     def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         function_name: object | None = ctx.get("function_name", None)
-        if function_name is not None and not isinstance(function_name, str):
-            raise TypeError
+        if function_name is not None:
+            if not isinstance(function_name, str):
+                raise TypeError
+
+            function_name = function_name.strip()
 
         class_name: object | None = ctx.get("class_name", None)
-        if class_name is not None and not isinstance(class_name, str):
-            raise TypeError
+        if class_name is not None:
+            if not isinstance(class_name, str):
+                raise TypeError
+
+            class_name = class_name.strip()
 
         is_function_async: object | None = ctx.get("is_function_async", None)
         if class_name is not None and not isinstance(is_function_async, bool):
             raise TypeError
 
         return (
-            f"Class{f" '{class_name}'" if class_name is not None else ''} "
+            f"Class{f" '{class_name}'" if class_name else ''} "
             f"defined inside {'async ' if is_function_async else ''}function{
-                f" '{function_name}'" if function_name is not None else ''
+                f" '{function_name}'" if function_name else ''
             }"
         )
 

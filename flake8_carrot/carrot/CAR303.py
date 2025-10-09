@@ -52,17 +52,17 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
             raise TypeError
 
         incorrect_name: object | None = ctx.get("incorrect_name", None)
-        if incorrect_name is not None and not isinstance(incorrect_name, str):
-            raise TypeError
+        if incorrect_name is not None:
+            if not isinstance(incorrect_name, str):
+                raise TypeError
+
+            incorrect_name = incorrect_name.strip().strip("'").strip()
 
         invalid_argument_reason: object | None = ctx.get("invalid_argument_reason", None)
         if invalid_argument_reason is not None and not isinstance(
             invalid_argument_reason, cls._InvalidArgumentReason
         ):
             raise TypeError
-
-        if incorrect_name:
-            incorrect_name = incorrect_name.strip().strip("'").strip()
 
         corrected_name: str | None = (
             f"{
@@ -81,7 +81,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
                 )
             }{incorrect_name[-1]}"
             if (
-                incorrect_name is not None
+                incorrect_name
                 and (
                     invalid_argument_reason is cls._InvalidArgumentReason.REQUIRES_HYPHENATION
                     or invalid_argument_reason is cls._InvalidArgumentReason.REQUIRES_BOTH
@@ -90,9 +90,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
             else incorrect_name
         )
 
-        corrected_name = (
-            corrected_name.lower() if corrected_name is not None else corrected_name
-        )
+        corrected_name = corrected_name.lower() if corrected_name else corrected_name
 
         return (
             f"Pycord {

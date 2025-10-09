@@ -19,10 +19,10 @@ class RuleCAR105(CarrotRule):
     @override
     def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
         line: object | None = ctx.get("line", None)
-        if line is not None and not isinstance(line, str):
-            raise TypeError
+        if line is not None:
+            if not isinstance(line, str):
+                raise TypeError
 
-        if line:
             line = line.strip().strip("`").strip()
             line = f"`{line if len(line) < 30 else f'{line[:30]}...'}`"
 
