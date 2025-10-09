@@ -139,7 +139,7 @@ jobs:
               run: uv run -- pre-commit install-hooks
 
             - name: Store pre-commit Checks Which Require Skipping
-              run: echo "SKIP=check-github-workflows,ruff-check,uv-lock" >> $GITHUB_ENV
+              run: echo "SKIP=check-github-workflows,ruff-check,uv-lock,flake8" >> $GITHUB_ENV
 
             - name: Run pre-commit
               run: uv run -- pre-commit run --all-files --hook-stage manual  # TODO: Add GitHub workflows output format
