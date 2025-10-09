@@ -15,11 +15,15 @@ v0.1, 22/07/2024
 :url-python-home: https://python.org
 :url-python: {url-python-home}
 :url-python-download: {url-python-home}/downloads
+:url-uv-home: https://astral.sh/uv
+:url-uv: {url-uv-home}
+:url-pre-commit-home: https://pre-commit.com
+:url-pre-commit: {url-pre-commit-home}
 :url-flake8-home: https://flake8.pycqa.org
 :url-flake8: {url-flake8-home}
 :url-flake8-wiki: {url-flake8-home}/en/latest
 :url-flake8-wiki-plugins: {url-flake8-wiki}/plugin-development
-:url-project-repo: {_url-github}/CarrotManMatt/flake8-carrot
+:url-project-repository: {_url-github}/CarrotManMatt/flake8-carrot
 :url-project-pypi: https://pypi.org/project/flake8-carrot
 :url-ruff-home: https://ruff.rs
 :url-ruff: {url-ruff-home}
@@ -36,16 +40,15 @@ A {url-flake8-wiki-plugins}[plugin] for {labelled-url-flake8};
 Finding opinionated problems in your {labelled-url-python} code.
 Ensures that your {labelled-url-python} code adheres to https://carrotmanmatt.com[CarrotManMatt]'s style guide.
 
-image:https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2FCarrotManMatt%2Fflake8-carrot%2Fmain%2Fpyproject.toml&query=%24.tool.poetry.version&label=flake8-carrot[Current Version,link={url-project-repo}]
-image:https://img.shields.io/pypi/v/flake8-carrot[PyPI - Version,link={url-project-pypi}]
-image:https://img.shields.io/badge/Python-3.12-blue?&logo=Python&logoColor=white[Python Version,link={url-python-download}]
-image:https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2FCarrotManMatt%2Fflake8-carrot%2Fmain%2Fpoetry.lock&query=%24.package%5B%3F%28%40.name%3D%3D%27flake8%27%29%5D.version&label=flake8[flake8 Version,link={url-flake8}]
-image:{url-project-repo}/actions/workflows/tests.yaml/badge.svg[Tests Status,link={url-project-repo}/actions/workflows/tests.yaml]
+image:https://img.shields.io/badge/%F0%9F%A5%95-flake8-%2Dcarrot-blue[flake8-carrot,link={url-project-repository}]
+image:https://img.shields.io/pypi/v/flake8-carrot[PyPI Version,link={url-project-pypi}]
+image:https://img.shields.io/pypi/pyversions/flake8-carrot?logo=Python&logoColor=white&label=Python[Python Version,link={url-python-download}]
+image:https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftoml-version-finder.carrotmanmatt.com%2Flock%2FCarrotManMatt%2Fflake8-carrot%2Fflake8&query=%24.package_version&label=flake8[flake8 Version,link={url-flake8}]
+image:{url-project-repository}/actions/workflows/check-build-publish.yaml/badge.svg[Tests Status,link={url-project-repository}/actions/workflows/check-build-publish.yaml]
 image:https://img.shields.io/badge/mypy-checked-%232EBB4E&label=mypy[mypy Status,link={url-mypy}]
+image:https://img.shields.io/badge/pre-%2Dcommit-enabled-brightgreen?logo=pre-commit[pre-commit Status,link={url-pre-commit}]
 image:https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json[Ruff,link={url-ruff}]
-image:https://results.pre-commit.ci/badge/github/CarrotManMatt/flake8-carrot/main.svg[pre-commit.ci Status,link=https://results.pre-commit.ci/latest/github/CarrotManMatt/flake8-carrot/main]
-image:https://img.shields.io/badge/validated-brightgreen?logo=asciidoctor&label=Asciidoctor[Asciidoctor Status,link={url-asciidoc-asciidoctor}]
-image:https://img.shields.io/badge/validated-brightgreen?logo=yaml&label=yamllint[yamllint Status,link={url-yamllint}]
+image:https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json[uv,link={url-uv}]
 
 == Rules
 
