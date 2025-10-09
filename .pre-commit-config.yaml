@@ -54,6 +54,7 @@ repos:
           args: [-h]
         - id: name-tests-test
           args: [--pytest-test-first]
+          files: (?:^|\/)tests\/(?:[^\/]+\/)*(?!_)[^\/]+\.py$  # yamllint disable-line rule:key-ordering
         - id: pretty-format-json
           args: [--autofix, --indent, "4"]
 
