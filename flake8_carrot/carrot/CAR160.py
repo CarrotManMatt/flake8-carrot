@@ -39,7 +39,7 @@ class RuleCAR160(CarrotRule, ast.NodeVisitor):
         return (
             f"Class{f" '{class_name}'" if class_name else ''} "
             f"defined inside {'async ' if is_function_async else ''}function{
-                f" '{function_name}'" if function_name else ''
+                f" '{function_name}()'" if function_name else ''
             }"
         )
 

@@ -214,7 +214,8 @@ class BaseRule[T_plugin: BasePlugin](abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def _format_error_message(cls, ctx: Mapping[str, object]) -> str: ...
+    def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
+        pass
 
     @classmethod
     @final
