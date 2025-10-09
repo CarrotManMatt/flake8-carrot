@@ -68,23 +68,26 @@ class RuleCAR201(CarrotRule, ast.NodeVisitor):
 
         slice_elements: Sequence[ast.expr]
         match target:
-            case ast.Name(id=variable_name):
-                if "logger" in variable_name.lower():
-                    return True
+            case ast.Name(id=variable_name) if "logger" in variable_name.lower():
+                return True
 
-            case ast.Subscript(slice=ast.Name(id=variable_name)):
-                if "logger" in variable_name.lower():
-                    return True
+            case ast.Subscript(slice=ast.Name(id=variable_name)) if (
+                "logger" in variable_name.lower()
+            ):
+                return True
 
-            case ast.Subscript(slice=ast.Constant(value=str(variable_name))):
-                if "logger" in variable_name.lower():
-                    return True
+            case ast.Subscript(slice=ast.Constant(value=str(variable_name))) if (
+                "logger" in variable_name.lower()
+            ):
+                return True
 
-            case ast.Subscript(slice=ast.Tuple(elts=slice_elements)):
-                if cls._check_slice_elements(slice_elements):
-                    return True
+            case ast.Subscript(slice=ast.Tuple(elts=slice_elements)) if (
+                cls._check_slice_elements(slice_elements)
+            ):
+                return True
 
-        return False
+            case _:
+                return False
 
     @utils.generic_visit_before_return
     @override

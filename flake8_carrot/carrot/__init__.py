@@ -31,7 +31,6 @@ from .CAR303 import RuleCAR303
 from .CAR304 import RuleCAR304
 from .CAR305 import RuleCAR305
 from .CAR306 import RuleCAR306
-from .CAR307 import RuleCAR307
 from .CAR401 import RuleCAR401
 from .CAR501 import RuleCAR501
 from .CAR601 import RuleCAR601
@@ -69,7 +68,6 @@ __all__: Sequence[str] = (
     "RuleCAR304",
     "RuleCAR305",
     "RuleCAR306",
-    "RuleCAR307",
     "RuleCAR401",
     "RuleCAR501",
     "RuleCAR601",
@@ -137,6 +135,8 @@ class _ContextValuesFinder(ast.NodeVisitor):
                         )
                         break
 
+        # TODO: Find loggers using rule 201
+
     @utils.generic_visit_before_return
     @override
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
@@ -193,7 +193,6 @@ class CarrotPlugin(BasePlugin):
             RuleCAR304,
             RuleCAR305,
             RuleCAR306,
-            RuleCAR307,
             RuleCAR401,
             RuleCAR501,
             RuleCAR601,
@@ -217,6 +216,9 @@ class CarrotPlugin(BasePlugin):
         self._pprint_imported_for_debugging: bool = (
             context_values_finder.pprint_imported_for_debugging
         )
+        self._found_loggers: AbstractSet[ast.Assign | ast.AnnAssign] = (
+            context_values_finder.found_loggers
+        )
 
         super().__init__(tree=tree, file_tokens=file_tokens, lines=lines)
 
@@ -234,3 +236,8 @@ class CarrotPlugin(BasePlugin):
     def pprint_imported_for_debugging(self) -> bool:
         """"""
         return self._pprint_imported_for_debugging
+
+    @property
+    def found_loggers(self) -> AbstractSet[ast.Assign | ast.AnnAssign]:
+        """"""
+        return self._found_loggers
