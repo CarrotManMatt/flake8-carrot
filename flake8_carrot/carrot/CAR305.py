@@ -1,6 +1,7 @@
 """"""  # noqa: N999
 
 import ast
+from enum import Enum
 from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
@@ -9,9 +10,32 @@ from flake8_carrot.utils import CarrotRule
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from tokenize import TokenInfo
-    from typing import Final
+    from typing import Final, Self
 
 __all__: Sequence[str] = ("RuleCAR305",)
+
+
+class _ContextCommandType(Enum):
+    MESSAGE = "message"
+    USER = "user"
+
+    @classmethod
+    def format_value(cls, instance: Self | None) -> str:
+        """"""
+        return f"{instance.value.strip()}-" if instance is not None else ""
+
+    @classmethod
+    def get_from_decorator_node(cls, decorator_node: ast.Call) -> _ContextCommandType:
+        unparsed_decorator_node: str = ast.unparse(decorator_node).lower()
+
+        if "message" in unparsed_decorator_node:
+            return cls.MESSAGE
+
+        if "user" in unparsed_decorator_node:
+            return cls.USER
+
+        NON_CONTEXT_COMMAND_MESSAGE: Final[str] = "Decorator node was not a context command."
+        raise ValueError(NON_CONTEXT_COMMAND_MESSAGE)
 
 
 class RuleCAR305(CarrotRule, ast.NodeVisitor):
@@ -20,17 +44,15 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
     @classmethod
     @override
     def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
-        function_name: object | None = ctx.get("function_name", None)
-        if function_name is not None and not isinstance(function_name, str):
+        context_command_type: object | None = ctx.get("context_command_type", None)
+        if context_command_type is not None and not isinstance(
+            context_command_type, _ContextCommandType
+        ):
             raise TypeError
 
-        if function_name:
-            function_name = function_name.strip().strip("'").strip()
-
         return (
-            "Return annotation of autocomplete function "
-            f"{f"'{function_name}' " if function_name else ''}"
-            "should be `AbstractSet[discord.OptionChoice] | AbstractSet[str]`"
+            f"Pycord {_ContextCommandType.format_value(context_command_type)}"
+            "context command name should be capitalized"
         )
 
     @override
@@ -39,93 +61,61 @@ class RuleCAR305(CarrotRule, ast.NodeVisitor):
     ) -> None:
         self.visit(tree)
 
-    @classmethod
-    def _function_is_autocomplete_getter(cls, node: ast.AsyncFunctionDef) -> bool:
-        ALL_ARGS: Final[Sequence[ast.arg]] = (
-            node.args.posonlyargs + node.args.args + node.args.kwonlyargs
-        )
-
-        if "autocomplete" in node.name.lower():
-            return True
-        if node.name.lower().startswith("get_"):
-            return True
-        if ALL_ARGS[0].arg == "ctx":
-            return True
-        if "context" in ALL_ARGS[0].arg:
-            return True
-
-        annotation_value: utils.ASTNameID
-        match ALL_ARGS[0].annotation:
-            case ast.Name(id=annotation_value) | ast.Constant(value=annotation_value):
-                if "context" in str(annotation_value).lower():
-                    return True
-
-        docstring: str | None = ast.get_docstring(node)
-        return docstring is not None and "autocomplete callable" in docstring.lower()
-
-    def _check_function(self, node: ast.AsyncFunctionDef) -> None:
-        ALL_ARGS: Final[Sequence[ast.arg]] = (
-            node.args.posonlyargs + node.args.args + node.args.kwonlyargs
-        )
-
-        if node.name.startswith("_"):
-            return
-        if len(ALL_ARGS) == 0:
-            return
-        if ALL_ARGS[0].arg in ("self", "cls"):
-            return
-        if len(node.args.kw_defaults) + len(node.args.defaults) < len(ALL_ARGS) - 1:
+    def _check_single_argument(
+        self, argument: ast.expr, context_command_type: _ContextCommandType
+    ) -> None:
+        if not isinstance(argument, ast.Constant):
             return
 
-        if any(
-            isinstance(decorator, ast.Name) and decorator.id == "classmethod"
-            for decorator in node.decorator_list
-        ):
+        if not argument.value or not isinstance(argument.value, str):
             return
 
-        return_value: utils.ASTNameID
-        match node.returns:
-            case ast.Constant(value=return_value) | ast.Name(id=return_value):
-                if return_value in ("str", "int", "bool", "None"):
-                    return
-
-        if not self._function_is_autocomplete_getter(node):
-            return
-
-        if node.returns is None:
-            column_offset: int = (
-                (node.end_col_offset - 1) if node.end_col_offset else node.col_offset
-            )
-            self.problems[(node.end_lineno or node.lineno), column_offset] = {
-                "function_name": node.name,
+        if not argument.value[0].isupper():
+            self.problems[(argument.lineno, argument.col_offset)] = {
+                "context_command_type": context_command_type,
             }
-            return
 
-        match node.returns:
-            case (
-                ast.Constant(value="AbstractSet[discord.OptionChoice] | AbstractSet[str]")
-                | ast.BinOp(
-                    op=ast.BitOr,
-                    left=ast.Subscript(
-                        value=ast.Name(id="AbstractSet"),
-                        slice=ast.Attribute(
-                            value=ast.Name(id="discord"),
-                            attr="OptionChoice",
-                        ),
-                    ),
-                    right=ast.Subscript(
-                        value=ast.Name(id="AbstractSet"),
-                        slice=ast.Name(id="str"),
-                    ),
-                )
-            ):
+    def _check_all_arguments(self, decorator_node: ast.Call) -> None:
+        context_command_type: _ContextCommandType = (
+            _ContextCommandType.get_from_decorator_node(decorator_node)
+        )
+
+        if decorator_node.args:
+            self._check_single_argument(decorator_node.args[0], context_command_type)
+
+        keyword_argument: ast.keyword
+        for keyword_argument in decorator_node.keywords:
+            if keyword_argument.arg == "name":
+                self._check_single_argument(keyword_argument.value, context_command_type)
                 return
 
-        self.problems[(node.returns.lineno, node.returns.col_offset)] = {
-            "function_name": node.name,
-        }
+    def _check_decorator(self, decorator_node: ast.expr) -> None:
+        if not isinstance(decorator_node, ast.Call):
+            return
+
+        if utils.function_call_is_pycord_context_command_decorator(decorator_node):
+            self._check_all_arguments(decorator_node)
+            return
+
+        possible_slash_command_group_name: str
+        possible_pycord_decorator_name: str
+        match decorator_node.func:
+            case ast.Attribute(
+                value=ast.Name(id=possible_slash_command_group_name),
+                attr=possible_pycord_decorator_name,
+            ):
+                if (
+                    possible_slash_command_group_name
+                    in self.plugin.found_slash_command_group_names
+                    and possible_pycord_decorator_name
+                    in utils.PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES
+                ):
+                    self._check_all_arguments(decorator_node)
+                    return
 
     @utils.generic_visit_before_return
     @override
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
-        self._check_function(node)
+        decorator_node: ast.expr
+        for decorator_node in node.decorator_list:
+            self._check_decorator(decorator_node)

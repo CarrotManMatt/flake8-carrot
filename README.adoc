@@ -59,14 +59,14 @@ image:https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astr
 `+CAR102+` - `+multiple-all-exports+`:: Each module should have only a single `+__all__+` export
 `+CAR103+` - `+incorrect-all-export-annotation+`:: An `+__all__+` export should be annotated as `+Sequence[str]+`
 `+CAR104+` - `+incorrect-all-export-type+`:: A simple `+__all__+` export should be of type `tuple`, not `list`
-`+CAR105+` - `+invalid-line-above-all-export+`:: Only import statements & the module's docstring are allowed above an `+__all__+` export
+`+CAR105+` - `+invalid-line-above-all-export+`:: Only import statements and the module's docstring are allowed above an `+__all__+` export
 `+CAR110+` - `+incorrect-newlines-after-all-export+`:: A double newline is required after an `+__all__+` export
 `+CAR111+` - `+incorrect-newlines-separating-preamble+`:: Preamble lines should be separated by a single newline
 `+CAR120+` - `+incorrect-whitespace-in-ignore-comment+`:: Whitespace in `+type: ignore+` & `pass:[noqa: ]` comments should follow the standard formatting conventions
 `+CAR121+` - `+trailing-commas-after-ignore-comment+`:: `+type: ignore+` comments should have no trailing commas
 `+CAR122+` - `+trailing-commas-after-ignore-comment+`:: A `pass:[noqa: ]` comment should be placed after a `+type: ignore+` comment on the same line
 `+CAR123+` - `+trailing-commas-after-ignore-comment+`:: Line comments should be placed before a `+type: ignore+` or `pass:[noqa: ]` comment
-`+CAR130+` - ...:: _Reserved for lint rules related to the stdlib `+re+` module._
+`+CAR130+` - ...:: _Reserved for lint rules related to literal string flags (`+r+`, `+f+`, `+b+`, `+u+` & `+t+`)._
 `+CAR140+` - `+unnecessary-str-strip+`:: Unnecessary uses of the `+str.strip()+` function should be removed
 `+CAR141+` - `+str-function-output-not-stored+`:: The result from calling a `+str+` function should always be stored in a variable
 `+CAR150+` - `+args-or-kwargs-in-function-definition+`:: Do not use `+*args+` or `+**kwargs+` in function definitions (where possible)
@@ -77,3 +77,9 @@ image:https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astr
 `+CAR302+` - `+invalid-pycord-cog-subclass-name+`:: Pycord cog subclass' should have a name that ends with `+CommandCog+` or `+CommandsCog+` (depending upon the number of commands in the cog)
 `+CAR303+` - `+incorrectly-formatted-pycord-slash-command-or-option-name+`:: Pycord slash-command/option names should be lowercase and have words separated by hyphens
 `+CAR304+` - `+missing-full-stop-in-pycord-slash-command-or-option-description+`:: Pycord slash-command/option descriptions should end with a full stop
+`+CAR305+` - `+pycord-context-command-name-uncapitalised+`:: Pycord user/message context command names should be capitalised
+`+CAR401+` - `+found-astpretty-pprint+`:: Debugging calls to `+astpretty.pprint()+` should be removed
+`+CAR501+` - `+used-dataclass+`:: Classes should have their attributes declared manually without `+dataclass+` "magic"
+`+CAR601+` - `+used-re-match+`:: `+re.fullmatch()+` should be used instead of `+re.match()+`
+`+CAR602+` - `+used-re-search-with-line-anchors+`:: `+re.fullmatch()+` should be used instead of `+re.search()+` when using beginning and ending line anchors
+`+CAR610+` - `+non-raw-string-for-regex-pattern+`:: Regex pattern string literals should be written with raw (`+r+` strings)
