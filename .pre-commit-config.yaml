@@ -81,10 +81,13 @@ repos:
 
         - id: ruff-format
 
-    - repo: https://github.com/pycqa/flake8
-      rev: 7.3.0
+    - repo: local
       hooks:
         - id: flake8
+          name: flake8
+          entry: flake8  # yamllint disable-line rule:key-ordering
+          language: system  # yamllint disable-line rule:key-ordering
+          types: [python]
 
     - repo: https://github.com/astral-sh/uv-pre-commit
       rev: 0.9.0
