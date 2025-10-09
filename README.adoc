@@ -28,9 +28,12 @@ v0.1, 22/07/2024
 :url-yamllint-repository: {_url-github}/adrienverge/yamllint
 :url-yamllint: {url-yamllint-repository}
 :url-asciidoc-asciidoctor: https://asciidoctor.org
+:url-pycord-home: https://pycord.dev
+:url-pycord: {url-pycord-home}
 
 :labelled-url-python: {url-python}[Python]
 :labelled-url-flake8: {url-flake8}[Flake8]
+:labelled-url-pycord: {url-flake8}[Pycord]
 
 A {url-flake8-wiki-plugins}[plugin] for {labelled-url-flake8};
 Finding opinionated problems in your {labelled-url-python} code.
@@ -67,3 +70,7 @@ image:https://img.shields.io/badge/validated-brightgreen?logo=yaml&label=yamllin
 `+CAR151+` - `+args-or-kwargs-passed-to-super+`:: Do not pass `+*args+` or `+**kwargs+` to `+super()+` methods
 `+CAR201+` - `+incorrect-logger-assignment-annotation+`:: Assignment of a `+logging.Logger+` object to a variable should be annotated as `+Final[Logger]+`
 `+CAR202+` - `+logger-variable-name-missing-logger+`:: A `+logging.Logger+` variable's name should contain the word 'logger'
+`+CAR301+` - `+invalid-characters-in-pycord-slash-command-or-option-name+`:: Pycord slash-command/option names should only contain valid characters
+`+CAR302+` - `+invalid-pycord-cog-subclass-name+`:: Pycord cog subclass' should have a name that ends with `+CommandCog+` or `+CommandsCog+` (depending upon the number of commands in the cog)
+`+CAR303+` - `+incorrectly-formatted-pycord-slash-command-or-option-name+`:: Pycord slash-command/option names should be lowercase and have words separated by hyphens
+`+CAR304+` - `+missing-full-stop-in-pycord-slash-command-or-option-description+`:: Pycord slash-command/option descriptions should end with a full stop
