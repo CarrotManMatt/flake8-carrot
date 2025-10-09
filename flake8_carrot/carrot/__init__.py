@@ -199,7 +199,10 @@ class CarrotPlugin(BasePlugin):
 
     @override
     def __init__(
-        self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
+        self,
+        tree: ast.AST,
+        file_tokens: "Sequence[TokenInfo]",  # noqa: UP037
+        lines: "Sequence[str]",  # noqa: UP037
     ) -> None:
         context_values_finder: _ContextValuesFinder = _ContextValuesFinder()
         context_values_finder.visit(tree)

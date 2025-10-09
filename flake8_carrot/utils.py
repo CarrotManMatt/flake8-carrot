@@ -41,9 +41,11 @@ __all__: Sequence[str] = (
     "generic_visit_before_return",
 )
 
+
 if __name__ == "__main__":
     CANNOT_RUN_AS_SCRIPT_MESSAGE: Final[str] = "This module cannot be run as a script."
     raise RuntimeError(CANNOT_RUN_AS_SCRIPT_MESSAGE)
+
 
 if TYPE_CHECKING:
     type ASTNameID = str | bytes | int | float | complex | EllipsisType | None
@@ -54,6 +56,7 @@ if TYPE_CHECKING:
     type _ProblemsContainerIterable = Iterable[
         tuple[_ProblemsContainerKey, _ProblemsContainerValue]
     ]
+
 
 PPRINT_MODULES: Final[AbstractSet[str]] = {"astpretty"}
 PYCORD_SLASH_COMMAND_DECORATOR_NAMES: Final[AbstractSet[str]] = {
@@ -96,7 +99,10 @@ class BasePlugin(abc.ABC):
         pass
 
     def __init__(
-        self, tree: ast.AST, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
+        self,
+        tree: ast.AST,
+        file_tokens: "Sequence[TokenInfo]",  # noqa: UP037
+        lines: "Sequence[str]",  # noqa: UP037
     ) -> None:
         """"""
         if isinstance(tree, ast.Module):
@@ -161,7 +167,7 @@ class ProblemsContainer(dict["_ProblemsContainerKey", "_ProblemsContainerValue"]
         self,
         mapping: _ProblemsContainerMapping | _ProblemsContainerIterable | None = None,
         /,
-        **kwargs: _ProblemsContainerValue,
+        **kwargs: _ProblemsContainerValue,  # noqa: CAR150
     ) -> None:
         mapping = (
             {}

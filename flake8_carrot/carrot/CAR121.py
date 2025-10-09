@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 __all__: Sequence[str] = ("RuleCAR121",)
 
+
 type _ErrorLocationContext = tuple[_IgnoreCommentType, bool]
 type _ErrorLocationsMapping = Mapping[int, _ErrorLocationContext]
 type _ErrorLocationsDict = dict[int, _ErrorLocationContext]

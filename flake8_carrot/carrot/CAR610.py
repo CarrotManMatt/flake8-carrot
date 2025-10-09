@@ -54,7 +54,9 @@ class RuleCAR610(CarrotRule, ast.NodeVisitor):
 
         token: TokenInfo
         for token in TOKENS:
-            if token.type == tokenize.STRING and not token.string.startswith('r"'):
+            if token.type == tokenize.STRING and not (
+                token.string.startswith('r"') or token.string.startswith("r'")
+            ):
                 self.problems.add_without_ctx(
                     (argument.lineno - 1 + token.start[0], token.start[1]),
                 )
