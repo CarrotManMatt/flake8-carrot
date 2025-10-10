@@ -25,18 +25,21 @@ class RuleCAR161(CarrotRule, ast.NodeVisitor):
             if not isinstance(abstract_method_name, str):
                 raise TypeError
 
-            abstract_method_name = abstract_method_name.strip()
+            abstract_method_name = abstract_method_name.strip("\n\r\t '()")
 
-        return (
-            f"Body of abstract method{
-                f" '{abstract_method_name}()'" if abstract_method_name else ''
-            }"
-            f" should only contain the docstring{
-                ' or `pass`'
-                if abstract_method_name and abstract_method_name.startswith('_')
-                else ''
-            } "
-        )
+        return f"Body of abstract method{
+            f" '{
+                abstract_method_name
+                if len(abstract_method_name) < 30
+                else f'{abstract_method_name[:30]}...'
+            }()'"
+            if abstract_method_name
+            else ''
+        } should only contain the docstring{
+            ' or `pass`'
+            if abstract_method_name and abstract_method_name.startswith('_')
+            else ''
+        } "
 
     @override
     def run_check(

@@ -38,7 +38,7 @@ class RuleCAR110(CarrotRule):
         if first_line_after is None:
             return
 
-        if first_line_after.strip("\n"):
+        if first_line_after.strip("\n\r"):
             self.problems.add_without_ctx(
                 (self.plugin.first_all_export_line_numbers[1] + 1, 0),
             )
@@ -48,14 +48,14 @@ class RuleCAR110(CarrotRule):
         if second_line_after is None:
             return
 
-        if second_line_after.strip("\n"):
+        if second_line_after.strip("\n\r"):
             self.problems.add_without_ctx(
                 (self.plugin.first_all_export_line_numbers[1] + 1, 0),
             )
             return
 
         third_line_after: str | None = next(remaining_lines, None)
-        if third_line_after is None or third_line_after.strip("\n"):
+        if third_line_after is None or third_line_after.strip("\n\r"):
             return
 
         self.problems.add_without_ctx(

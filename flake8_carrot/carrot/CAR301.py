@@ -37,14 +37,12 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
             if not isinstance(incorrect_name, str):
                 raise TypeError
 
-            incorrect_name = incorrect_name.strip().strip("'").strip()
+            incorrect_name = incorrect_name.strip("\n\r\t '")
 
         invalid_character: object | None = ctx.get("invalid_character", None)
         if invalid_character is not None:
             if not isinstance(invalid_character, str):
                 raise TypeError
-
-            invalid_character = invalid_character.strip()
 
             if len(invalid_character) != 1:
                 MULTIPLE_INVALID_CHARACTERS_MESSAGE: Final[str] = (
@@ -52,13 +50,15 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
                 )
                 raise ValueError(MULTIPLE_INVALID_CHARACTERS_MESSAGE)
 
-        return (
-            f"Invalid character: {f"'{invalid_character}'" if invalid_character else ''}"
-            f" found within Pycord {
-                function_type.value if function_type is not None else 'slash-command/option'
-            } name"
-            f"{f" '{incorrect_name}'" if incorrect_name else ''}"
-        )
+        return f"Invalid character: {
+            f"'{invalid_character}'" if invalid_character else ''
+        } found within Pycord {
+            function_type.value if function_type is not None else 'slash-command/option'
+        } name{
+            f" '{incorrect_name if len(incorrect_name) < 30 else f'{incorrect_name[:30]}...'}'"
+            if incorrect_name
+            else ''
+        }"
 
     @override
     def run_check(

@@ -20,7 +20,7 @@ class RuleCAR124(CarrotRule):
     @classmethod
     @override
     def _format_error_message(cls, ctx: Mapping[str, object]) -> str:
-        return "IDE specific ignore comments (E.g. `# noinspection: ...`) should be removed"
+        return "IDE specific ignore comments (E.g. `# noinspection ...`) should be removed"
 
     @override
     def run_check(

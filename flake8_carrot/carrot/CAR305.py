@@ -22,7 +22,7 @@ class _ContextCommandType(Enum):
     @classmethod
     def format_value(cls, instance: Self | None) -> str:
         """"""
-        return f"{instance.value.strip()}-" if instance is not None else ""
+        return f"{instance.value.strip('\n\r\t -')}-" if instance is not None else ""
 
     @classmethod
     def get_from_decorator_node(cls, decorator_node: ast.Call) -> _ContextCommandType:

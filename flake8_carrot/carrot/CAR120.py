@@ -35,12 +35,11 @@ class RuleCAR120(CarrotRule):
             if not isinstance(replacement_message, str):
                 raise TypeError
 
-            replacement_message = replacement_message.strip()
+            replacement_message = replacement_message.strip("\n\r\t '")
 
-        return (
-            "Incorrect amount of whitespace in ignore comment"
-            f"{f' ({replacement_message})' if replacement_message else ''}"
-        )
+        return f"Incorrect amount of whitespace in ignore comment{
+            f' ({replacement_message})' if replacement_message else ''
+        }"
 
     @classmethod
     def _get_single_type_ignore_error_locations(

@@ -23,25 +23,28 @@ class RuleCAR160(CarrotRule, ast.NodeVisitor):
             if not isinstance(function_name, str):
                 raise TypeError
 
-            function_name = function_name.strip()
+            function_name = function_name.strip("\n\r\t '()")
 
         class_name: object | None = ctx.get("class_name", None)
         if class_name is not None:
             if not isinstance(class_name, str):
                 raise TypeError
 
-            class_name = class_name.strip()
+            class_name = class_name.strip("\n\r\t '")
 
         is_function_async: object | None = ctx.get("is_function_async", None)
         if class_name is not None and not isinstance(is_function_async, bool):
             raise TypeError
 
-        return (
-            f"Class{f" '{class_name}'" if class_name else ''} "
-            f"defined inside {'async ' if is_function_async else ''}function{
-                f" '{function_name}()'" if function_name else ''
-            }"
-        )
+        return f"Class{
+            f" '{class_name if len(class_name) < 30 else f'{class_name[:30]}...'}'"
+            if class_name
+            else ''
+        } defined inside {'async ' if is_function_async else ''}function{
+            f" '{function_name if len(function_name) < 30 else f'{function_name[:30]}...'}()'"
+            if function_name
+            else ''
+        }"
 
     @override
     def run_check(

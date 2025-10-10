@@ -23,11 +23,12 @@ class RuleCAR105(CarrotRule):
             if not isinstance(line, str):
                 raise TypeError
 
-            line = line.strip().strip("`").strip()
-            line = f"`{line if len(line) < 30 else f'{line[:30]}...'}`"
+            line = line.strip("\n\r\t `")
 
         return f"{
-            f'{line} is not' if line else "Only import statements & the module's docstring are"
+            f'`{line if len(line) < 30 else f"{line[:30]}..."}` is not'
+            if line
+            else "Only import statements & the module's docstring are"
         } allowed above `__all__` export"
 
     @override

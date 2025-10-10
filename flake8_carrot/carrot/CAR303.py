@@ -56,7 +56,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
             if not isinstance(incorrect_name, str):
                 raise TypeError
 
-            incorrect_name = incorrect_name.strip().strip("'").strip()
+            incorrect_name = incorrect_name.strip("\n\r\t '")
 
         invalid_argument_reason: object | None = ctx.get("invalid_argument_reason", None)
         if invalid_argument_reason is not None and not isinstance(
@@ -92,18 +92,23 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
 
         corrected_name = corrected_name.lower() if corrected_name else corrected_name
 
-        return (
-            f"Pycord {
-                function_type.value if function_type is not None else 'slash-command/option'
-            } name"
-            f"{f" '{incorrect_name}'" if incorrect_name else ''} "
-            f"{
-                invalid_argument_reason.value
-                if invalid_argument_reason is not None
-                else 'should be hyphenated and/or lowercased'
-            } "
-            f"{f": '{corrected_name}'" if corrected_name else ''}"
-        )
+        return f"Pycord {
+            function_type.value if function_type is not None else 'slash-command/option'
+        } name{
+            f" '{incorrect_name if len(incorrect_name) < 30 else f'{incorrect_name[:30]}...'}'"
+            if incorrect_name
+            else ''
+        } {
+            invalid_argument_reason.value
+            if invalid_argument_reason is not None
+            else 'should be hyphenated and/or lowercased'
+        } {
+            f": '{
+                corrected_name if len(corrected_name) < 30 else f'{corrected_name[:30]}...'
+            }'"
+            if corrected_name
+            else ''
+        }"
 
     @override
     def run_check(
