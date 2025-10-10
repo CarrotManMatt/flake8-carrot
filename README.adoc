@@ -66,6 +66,7 @@ image:https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astr
 `+CAR121+` - `+trailing-commas-after-ignore-comment+`:: `+type: ignore+` comments should have no trailing commas
 `+CAR122+` - `+trailing-commas-after-ignore-comment+`:: A `pass:[noqa: ]` comment should be placed after a `+type: ignore+` comment on the same line
 `+CAR123+` - `+trailing-commas-after-ignore-comment+`:: Line comments should be placed before a `+type: ignore+` or `pass:[noqa: ]` comment
+`+CAR124+` - `+found-noinspection-comment+`:: IDE specific ignore comments (E.g. `+# noinspection: ...+`) should be removed
 `+CAR130+` - ...:: _Reserved for lint rules related to literal string flags (`+r+`, `+f+`, `+b+`, `+u+` & `+t+`)._
 `+CAR140+` - `+unnecessary-str-strip+`:: Unnecessary uses of the `+str.strip()+` function should be removed
 `+CAR141+` - `+str-function-output-not-stored+`:: The result from calling a `+str+` function should always be stored in a variable
