@@ -74,6 +74,7 @@ image:https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astr
 `+CAR151+` - `+args-or-kwargs-passed-to-super+`:: Do not pass `+*args+` or `+**kwargs+` to `+super()+` methods
 `+CAR160+` - `+class-defined-inside-function+`:: Classes should only be defined at the module top-level or inside another class, (not inside a function)
 `+CAR161+` - `+content-in-abstract-method+`:: The body of abstract methods should only contain a docstring (or `+pass+` if the function is an overload or is private and has no docstring)
+`+CAR162+` - `+classproperty-not-all-caps+`:: Class-property names should be in all caps
 `+CAR170+` - `+union-in-isinstance-or-issubclass+`:: Use tuples of types in calls to `+isinstance()+` or `+issubclass+` rather than type unions
 `+CAR201+` - `+incorrect-logger-assignment-annotation+`:: Assignment of a `+logging.Logger+` object to a variable should be annotated as `+Final[Logger]+`
 `+CAR202+` - `+logger-variable-name-missing-logger+`:: A `+logging.Logger+` variable's name should contain the word 'logger'
