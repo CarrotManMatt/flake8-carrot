@@ -19,15 +19,13 @@ class RuleCAR170(CarrotRule, ast.NodeVisitor):
     def _convert_expr_to_tuple(cls, expr: ast.expr) -> str:
         match expr:
             case ast.BinOp(op=ast.BitOr(), left=left, right=right):
-                return cls._convert_union_to_tuple(left, right)
+                return (
+                    f"{cls._convert_expr_to_tuple(left)}, {cls._convert_expr_to_tuple(right)}"
+                )
             case ast.BinOp() | ast.BoolOp():
                 return f"({ast.unparse(expr)})"
             case _:
                 return ast.unparse(expr)
-
-    @classmethod
-    def _convert_union_to_tuple(cls, left: ast.expr, right: ast.expr) -> str:
-        return f"{cls._convert_expr_to_tuple(left)}, {cls._convert_expr_to_tuple(right)}"
 
     @classmethod
     @override
@@ -39,7 +37,9 @@ class RuleCAR170(CarrotRule, ast.NodeVisitor):
                 pass
             case ast.BinOp(op=ast.BitOr(), left=left, right=right):
                 type_union = ast.unparse(type_union)
-                type_tuple = f"({cls._convert_union_to_tuple(left, right)})"
+                type_tuple = f"({cls._convert_expr_to_tuple(left)}, {
+                    cls._convert_expr_to_tuple(right)
+                })"
             case _:
                 raise TypeError
 
