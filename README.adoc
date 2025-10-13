@@ -76,6 +76,7 @@ image:https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astr
 `+CAR161+` - `+content-in-abstract-method+`:: The body of abstract methods should only contain a docstring (or `+pass+` if the function is an overload or is private and has no docstring)
 `+CAR162+` - `+classproperty-not-all-caps+`:: Class-property names should be in all caps
 `+CAR170+` - `+union-in-isinstance-or-issubclass+`:: Use tuples of types in calls to `+isinstance()+` or `+issubclass+` rather than type unions
+`+CAR180+` - `+repeated-bool-op+`:: Use `+any()+` rather than repeated `+... or ...+` clauses and `+all()+` rather than repeated `+... and ..+` clauses
 `+CAR201+` - `+incorrect-logger-assignment-annotation+`:: Assignment of a `+logging.Logger+` object to a variable should be annotated as `+Final[Logger]+`
 `+CAR202+` - `+logger-variable-name-missing-logger+`:: A `+logging.Logger+` variable's name should contain the word 'logger'
 `+CAR301+` - `+invalid-characters-in-pycord-slash-command-or-option-name+`:: Pycord slash-command/option names should only contain valid characters

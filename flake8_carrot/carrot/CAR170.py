@@ -43,8 +43,8 @@ class RuleCAR170(CarrotRule, ast.NodeVisitor):
             case _:
                 raise TypeError
 
-        return f"Replace type union {
-            f'`{type_union if len(type_union) < 30 else f"{type_union[:30]}..."}`'
+        return f"Replace type union{
+            f' `{type_union if len(type_union) < 30 else f"{type_union[:30]}..."}`'
             if type_union
             else ''
         } with tuple{
