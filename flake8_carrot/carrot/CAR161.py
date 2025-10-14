@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure the body of abstract methods only contains the docstring."""  # noqa: N999
 
 import ast
 import builtins
@@ -15,7 +15,7 @@ __all__: Sequence[str] = ("RuleCAR161",)
 
 
 class RuleCAR161(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure the body of abstract methods only contains the docstring."""
 
     @classmethod
     @override

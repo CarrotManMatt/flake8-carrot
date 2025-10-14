@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure cog subclass names end with "Command(s)"."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -15,7 +15,7 @@ __all__: Sequence[str] = ("RuleCAR302",)
 
 
 class RuleCAR302(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure cog subclass names end with "Command(s)"."""
 
     @classmethod
     @override

@@ -1,4 +1,4 @@
-""""""
+"""Test suite to check the functionality of all TXB plugin rules."""
 
 from typing import TYPE_CHECKING
 
@@ -13,5 +13,4 @@ __all__: Sequence[str] = ()
 
 
 def _apply_tex_bot_plugin_to_ast(raw_testing_ast: str) -> AbstractSet[str]:
-    """"""
     return apply_plugin_to_ast(raw_testing_ast, TeXBotPlugin)

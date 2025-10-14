@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure the `__all__` export is annotated as `Sequence[str]`."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -14,7 +14,7 @@ __all__: Sequence[str] = ("RuleCAR103",)
 
 
 class RuleCAR103(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure the `__all__` export is annotated as `Sequence[str]`."""
 
     @classmethod
     @override

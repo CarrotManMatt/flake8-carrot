@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to warn when`__init__()` methods are not marked with `@override`."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -14,7 +14,7 @@ __all__: Sequence[str] = ("RuleCAR163",)
 
 
 class RuleCAR163(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to warn when`__init__()` methods are not marked with `@override`."""
 
     @classmethod
     @override

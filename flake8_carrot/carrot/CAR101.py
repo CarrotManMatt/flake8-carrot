@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure the `__all__` export is not missing from a module."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -13,7 +13,7 @@ __all__: Sequence[str] = ("RuleCAR101",)
 
 
 class RuleCAR101(CarrotRule):
-    """"""
+    """Linting rule to ensure the `__all__` export is not missing from a module."""
 
     @classmethod
     @override
@@ -24,7 +24,7 @@ class RuleCAR101(CarrotRule):
     def get_error_position(
         cls, tree_body: Sequence[ast.stmt], lines: Sequence[str]
     ) -> tuple[int, int]:  # NOTE: I'm sorry to whoever has to work out what is going on here
-        """"""
+        """Retrieve the correct error position for this rule based on the problematic AST."""
         if not tree_body:
             return 1, 0
 

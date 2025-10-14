@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to warn about passing `*args` or `**kwargs` as function arguments."""  # noqa: N999
 
 import ast
 from enum import Enum
@@ -15,7 +15,7 @@ __all__: Sequence[str] = ("RuleCAR151",)
 
 
 class RuleCAR151(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to warn about passing `*args` or `**kwargs` as function arguments."""
 
     class _InvalidArgumentType(Enum):
         STAR_ARGS = "`*args`"

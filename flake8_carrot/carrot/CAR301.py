@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure pycord names don't have any invalid characters."""  # noqa: N999
 
 import ast
 import re
@@ -17,7 +17,7 @@ __all__: Sequence[str] = ("RuleCAR301",)
 
 
 class RuleCAR301(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure pycord names don't have any invalid characters."""
 
     class _FunctionType(Enum):
         COMMAND = "slash-command"

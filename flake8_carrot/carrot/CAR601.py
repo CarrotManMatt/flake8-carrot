@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure `re.fullmatch()` is used over `re.match()`."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -14,7 +14,7 @@ __all__: Sequence[str] = ("RuleCAR601",)
 
 
 class RuleCAR601(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure `re.fullmatch()` is used over `re.match()`."""
 
     @classmethod
     @override

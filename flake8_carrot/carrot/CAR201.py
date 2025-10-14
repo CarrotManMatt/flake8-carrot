@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure assignment of `logging.Logger` objects are annotated as final."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -14,7 +14,7 @@ __all__: Sequence[str] = ("RuleCAR201",)
 
 
 class RuleCAR201(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure assignment of `logging.Logger` objects are annotated as final."""
 
     @classmethod
     @override

@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to prevent the use of dataclasses."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -14,7 +14,7 @@ __all__: Sequence[str] = ("RuleCAR501",)
 
 
 class RuleCAR501(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to prevent the use of dataclasses."""
 
     @classmethod
     @override

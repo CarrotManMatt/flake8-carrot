@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure a double newline is present after the `__all__` export."""  # noqa: N999
 
 from typing import TYPE_CHECKING, override
 
@@ -13,7 +13,7 @@ __all__: Sequence[str] = ("RuleCAR110",)
 
 
 class RuleCAR110(CarrotRule):
-    """"""
+    """Linting rule to ensure a double newline is present after the `__all__` export."""
 
     @classmethod
     @override

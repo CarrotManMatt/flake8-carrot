@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to suggest replacing repeated boolean operators with `all()`/`any()`."""  # noqa: N999
 
 import ast
 from enum import Enum
@@ -15,7 +15,7 @@ __all__: Sequence[str] = ("RuleCAR180",)
 
 
 class RuleCAR180(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to suggest replacing repeated boolean operators with `all()`/`any()`."""
 
     class _OpType(Enum):
         OR = "or", "any(...)"

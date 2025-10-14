@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure preamble lines are separated by only single newlines."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -13,7 +13,7 @@ __all__: Sequence[str] = ("RuleCAR111",)
 
 
 class RuleCAR111(CarrotRule):
-    """"""
+    """Linting rule to ensure preamble lines are separated by only single newlines."""
 
     @classmethod
     @override

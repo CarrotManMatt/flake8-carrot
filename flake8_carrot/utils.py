@@ -1,4 +1,4 @@
-""""""
+"""Utility/base functions and classes used throughout this project."""
 
 import abc
 import ast
@@ -91,7 +91,7 @@ ALL_PYCORD_FUNCTION_NAMES: Final[AbstractSet[str]] = (
 
 
 class BasePlugin(abc.ABC):
-    """"""
+    """Base plugin class to hold a selection of linting rules."""
 
     @classproperty
     @abc.abstractmethod
@@ -105,7 +105,6 @@ class BasePlugin(abc.ABC):
         file_tokens: "Sequence[TokenInfo]",  # noqa: UP037
         lines: "Sequence[str]",  # noqa: UP037
     ) -> None:
-        """"""
         if isinstance(tree, ast.Module):
             pass
         elif isinstance(tree, ast.Interactive):
@@ -123,7 +122,7 @@ class BasePlugin(abc.ABC):
         self._lines: Sequence[str] = lines
 
     def run(self) -> Generator[tuple[int, int, str, type[Self]]]:
-        """"""
+        """Perform complete linting over the stored Flake8 code context."""
         RuleClass: type[BaseRule[Self]]
         for RuleClass in self.RULES:
             rule: BaseRule[Self] = RuleClass(plugin=self)
@@ -137,11 +136,11 @@ class BasePlugin(abc.ABC):
 
 
 class ProblemsContainer(dict["_ProblemsContainerKey", "_ProblemsContainerValue"]):
-    """"""
+    """Collection of problem locations mapped to error message contexts."""
 
     @classmethod
     def clean_key(cls, key: _ProblemsContainerKey | str) -> _ProblemsContainerKey:
-        """"""
+        """Ensure the given problem location matches the required format."""
         if isinstance(key, str):
             match: re.Match[str] | None = re.fullmatch(
                 r"\A(?P<line_number>\d+),(?P<column_number>\d+)\Z",
@@ -193,12 +192,12 @@ class ProblemsContainer(dict["_ProblemsContainerKey", "_ProblemsContainerValue"]
         super().__setitem__(self.clean_key(key), value)
 
     def add_without_ctx(self, problem_location: _ProblemsContainerKey) -> None:
-        """"""
+        """Add a problem at the given location without a context."""
         self[problem_location] = {}
 
 
 class BaseRule[T_plugin: BasePlugin](abc.ABC):
-    """"""
+    """Base rule class defining common plugin-based functionality."""
 
     @override
     def __init__(self, plugin: T_plugin) -> None:
@@ -211,7 +210,7 @@ class BaseRule[T_plugin: BasePlugin](abc.ABC):
     def run_check(
         self, tree: ast.Module, file_tokens: Sequence[TokenInfo], lines: Sequence[str]
     ) -> None:
-        """"""
+        """Update the problems-dict from those arising from the given code."""
 
     @classmethod
     @abc.abstractmethod
@@ -221,7 +220,7 @@ class BaseRule[T_plugin: BasePlugin](abc.ABC):
     @classmethod
     @final
     def format_error_message(cls, ctx: Mapping[str, object]) -> str:
-        """"""
+        """Retrieve the formatted error message for this rule with the given context."""
         return (
             f"{cls.__name__.lower().removeprefix('rule').upper()} "
             f"{cls._format_error_message(ctx)}"
@@ -229,7 +228,7 @@ class BaseRule[T_plugin: BasePlugin](abc.ABC):
 
 
 class CarrotRule(BaseRule["CarrotPlugin"], abc.ABC):
-    """"""
+    """Base rule class for all "CAR" lint rules."""
 
     @override
     def __init__(self, plugin: CarrotPlugin) -> None:
@@ -237,7 +236,7 @@ class CarrotRule(BaseRule["CarrotPlugin"], abc.ABC):
 
 
 class TeXBotRule(BaseRule["TeXBotPlugin"], abc.ABC):
-    """"""
+    """Base rule class for all "TXB" lint rules."""
 
     @override
     def __init__(self, plugin: TeXBotPlugin) -> None:
@@ -276,7 +275,7 @@ def _function_call_is_pycord_function_from_commands_module(
 
 
 def function_call_is_pycord_slash_command_decorator(node: ast.Call) -> bool:
-    """"""
+    """Check if the given call AST node is calling the pycord slash-command decorator."""
     return _function_call_is_pycord_function_from_commands_module(
         node,
         PYCORD_SLASH_COMMAND_DECORATOR_NAMES,
@@ -284,7 +283,7 @@ def function_call_is_pycord_slash_command_decorator(node: ast.Call) -> bool:
 
 
 def function_call_is_pycord_context_command_decorator(node: ast.Call) -> bool:
-    """"""
+    """Check if the given call AST node is calling the pycord context-command decorator."""
     return _function_call_is_pycord_function_from_commands_module(
         node,
         PYCORD_CONTEXT_COMMAND_DECORATOR_NAMES,
@@ -292,7 +291,7 @@ def function_call_is_pycord_context_command_decorator(node: ast.Call) -> bool:
 
 
 def function_call_is_pycord_option_decorator(node: ast.Call) -> bool:
-    """"""
+    """Check if the given call AST node is calling the pycord command option decorator."""
     return _function_call_is_pycord_function_from_commands_module(
         node,
         PYCORD_OPTION_DECORATOR_NAMES,
@@ -300,7 +299,7 @@ def function_call_is_pycord_option_decorator(node: ast.Call) -> bool:
 
 
 def function_call_is_pycord_task_decorator(node: ast.Call) -> bool:
-    """"""
+    """Check if the given function call AST node is calling the pycord task decorator."""
     function_name: str
     match node.func:
         case (
@@ -338,7 +337,7 @@ def function_call_is_pycord_task_decorator(node: ast.Call) -> bool:
 
 
 def function_call_is_pycord_event_listener_decorator(node: ast.Call) -> bool:
-    """"""
+    """Check if the given call AST node is calling a pycord event listener decorator."""
     function_name: str
     match node.func:
         case (
@@ -383,7 +382,7 @@ def function_call_is_pycord_event_listener_decorator(node: ast.Call) -> bool:
 
 
 def function_call_is_any_pycord_decorator(node: ast.Call) -> bool:
-    """"""
+    """Check if the given function call AST node is calling a pycord decorator."""
     return any(
         (
             function_call_is_pycord_slash_command_decorator(node),
@@ -398,7 +397,7 @@ def function_call_is_any_pycord_decorator(node: ast.Call) -> bool:
 def generic_visit_before_return[T_Visitor: ast.NodeVisitor, T_Node: ast.AST](
     func: Callable[[T_Visitor, T_Node], None],
 ) -> Callable[[T_Visitor, T_Node], None]:
-    """"""
+    """Ensure a NodeVisitor overriden method calls generic_visit() before returning."""
 
     @functools.wraps(func)
     def wrapper(self: T_Visitor, node: T_Node) -> None:

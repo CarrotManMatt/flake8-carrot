@@ -1,4 +1,4 @@
-""""""
+"""Linting rules under the "CAR" category."""
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -94,7 +94,9 @@ class _ContextValuesFinder(ast.NodeVisitor):
         self.found_slash_command_group_names: set[str] = set()
         self.first_all_export_line_numbers: tuple[int, int] | None = None
         self.pprint_imported_for_debugging: bool = False
-        self.found_loggers: set[ast.Assign | ast.AnnAssign] = set()  # TODO: Implement finding
+
+        # TODO: Implement finding  # noqa: FIX002
+        self.found_loggers: set[ast.Assign | ast.AnnAssign] = set()
 
     @classmethod
     def _node_is_slash_command_group_assignment(cls, node: ast.Assign | ast.AnnAssign) -> bool:
@@ -147,7 +149,7 @@ class _ContextValuesFinder(ast.NodeVisitor):
                         )
                         break
 
-        # TODO: Find loggers using rule 201
+        # TODO: Find loggers using rule 201  # noqa: FIX002
 
     @utils.generic_visit_before_return
     @override
@@ -176,7 +178,7 @@ class _ContextValuesFinder(ast.NodeVisitor):
 
 
 class CarrotPlugin(BasePlugin):
-    """"""
+    """Plugin class holding all "TXB" rules to be run on some code provided by Flake8."""
 
     @classproperty
     @override
@@ -244,21 +246,17 @@ class CarrotPlugin(BasePlugin):
         super().__init__(tree=tree, file_tokens=file_tokens, lines=lines)
 
     @property
-    def found_slash_command_group_names(self) -> AbstractSet[str]:
-        """"""
+    def found_slash_command_group_names(self) -> AbstractSet[str]:  # noqa: D102
         return self._found_slash_command_group_names
 
     @property
-    def first_all_export_line_numbers(self) -> tuple[int, int] | None:
-        """"""
+    def first_all_export_line_numbers(self) -> tuple[int, int] | None:  # noqa: D102
         return self._first_all_export_line_numbers
 
     @property
-    def pprint_imported_for_debugging(self) -> bool:
-        """"""
+    def pprint_imported_for_debugging(self) -> bool:  # noqa: D102
         return self._pprint_imported_for_debugging
 
     @property
-    def found_loggers(self) -> AbstractSet[ast.Assign | ast.AnnAssign]:
-        """"""
+    def found_loggers(self) -> AbstractSet[ast.Assign | ast.AnnAssign]:  # noqa: D102
         return self._found_loggers

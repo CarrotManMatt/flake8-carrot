@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to enforce correct ordering of line comments and lint ignore comments."""  # noqa: N999
 
 import re
 import tokenize
@@ -15,7 +15,7 @@ __all__: Sequence[str] = ("RuleCAR123",)
 
 
 class RuleCAR123(CarrotRule):
-    """"""
+    """Linting rule to enforce correct ordering of line comments and lint ignore comments."""
 
     @classmethod
     @override

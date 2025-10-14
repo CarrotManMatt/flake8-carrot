@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure only imports and the module docstring are above the export."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -13,7 +13,7 @@ __all__: Sequence[str] = ("RuleCAR105",)
 
 
 class RuleCAR105(CarrotRule):
-    """"""
+    """Linting rule to ensure only imports and the module docstring are above the export."""
 
     @classmethod
     @override

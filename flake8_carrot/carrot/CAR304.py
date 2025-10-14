@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure Pycord command and option names end with a full-stop."""  # noqa: N999
 
 import ast
 from enum import Enum
@@ -15,7 +15,7 @@ __all__: Sequence[str] = ("RuleCAR304",)
 
 
 class RuleCAR304(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure Pycord command and option names end with a full-stop."""
 
     class _FunctionType(Enum):
         COMMAND = "command"

@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure Pycord command and option names are in the correct format."""  # noqa: N999
 
 import ast
 import re
@@ -17,7 +17,7 @@ __all__: Sequence[str] = ("RuleCAR303",)
 
 
 class RuleCAR303(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure Pycord command and option names are in the correct format."""
 
     class _FunctionType(Enum):
         COMMAND = "slash-command"
@@ -32,7 +32,7 @@ class RuleCAR303(CarrotRule, ast.NodeVisitor):
         def from_bools(
             cls, *, requires_hyphenation: bool, requires_lowercasing: bool
         ) -> RuleCAR303._InvalidArgumentReason | Literal[False]:
-            """"""
+            """Generate the correct enum type from separate boolean flags."""
             if requires_hyphenation and requires_lowercasing:
                 return cls.REQUIRES_BOTH
 

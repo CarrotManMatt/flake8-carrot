@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure all uses of `astpretty.pprint` are removed."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -14,7 +14,7 @@ __all__: Sequence[str] = ("RuleCAR401",)
 
 
 class RuleCAR401(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure all uses of `astpretty.pprint` are removed."""
 
     @classmethod
     @override

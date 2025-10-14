@@ -1,4 +1,4 @@
-""""""
+"""Test suite to check the functionality of all CAR plugin rules."""
 
 import abc
 import itertools
@@ -23,31 +23,30 @@ __all__: Sequence[str] = ("TestRuleCAR001",)
 class BaseTestCarrotPlugin(abc.ABC):  # noqa: B024
     @classmethod
     def _apply_carrot_plugin_to_ast(cls, raw_testing_ast: str) -> AbstractSet[str]:
-        """"""
         return apply_plugin_to_ast(raw_testing_ast, CarrotPlugin)
 
 
 class TestRuleMessages(BaseTestCarrotPlugin):
-    """"""
+    """Test suite to ensure all CAR rules have consistent message formatting."""
 
     @pytest.mark.parametrize("rule_class", CarrotPlugin.RULES)
     def test_message_never_ends_with_full_stop(self, rule_class: type[CarrotRule]) -> None:
-        """"""
+        """Ensure each rule message is formatted correctly without a trailing full-stop."""
         assert not rule_class.format_error_message(ctx={}).endswith(".")
 
     @pytest.mark.parametrize("rule_class", CarrotPlugin.RULES)
     def test_no_double_zero_in_rule_code(self, rule_class: type[CarrotRule]) -> None:
-        """"""
+        """Ensure each rule code is indexed correctly without double zeros."""
         assert "00" not in rule_class.__name__
 
     @pytest.mark.parametrize("rule_class", CarrotPlugin.RULES)
     def test_all_rule_classes_named_with_rule_code(self, rule_class: type[CarrotRule]) -> None:
-        """"""
+        """Ensure each message contains some sort of rule code."""
         assert re.fullmatch(r"\ARuleCAR[0-9]{1,3}\Z", rule_class.__name__)
 
     @pytest.mark.parametrize("rule_class", CarrotPlugin.RULES)
     def test_correct_rule_code_in_error_message(self, rule_class: type[CarrotRule]) -> None:
-        """"""
+        """Ensure each message contains the correct corresponding rule code."""
         rule_number_match: re.Match[str] | None = re.fullmatch(
             r"\A(?:Rule)?CAR([0-9]{1,3})\Z", rule_class.__name__, re.IGNORECASE
         )
@@ -65,7 +64,7 @@ class TestRuleMessages(BaseTestCarrotPlugin):
 
     @pytest.mark.parametrize("rule_class", CarrotPlugin.RULES)
     def test_no_double_rule_code_in_error_message(self, rule_class: type[CarrotRule]) -> None:
-        """"""
+        """Ensure rule messages don't statically contain the rule code (twice)."""
         assert not re.fullmatch(
             r"\A\s*CAR\s*[0-9]{1,4}.*\Z",
             rule_class._format_error_message(ctx={}),  # noqa: SLF001
@@ -77,7 +76,7 @@ class TestRuleMessages(BaseTestCarrotPlugin):
 
 
 class TestRuleCAR001(BaseTestCarrotPlugin):
-    """"""
+    """Test suite for rule CAR001."""
 
     @classmethod
     def _get_message(cls, line_number: int, column_number: int) -> str:
@@ -194,14 +193,14 @@ class TestRuleCAR001(BaseTestCarrotPlugin):
     def test_missing_all_export(
         self, raw_test_ast: str, expected_error_position: tuple[int, int]
     ) -> None:
-        """"""
+        """Ensure rule CAR001 is alerted for modules without __all__ exports."""
         assert self._get_message(*expected_error_position) in self._apply_carrot_plugin_to_ast(
             raw_test_ast
         )
 
 
 class TestRuleCAR101(BaseTestCarrotPlugin):
-    """"""
+    """Test suite for rule CAR101."""
 
     @pytest.mark.parametrize(
         "raw_test_ast",
@@ -216,7 +215,7 @@ class TestRuleCAR101(BaseTestCarrotPlugin):
         ),
     )
     def test_successful_all_export_provided(self, raw_test_ast: str) -> None:
-        """"""
+        """Ensure rule CAR101 is not alerted for modules with __all__ exports."""
         assert all(
             "CAR101" not in problem
             for problem in self._apply_carrot_plugin_to_ast(raw_test_ast)
@@ -224,7 +223,7 @@ class TestRuleCAR101(BaseTestCarrotPlugin):
 
 
 class TestRuleCAR111(BaseTestCarrotPlugin):
-    """"""
+    """Test suite for rule CAR111."""
 
     @classmethod
     def _get_message(cls, line_number: int, column_number: int) -> str:
@@ -345,7 +344,7 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
         ),
     )
     def test_successful_single_newline_between_preamble(self, raw_test_ast: str) -> None:
-        """"""
+        """Ensure rule CAR111 is alerted for incorrect lines between preamble blocks."""
         problems: AbstractSet[str] = self._apply_carrot_plugin_to_ast(raw_test_ast)
         assert not problems or any("CAR111" not in problem for problem in problems)
 

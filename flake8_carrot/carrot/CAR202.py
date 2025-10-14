@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure `logging.Logger` variables contain the word 'logger'."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -14,7 +14,7 @@ __all__: Sequence[str] = ("RuleCAR202",)
 
 
 class RuleCAR202(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure `logging.Logger` variables contain the word 'logger'."""
 
     @classmethod
     @override

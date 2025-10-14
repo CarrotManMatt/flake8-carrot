@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure linting comments do not have an incorrect number of commas."""  # noqa: N999
 
 import re
 import tokenize
@@ -30,7 +30,7 @@ class _IgnoreCommentType(Enum):
 
 
 class RuleCAR121(CarrotRule):
-    """"""
+    """Linting rule to ensure linting comments do not have an incorrect number of commas."""
 
     @classmethod
     @override

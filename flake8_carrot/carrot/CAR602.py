@@ -1,4 +1,8 @@
-""""""  # noqa: N999
+"""
+Linting rule to ensure `re.fullmatch()` is used over `re.search()`.
+
+Only applicable when the regex pattern uses beginning and ending line anchors.
+"""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -14,7 +18,11 @@ __all__: Sequence[str] = ("RuleCAR602",)
 
 
 class RuleCAR602(CarrotRule, ast.NodeVisitor):
-    """"""
+    """
+    Linting rule to ensure `re.fullmatch()` is used over `re.search()`.
+
+    Only applicable when the regex pattern uses beginning and ending line anchors.
+    """
 
     @classmethod
     @override

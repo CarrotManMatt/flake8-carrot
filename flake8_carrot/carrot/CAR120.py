@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure ignore comments have the correct amount of whitespace."""  # noqa: N999
 
 import re
 import tokenize
@@ -16,7 +16,7 @@ __all__: Sequence[str] = ("RuleCAR120",)
 
 
 class RuleCAR120(CarrotRule):
-    """"""
+    """Linting rule to ensure ignore comments have the correct amount of whitespace."""
 
     TYPE_IGNORE_REGEX: Final[str] = (
         r"\s*#(\s*)type(\s*):(\s*)ignore(?:(\s*)\[(\s*)"

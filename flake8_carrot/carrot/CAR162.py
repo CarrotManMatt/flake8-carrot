@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule class-property names should be in all caps."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -14,7 +14,7 @@ __all__: Sequence[str] = ("RuleCAR162",)
 
 
 class RuleCAR162(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule class-property names should be in all caps."""
 
     @classmethod
     @override

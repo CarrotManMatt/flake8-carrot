@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to warn about uses of string functions that have will have no effect."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -14,7 +14,7 @@ __all__: Sequence[str] = ("RuleCAR141",)
 
 
 class RuleCAR141(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to warn about uses of string functions that have will have no effect."""
 
     @classmethod
     @override

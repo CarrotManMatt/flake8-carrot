@@ -1,4 +1,8 @@
-""""""  # noqa: N999
+"""
+Linting rule to ensure the `__all__` export is a tuple.
+
+Only applies to simple static `__all__` exports.
+"""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -14,7 +18,11 @@ __all__: Sequence[str] = ("RuleCAR104",)
 
 
 class RuleCAR104(CarrotRule, ast.NodeVisitor):
-    """"""
+    """
+    Linting rule to ensure the `__all__` export is a tuple.
+
+    Only applies to simple static `__all__` exports.
+    """
 
     @classmethod
     @override

@@ -1,4 +1,4 @@
-""""""
+"""Linting rules under the "TXB" category."""
 
 from typing import TYPE_CHECKING, override
 
@@ -13,7 +13,7 @@ __all__: Sequence[str] = ("TeXBotPlugin", "TeXBotRule")
 
 
 class TeXBotPlugin(BasePlugin):
-    """"""
+    """Plugin class holding all "TXB" rules to be run on some code provided by Flake8."""
 
     @classproperty
     @override

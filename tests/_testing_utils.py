@@ -1,5 +1,3 @@
-""""""
-
 import ast
 import tokenize
 from io import StringIO
@@ -17,7 +15,7 @@ __all__: Sequence[str] = ("apply_plugin_to_ast",)
 def apply_plugin_to_ast(
     raw_testing_ast: str, plugin_class: type[BasePlugin]
 ) -> AbstractSet[str]:
-    """"""
+    """Retrieve all the warnings from applying all of a plugin's rules to an AST."""
     converted_lines: Sequence[str] = raw_testing_ast.split("\n")
     if not converted_lines[-1]:
         converted_lines = [f"{line}\n" for line in converted_lines[:-1]]

@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure regex patterns use raw strings."""  # noqa: N999
 
 import ast
 import tokenize
@@ -19,7 +19,7 @@ __all__: Sequence[str] = ("RuleCAR610",)
 
 
 class RuleCAR610(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure regex patterns use raw strings."""
 
     @override
     def __init__(self, plugin: CarrotPlugin) -> None:

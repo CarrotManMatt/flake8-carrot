@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure Pycord context command names are capitalised."""  # noqa: N999
 
 import ast
 from enum import Enum
@@ -21,7 +21,7 @@ class _ContextCommandType(Enum):
 
     @classmethod
     def format_value(cls, instance: Self | None) -> str:
-        """"""
+        """Produce the formatted string value for this context-command type."""
         return f"{instance.value.strip('\n\r\t -')}-" if instance is not None else ""
 
     @classmethod
@@ -39,7 +39,7 @@ class _ContextCommandType(Enum):
 
 
 class RuleCAR305(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure Pycord context command names are capitalised."""
 
     @classmethod
     @override

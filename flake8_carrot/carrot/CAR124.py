@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to suggest removing IDE specific ignore comments."""  # noqa: N999
 
 import re
 import tokenize
@@ -15,7 +15,7 @@ __all__: Sequence[str] = ("RuleCAR124",)
 
 
 class RuleCAR124(CarrotRule):
-    """"""
+    """Linting rule to suggest removing IDE specific ignore comments."""
 
     @classmethod
     @override

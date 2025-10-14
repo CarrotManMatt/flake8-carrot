@@ -1,4 +1,4 @@
-""""""  # noqa: N999
+"""Linting rule to ensure union typesin `isintance()` calls are replaced by tuples."""  # noqa: N999
 
 import ast
 from typing import TYPE_CHECKING, override
@@ -13,7 +13,7 @@ __all__: Sequence[str] = ("RuleCAR170",)
 
 
 class RuleCAR170(CarrotRule, ast.NodeVisitor):
-    """"""
+    """Linting rule to ensure union typesin `isintance()` calls are replaced by tuples."""
 
     @classmethod
     def _convert_expr_to_tuple(cls, expr: ast.expr) -> str:
