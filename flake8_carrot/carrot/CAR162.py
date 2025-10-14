@@ -1,8 +1,6 @@
 """"""  # noqa: N999
 
 import ast
-import builtins
-from enum import Enum
 from typing import TYPE_CHECKING, override
 
 from flake8_carrot import utils
@@ -51,6 +49,19 @@ class RuleCAR162(CarrotRule, ast.NodeVisitor):
                     | ast.Attribute(value=ast.Name(id="classproperties"), attr="classproperty")
                     | ast.Attribute(
                         value=ast.Name(id="classproperties"), attr="cached_classproperty"
+                    )
+                    | ast.Call(
+                        func=(
+                            ast.Name(id="classproperty")
+                            | ast.Name(id="cached_classproperty")
+                            | ast.Attribute(
+                                value=ast.Name(id="classproperties"), attr="classproperty"
+                            )
+                            | ast.Attribute(
+                                value=ast.Name(id="classproperties"),
+                                attr="cached_classproperty",
+                            )
+                        )
                     )
                 ):
                     return True

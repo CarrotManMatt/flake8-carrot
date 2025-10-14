@@ -55,6 +55,12 @@ class RuleCAR161(CarrotRule, ast.NodeVisitor):
                 case (
                     ast.Name(id="abstractmethod")
                     | ast.Attribute(value=ast.Name(id="abc"), attr="abstractmethod")
+                    | ast.Call(
+                        func=(
+                            ast.Name(id="abstractmethod")
+                            | ast.Attribute(value=ast.Name(id="abc"), attr="abstractmethod")
+                        )
+                    )
                 ):
                     return True
 
@@ -74,6 +80,21 @@ class RuleCAR161(CarrotRule, ast.NodeVisitor):
                     | ast.Attribute(
                         value=ast.Name(id="classproperties"), attr="cached_classproperty"
                     )
+                    | ast.Call(
+                        func=(
+                            ast.Name(id="property")
+                            | ast.Name("cached_property")
+                            | ast.Name(id="classproperty")
+                            | ast.Name(id="cached_classproperty")
+                            | ast.Attribute(
+                                value=ast.Name(id="classproperties"), attr="classproperty"
+                            )
+                            | ast.Attribute(
+                                value=ast.Name(id="classproperties"),
+                                attr="cached_classproperty",
+                            )
+                        )
+                    )
                 ):
                     return True
 
@@ -88,6 +109,15 @@ class RuleCAR161(CarrotRule, ast.NodeVisitor):
                     ast.Name(id="overload")
                     | ast.Attribute(value=ast.Name(id="typing"), attr="overload")
                     | ast.Attribute(value=ast.Name(id="typing_extensions"), attr="overload")
+                    | ast.Call(
+                        func=(
+                            ast.Name(id="overload")
+                            | ast.Attribute(value=ast.Name(id="typing"), attr="overload")
+                            | ast.Attribute(
+                                value=ast.Name(id="typing_extensions"), attr="overload"
+                            )
+                        )
+                    )
                 ):
                     return True
 
