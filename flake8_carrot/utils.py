@@ -98,6 +98,7 @@ class BasePlugin(abc.ABC):
     def RULES(cls) -> Collection[type[BaseRule[Self]]]:  # noqa: D102, N802
         pass
 
+    @override
     def __init__(
         self,
         tree: ast.AST,
