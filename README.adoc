@@ -36,10 +36,6 @@
 :labelled-url-flake8: {url-flake8}[Flake8]
 :labelled-url-pycord: {url-flake8}[Pycord]
 
-A {url-flake8-wiki-plugins}[plugin] for {labelled-url-flake8};
-Finding opinionated problems in your {labelled-url-python} code.
-Ensures that your {labelled-url-python} code adheres to https://carrotmanmatt.com[CarrotManMatt]'s style guide.
-
 image:https://img.shields.io/badge/%F0%9F%A5%95-flake8-%2Dcarrot-blue[flake8-carrot,link={url-project-repository}]
 image:https://img.shields.io/pypi/v/flake8-carrot[PyPI Version,link={url-project-pypi}]
 image:https://img.shields.io/pypi/pyversions/flake8-carrot?logo=Python&logoColor=white&label=Python[Python Version,link={url-python-download}]
@@ -51,8 +47,8 @@ image:https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astr
 image:https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json[uv,link={url-uv}]
 
 ****
-A plugin for Flake8;
-Ensuring that your Python code adheres to CarrotManMatt's opinionated style guide
+A {url-flake8-wiki-plugins}[plugin] for {labelled-url-flake8};
+Ensuring that your {labelled-url-python} code adheres to https://carrotmanmatt.com[CarrotManMatt]'s opinionated style guide
 ****
 
 == Rules
