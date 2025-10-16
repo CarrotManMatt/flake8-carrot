@@ -50,6 +50,11 @@ class RuleCAR105(CarrotRule):
                     ast.ImportFrom()
                     | ast.Import()
                     | ast.If(test=ast.Name(id="TYPE_CHECKING"), orelse=[])
+                    | ast.If(
+                        test=ast.Compare(),
+                        body=(ast.ImportFrom() | ast.Import(),),
+                        orelse=(ast.ImportFrom() | ast.Import(),),
+                    )
                 ):
                     continue
 
