@@ -20,7 +20,7 @@ type-check = ["mypy>=1.12", { include-group = "test" }]
 [project]
 authors = [{ name = "Matt Norton", email = "matt@carrotmanmatt.com" }]
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Framework :: Flake8",
     "Intended Audience :: Developers",
@@ -35,7 +35,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = ["flake8>=6", "typed_classproperties>=1.3"]
-description = "A plugin for Flake8; Finding opinionated problems in your Python code. Ensures that your Python code adhere's to CarrotManMatt's style guide."
+description = "A plugin for Flake8; Ensuring that your Python code adheres to CarrotManMatt's opinionated style guide."
 dynamic = ["readme", "version"]
 keywords = ["flake8", "flake8-plugin", "linter", "python", "static analysis"]
 license = "Apache-2.0"
@@ -104,6 +104,7 @@ warn_unused_ignores = true
 [[tool.mypy.overrides]]
 ignore_missing_imports = true
 module = ["astpretty"]
+
 
 [tool.ruff]
 indent-width = 4

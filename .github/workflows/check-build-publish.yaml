@@ -259,3 +259,90 @@ jobs:
               with:
                 name: built-flake8-carrot-package
                 path: dist/
+
+    # yamllint disable-line rule:key-ordering
+    publish:
+        environment: publish
+
+        if: github.ref_type == 'tag'
+
+        needs: [build]
+        permissions:
+            id-token: write
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v5
+
+            - name: Install uv
+              uses: astral-sh/setup-uv@v7
+              with:
+                enable-cache: true
+
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v5
+              with:
+                name: built-flake8-carrot-package
+                path: dist/
+
+            - name: Publish to PyPI
+              run: uv publish
+
+    # yamllint disable-line rule:key-ordering
+    test-publish:
+        environment: test-publish
+
+        if: |
+            (github.event_name != 'push' || github.ref_type != 'tag') &&
+            (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'CarrotManMatt/flake8-carrot')
+
+        needs: [build]
+        permissions:
+            id-token: write
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v5
+
+            - name: Install uv
+              uses: astral-sh/setup-uv@v7
+              with:
+                enable-cache: true
+
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v5
+              with:
+                name: built-flake8-carrot-package
+                path: dist/
+
+            - name: Publish to Test-PyPI
+              run: uv publish --index Test-PyPI
+
+    # yamllint disable-line rule:key-ordering
+    release:
+        if: github.ref_type == 'tag'
+
+        needs: [publish]
+        permissions:
+            contents: write
+            id-token: write
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v5
+              with:
+                name: built-flake8-carrot-package
+                path: dist/
+
+            - name: Sign Build Artifacts
+              uses: sigstore/gh-action-sigstore-python@v3.0.1
+              with:
+                inputs: ./dist/flake8_carrot-*.tar.gz ./dist/flake8_carrot-*.whl
+
+            - name: Create GitHub Release
+              # yamllint disable-line rule:key-ordering
+              env:
+                GITHUB_TOKEN: ${{ github.token }}
+              run: gh release create '${{ github.ref_name }}' dist/** --repo '${{github.repository}}'
+                --verify-tag --generate-notes

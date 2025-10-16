@@ -1,12 +1,9 @@
 = flake8-carrot
-Matt Norton <matt@carrotmanmatt.com>
-v0.1, 22/07/2024
 
-:docinfodir: .asciidoctor
-:docinfo: shared
 :project-root: .
 
 :!example-caption:
+:!table-caption:
 :icons: font
 :experimental:
 
@@ -52,6 +49,11 @@ image:https://img.shields.io/badge/mypy-checked-%232EBB4E&label=mypy[mypy Status
 image:https://img.shields.io/badge/pre-%2Dcommit-enabled-brightgreen?logo=pre-commit[pre-commit Status,link={url-pre-commit}]
 image:https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json[Ruff,link={url-ruff}]
 image:https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json[uv,link={url-uv}]
+
+****
+A plugin for Flake8;
+Ensuring that your Python code adheres to CarrotManMatt's opinionated style guide
+****
 
 == Rules
 
