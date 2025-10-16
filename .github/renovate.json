@@ -1,0 +1,13 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "enabled": true,
+    "enabledManagers": [
+        "github-actions",
+        "pep621",
+        "pep723",
+        "pre-commit"
+    ],
+    "extends": [
+        "github>CarrotManMatt/renovate-config"
+    ]
+}
