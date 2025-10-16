@@ -147,3 +147,19 @@ class RuleCAR201(CarrotRule, ast.NodeVisitor):
                     (node.annotation.lineno, node.annotation.col_offset),
                 )
                 return
+
+    @override
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        return
+
+    @override
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        return
+
+    @override
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        return
+
+    @override
+    def visit_For(self, node: ast.For) -> None:
+        return
