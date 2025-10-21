@@ -337,7 +337,7 @@ jobs:
                 path: dist/
 
             - name: Sign Build Artifacts
-              uses: sigstore/gh-action-sigstore-python@v3.0.1
+              uses: sigstore/gh-action-sigstore-python@v3.1.0
               with:
                 inputs: ./dist/flake8_carrot-*.tar.gz ./dist/flake8_carrot-*.whl
 
