@@ -256,7 +256,7 @@ jobs:
               run: uv build --build --no-sources
 
             - name: Save Build Artifacts
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v5
               with:
                 name: built-flake8-carrot-package
                 path: dist/
@@ -281,7 +281,7 @@ jobs:
                 enable-cache: true
 
             - name: Download Build Artifacts
-              uses: actions/download-artifact@v5
+              uses: actions/download-artifact@v6
               with:
                 name: built-flake8-carrot-package
                 path: dist/
@@ -311,7 +311,7 @@ jobs:
                 enable-cache: true
 
             - name: Download Build Artifacts
-              uses: actions/download-artifact@v5
+              uses: actions/download-artifact@v6
               with:
                 name: built-flake8-carrot-package
                 path: dist/
@@ -331,7 +331,7 @@ jobs:
 
         steps:
             - name: Download Build Artifacts
-              uses: actions/download-artifact@v5
+              uses: actions/download-artifact@v6
               with:
                 name: built-flake8-carrot-package
                 path: dist/
