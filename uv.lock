@@ -100,17 +100,17 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "astpretty", specifier = ">=3.0" },
-    { name = "mypy", specifier = ">=1.12" },
+    { name = "mypy", specifier = ">=1.18.1" },
     { name = "pre-commit" },
-    { name = "pytest" },
+    { name = "pytest", specifier = ">=9" },
     { name = "ruff", specifier = ">=0.8" },
 ]
 lint-format = [{ name = "ruff", specifier = ">=0.8" }]
 pre-commit = [{ name = "pre-commit" }]
-test = [{ name = "pytest" }]
+test = [{ name = "pytest", specifier = ">=9" }]
 type-check = [
-    { name = "mypy", specifier = ">=1.12" },
-    { name = "pytest" },
+    { name = "mypy", specifier = ">=1.18.1" },
+    { name = "pytest", specifier = ">=9" },
 ]
 
 [[package]]

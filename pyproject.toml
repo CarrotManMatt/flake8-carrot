@@ -1,24 +1,13 @@
-[build-system]
-build-backend = "hatchling.build"
-requires = ["Pydowndoc[bin]>=2.1.1", "hatch-vcs", "hatchling"]
-
-
-[dependency-groups]
-dev = [
-    "astpretty>=3.0",
-    { include-group = "lint-format" },
-    { include-group = "pre-commit" },
-    { include-group = "test" },
-    { include-group = "type-check" },
-]
-lint-format = ["ruff>=0.8"]
-pre-commit = ["pre-commit"]
-test = ["pytest"]
-type-check = ["mypy>=1.12", { include-group = "test" }]
-
+#:tombi schema.strict = false
 
 [project]
+name = "flake8-carrot"
+description = "A plugin for Flake8; Ensuring that your Python code adheres to CarrotManMatt's opinionated style guide."
+requires-python = ">=3.14"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 authors = [{ name = "Matt Norton", email = "matt@carrotmanmatt.com" }]
+keywords = ["flake8", "flake8-plugin", "linter", "python", "static analysis"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
@@ -32,16 +21,10 @@ classifiers = [
     "Programming Language :: Python :: 3.15",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Software Development :: Quality Assurance",
-    "Typing :: Typed",
+    "Typing :: Typed"
 ]
 dependencies = ["flake8>=6", "typed_classproperties>=1.3"]
-description = "A plugin for Flake8; Ensuring that your Python code adheres to CarrotManMatt's opinionated style guide."
 dynamic = ["readme", "version"]
-keywords = ["flake8", "flake8-plugin", "linter", "python", "static analysis"]
-license = "Apache-2.0"
-license-files = ["LICENSE"]
-name = "flake8-carrot"
-requires-python = ">=3.14"
 
 [project.urls]
 Issues = "https://github.com/CarrotManMatt/flake8-carrot/issues"
@@ -51,6 +34,22 @@ Repository = "https://github.com/CarrotManMatt/flake8-carrot"
 CAR = "flake8_carrot:CarrotPlugin"
 TXB = "flake8_carrot:TeXBotPlugin"
 
+[dependency-groups]
+dev = [
+    "astpretty>=3.0",
+    { include-group = "lint-format" },
+    { include-group = "pre-commit" },
+    { include-group = "test" },
+    { include-group = "type-check" }
+]
+lint-format = ["ruff>=0.8"]
+pre-commit = ["pre-commit"]
+test = ["pytest>=9"]
+type-check = ["mypy>=1.18.1", { include-group = "test" }]
+
+[build-system]
+requires = ["Pydowndoc[bin]>=2.1.1", "hatch-vcs", "hatchling"]
+build-backend = "hatchling.build"
 
 [tool.hatch.build]
 only-packages = true
@@ -61,11 +60,6 @@ downdoc-readme = { path = "README.adoc" }
 [tool.hatch.version]
 raw-options = { local_scheme = "no-local-version", version_scheme = "python-simplified-semver" }
 source = "vcs"
-
-
-[tool.pytest.ini_options]
-filterwarnings = ["ignore:'audioop':DeprecationWarning"]
-
 
 [tool.mypy]
 check_untyped_defs = true
@@ -89,22 +83,28 @@ enable_error_code = [
     "redundant-self",
     "truthy-bool",
     "truthy-iterable",
-    "unused-awaitable",
+    "unused-awaitable"
 ]
 exclude = ["examples/"]
 extra_checks = true
 no_implicit_reexport = true
+strict_bytes = true
 strict_equality = true
+strict_equality_for_none = true  # tombi: lint.rules.key-not-allowed.disabled = true
 warn_redundant_casts = true
 warn_return_any = true
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
+warn_incomplete_stub = true
 
 [[tool.mypy.overrides]]
 ignore_missing_imports = true
 module = ["astpretty"]
 
+[tool.pytest]
+strict = true
+filterwarnings = ["ignore:'audioop':DeprecationWarning"]
 
 [tool.ruff]
 indent-width = 4
@@ -135,7 +135,7 @@ ignore = [
     "SIM910",
     "TD002",
     "TD003",
-    "W191",
+    "W191"
 ]
 select = ["ALL", "D204", "D213", "D401"]
 task-tags = ["BUG", "DONE", "FIXME", "HACK", "IDEA", "ISSUE", "NOBUG", "NOTE", "REQ", "TODO"]
@@ -156,7 +156,7 @@ strict = true
 [tool.ruff.lint.pep8-naming]
 classmethod-decorators = [
     "typed_classproperties.cached_classproperty",
-    "typed_classproperties.classproperty",
+    "typed_classproperties.classproperty"
 ]
 extend-ignore-names = ["BROKEN_*_MESSAGE", "INVALID_*_MESSAGE", "NO_*_MESSAGE"]
 
@@ -171,7 +171,7 @@ max-doc-length = 95
 convention = "google"
 property-decorators = [
     "typed_classproperties.cached_classproperty",
-    "typed_classproperties.classproperty",
+    "typed_classproperties.classproperty"
 ]
 
 [tool.ruff.lint.pylint]
@@ -183,6 +183,9 @@ max-returns = 10
 [tool.ruff.lint.pyupgrade]
 keep-runtime-typing = true
 
+[tool.tombi.format.rules]
+indent-width = 4
+line-width = 95
 
 [tool.uv]
 default-groups = ["dev"]
