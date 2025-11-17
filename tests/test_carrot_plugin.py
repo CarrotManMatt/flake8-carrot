@@ -445,3 +445,51 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
         assert self._get_message(*expected_error_position) in self._apply_carrot_plugin_to_ast(
             raw_test_ast
         )
+
+
+class TestRuleCAR620(BaseTestCarrotPlugin):
+    """Test suite for rule CAR610."""
+
+    @classmethod
+    def _get_message(cls, line_number: int, column_number: int) -> str:
+        return (
+            f"{line_number}:{column_number} CAR610 "
+            'Regex pattern string should use a raw string: `r"..."`'
+        )
+
+    @pytest.mark.parametrize(
+        "raw_test_ast",
+        (
+            're.search(r"\\A\\w+[a-z]\\Z", content)',
+            "re.search(rf\"\\A<(?:{\n'|'.join(url_schemes)})>\\Z\", content)",
+            're.match(r"\\A\\w+[a-z]\\Z", content)',
+            "re.match(rf\"\\A<(?:{\n'|'.join(url_schemes)})>\\Z\", content)",
+            're.fullmatch(r"\\A\\w+[a-z]\\Z", content)',
+            "re.fullmatch(rf\"\\A<(?:{\n'|'.join(url_schemes)})>\\Z\", content)",
+        ),
+    )
+    def test_correctly_using_r_prefix(self, raw_test_ast: str) -> None:
+        """Ensure rule CAR610 is not alerted for modules with an `rf` string prefix."""
+        assert all(
+            "CAR610" not in problem
+            for problem in self._apply_carrot_plugin_to_ast(raw_test_ast)
+        )
+
+    @pytest.mark.parametrize(
+        ("raw_test_ast", "expected_error_position"),
+        (
+            ('re.search("\\A\\w+[a-z]\\Z", content)', (1, 1)),
+            ("re.search(f\"\\A<(?:{\n'|'.join(url_schemes)})>\\Z\", content)", (1, 1)),
+            ('re.match("\\A\\w+[a-z]\\Z", content)', (1, 1)),
+            ("re.match(f\"\\A<(?:{\n'|'.join(url_schemes)})>\\Z\", content)", (1, 1)),
+            ('re.fullmatch("\\A\\w+[a-z]\\Z", content)', (1, 1)),
+            ("re.fullmatch(f\"\\A<(?:{\n'|'.join(url_schemes)})>\\Z\", content)", (1, 1)),
+        ),
+    )
+    def test_missing_prefix(
+        self, raw_test_ast: str, expected_error_position: tuple[int, int]
+    ) -> None:
+        """Ensure rule CAR610 is not alerted for modules with an `rf` string prefix."""
+        assert self._get_message(*expected_error_position) in self._apply_carrot_plugin_to_ast(
+            raw_test_ast
+        )

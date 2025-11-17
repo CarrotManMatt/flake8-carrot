@@ -1,6 +1,7 @@
 """Linting rule to ensure regex patterns use raw strings."""  # noqa: N999
 
 import ast
+import re
 import tokenize
 from io import StringIO
 from typing import TYPE_CHECKING, override
@@ -54,9 +55,10 @@ class RuleCAR610(CarrotRule, ast.NodeVisitor):
 
         token: TokenInfo
         for token in TOKENS:
-            if token.type == tokenize.STRING and not (
-                token.string.startswith('r"') or token.string.startswith("r'")
-            ):
+            if (
+                (isinstance(argument, ast.Constant) and token.type == tokenize.STRING)
+                or token.type == tokenize.FSTRING_START
+            ) and not re.search(r"\A(?:rf?|fr)[\"']", token.string):
                 self.problems.add_without_ctx(
                     (argument.lineno - 1 + token.start[0], token.start[1]),
                 )
