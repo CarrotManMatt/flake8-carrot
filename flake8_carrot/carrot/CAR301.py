@@ -92,7 +92,7 @@ class RuleCAR301(CarrotRule, ast.NodeVisitor):
         for invalid_character in "`!¬£$€%^&*+=,<>?#~`":
             invalid_character_match: re.Match[str]
             for invalid_character_match in re.finditer(
-                rf"\\{invalid_character}", argument.value
+                rf"\{invalid_character}", argument.value
             ):
                 self.problems[
                     (
