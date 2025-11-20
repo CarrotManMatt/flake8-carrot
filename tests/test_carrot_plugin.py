@@ -447,7 +447,7 @@ class TestRuleCAR111(BaseTestCarrotPlugin):
         )
 
 
-class TestRuleCAR620(BaseTestCarrotPlugin):
+class TestRuleCAR610(BaseTestCarrotPlugin):
     """Test suite for rule CAR610."""
 
     @classmethod
