@@ -478,12 +478,12 @@ class TestRuleCAR620(BaseTestCarrotPlugin):
     @pytest.mark.parametrize(
         ("raw_test_ast", "expected_error_position"),
         (
-            ('re.search("\\A\\w+[a-z]\\Z", content)', (1, 1)),
-            ("re.search(f\"\\A<(?:{\n'|'.join(url_schemes)})>\\Z\", content)", (1, 1)),
-            ('re.match("\\A\\w+[a-z]\\Z", content)', (1, 1)),
-            ("re.match(f\"\\A<(?:{\n'|'.join(url_schemes)})>\\Z\", content)", (1, 1)),
-            ('re.fullmatch("\\A\\w+[a-z]\\Z", content)', (1, 1)),
-            ("re.fullmatch(f\"\\A<(?:{\n'|'.join(url_schemes)})>\\Z\", content)", (1, 1)),
+            ('re.search("\\\\A\\\\w+[a-z]\\\\Z", content)', (1, 1)),
+            ("re.search(f\"\\\\A<(?:{\n'|'.join(url_schemes)})>\\\\Z\", content)", (1, 1)),
+            ('re.match("\\\\A\\\\w+[a-z]\\\\Z", content)', (1, 1)),
+            ("re.match(f\"\\\\A<(?:{\n'|'.join(url_schemes)})>\\\\Z\", content)", (1, 1)),
+            ('re.fullmatch("\\\\A\\\\w+[a-z]\\\\Z", content)', (1, 1)),
+            ("re.fullmatch(f\"\\\\A<(?:{\n'|'.join(url_schemes)})>\\\\Z\", content)", (1, 1)),
         ),
     )
     def test_missing_prefix(
