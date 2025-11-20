@@ -40,8 +40,8 @@ dev = [
     { include-group = "test" },
     { include-group = "type-check" }
 ]
-lint-format = ["ruff>=0.8"]
-pre-commit = ["pre-commit"]
+lint-format = ["ruff>=0.14"]
+pre-commit = ["pre-commit", { include-group = "lint-format" }]
 test = ["pytest>=9"]
 type-check = ["mypy>=1.18.1", { include-group = "test" }]
 

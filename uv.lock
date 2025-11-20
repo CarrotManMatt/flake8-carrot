@@ -82,6 +82,7 @@ lint-format = [
 ]
 pre-commit = [
     { name = "pre-commit" },
+    { name = "ruff" },
 ]
 test = [
     { name = "pytest" },
@@ -103,10 +104,13 @@ dev = [
     { name = "mypy", specifier = ">=1.18.1" },
     { name = "pre-commit" },
     { name = "pytest", specifier = ">=9" },
-    { name = "ruff", specifier = ">=0.8" },
+    { name = "ruff", specifier = ">=0.14" },
 ]
-lint-format = [{ name = "ruff", specifier = ">=0.8" }]
-pre-commit = [{ name = "pre-commit" }]
+lint-format = [{ name = "ruff", specifier = ">=0.14" }]
+pre-commit = [
+    { name = "pre-commit" },
+    { name = "ruff", specifier = ">=0.14" },
+]
 test = [{ name = "pytest", specifier = ">=9" }]
 type-check = [
     { name = "mypy", specifier = ">=1.18.1" },
