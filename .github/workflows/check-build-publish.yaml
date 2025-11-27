@@ -83,8 +83,12 @@ jobs:
 
             - name: Install mypy From Locked Dependencies
               run: |
-                if [ "${{matrix.component}}" == "tests" ]; then
+                if [ "${{matrix.component}}" == "package" ]; then
+                  ARGS=""
+                elif [ "${{matrix.component}}" == "tests" ]; then
                   ARGS="--group test"
+                else
+                  echo "Error: Unknown matrix.component value: '${{matrix.component}}'" >&2
                 fi
 
                 uv sync --no-group dev --group type-check $ARGS
@@ -105,6 +109,8 @@ jobs:
                   ARGS="flake8_carrot/"
                 elif [ "${{matrix.component}}" == "tests" ]; then
                   ARGS="tests/"
+                else
+                  echo "Error: Unknown matrix.component value: '${{matrix.component}}'" >&2
                 fi
 
                 uv run -- mypy $ARGS
