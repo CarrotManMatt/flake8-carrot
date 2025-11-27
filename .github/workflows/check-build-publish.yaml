@@ -89,6 +89,7 @@ jobs:
                   ARGS="--group test"
                 else
                   echo "Error: Unknown matrix.component value: '${{matrix.component}}'" >&2
+                  exit 1
                 fi
 
                 uv sync --no-group dev --group type-check $ARGS
@@ -111,6 +112,7 @@ jobs:
                   ARGS="tests/"
                 else
                   echo "Error: Unknown matrix.component value: '${{matrix.component}}'" >&2
+                  exit 1
                 fi
 
                 uv run -- mypy $ARGS
