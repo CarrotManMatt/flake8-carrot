@@ -83,7 +83,7 @@ jobs:
 
             - name: Install mypy From Locked Dependencies
               run: |
-                if [ "${{ matrix.component }}" == "tests" ]; then
+                if [ "${{matrix.component}}" == "tests" ]; then
                   ARGS="--group test"
                 fi
 
@@ -101,9 +101,9 @@ jobs:
 
             - name: Run mypy  # TODO: Add GitHub workflows output format
               run: |
-                if [ "${{ matrix.component }}" == "package" ]; then
+                if [ "${{matrix.component}}" == "package" ]; then
                   ARGS="flake8_carrot/"
-                elif [ "${{ matrix.component }}" == "tests" ]; then
+                elif [ "${{matrix.component}}" == "tests" ]; then
                   ARGS="tests/"
                 fi
 
