@@ -62,7 +62,9 @@ jobs:
         runs-on: ubuntu-latest
 
         strategy:
+            fail-fast: false
             matrix:
+                component: [package, tests]
                 python-version: ["3.14"]
 
         steps:
@@ -80,7 +82,12 @@ jobs:
                 python-version: ${{matrix.python-version}}
 
             - name: Install mypy From Locked Dependencies
-              run: uv sync --no-group dev --group type-check
+              run: |
+                if [ "${{ matrix.component }}" == "tests" ]; then
+                  ARGS="--group test"
+                fi
+
+                uv sync --no-group dev --group type-check $ARGS
 
             - id: store-hashed-python-version
               name: Store Hashed Python Version
@@ -89,11 +96,18 @@ jobs:
 
             - uses: actions/cache@v4
               with:
-                key: mypy|${{steps.store-hashed-python-version.outputs.hashed_python_version}}
+                key: mypy|${{steps.store-hashed-python-version.outputs.hashed_python_version}}|${{matrix.component}}
                 path: ./.mypy_cache
 
-            - name: Run mypy
-              run: uv run -- mypy .  # TODO: Add GitHub workflows output format
+            - name: Run mypy  # TODO: Add GitHub workflows output format
+              run: |
+                if [ "${{ matrix.component }}" == "package" ]; then
+                  ARGS="flake8_carrot/"
+                elif [ "${{ matrix.component }}" == "tests" ]; then
+                  ARGS="tests/"
+                fi
+
+                uv run -- mypy $ARGS
 
     # yamllint disable-line rule:key-ordering
     pre-commit:
@@ -167,7 +181,7 @@ jobs:
             - name: Set Up Python
               uses: actions/setup-python@v6
               with:
-                python-version: ${{ matrix.python-version }}
+                python-version: ${{matrix.python-version}}
 
             - name: Install uv
               uses: astral-sh/setup-uv@v7
@@ -344,6 +358,6 @@ jobs:
             - name: Create GitHub Release
               # yamllint disable-line rule:key-ordering
               env:
-                GITHUB_TOKEN: ${{ github.token }}
-              run: gh release create '${{ github.ref_name }}' dist/** --repo '${{github.repository}}'
+                GITHUB_TOKEN: ${{github.token}}
+              run: gh release create '${{github.ref_name}}' dist/** --repo '${{github.repository}}'
                 --verify-tag --generate-notes

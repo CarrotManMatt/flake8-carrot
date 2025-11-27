@@ -89,7 +89,6 @@ test = [
 ]
 type-check = [
     { name = "mypy" },
-    { name = "pytest" },
 ]
 
 [package.metadata]
@@ -112,10 +111,7 @@ pre-commit = [
     { name = "ruff", specifier = ">=0.14" },
 ]
 test = [{ name = "pytest", specifier = ">=9" }]
-type-check = [
-    { name = "mypy", specifier = ">=1.18.1" },
-    { name = "pytest", specifier = ">=9" },
-]
+type-check = [{ name = "mypy", specifier = ">=1.18.1" }]
 
 [[package]]
 name = "identify"

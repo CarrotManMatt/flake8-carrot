@@ -43,7 +43,7 @@ dev = [
 lint-format = ["ruff>=0.14"]
 pre-commit = ["pre-commit", { include-group = "lint-format" }]
 test = ["pytest>=9"]
-type-check = ["mypy>=1.18.1", { include-group = "test" }]
+type-check = ["mypy>=1.18.1"]
 
 [build-system]
 requires = ["Pydowndoc[bin]>=2.1.1", "hatch-vcs", "hatchling"]
