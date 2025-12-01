@@ -26,6 +26,7 @@ dynamic = ["readme", "version"]
 
 [project.urls]
 Issues = "https://github.com/CarrotManMatt/flake8-carrot/issues"
+Releases = "https://github.com/CarrotManMatt/flake8-carrot/releases"
 Repository = "https://github.com/CarrotManMatt/flake8-carrot"
 
 [project.entry-points."flake8.extension"]
@@ -40,7 +41,7 @@ dev = [
     { include-group = "test" },
     { include-group = "type-check" }
 ]
-lint-format = ["ruff>=0.14"]
+lint-format = ["flake8", "flake8-pyproject>=1.2", "ruff>=0.14"]
 pre-commit = ["pre-commit", { include-group = "lint-format" }]
 test = ["pytest>=9"]
 type-check = ["mypy>=1.18.1"]
@@ -48,6 +49,11 @@ type-check = ["mypy>=1.18.1"]
 [build-system]
 requires = ["Pydowndoc[bin]>=2.1.1", "hatch-vcs", "hatchling"]
 build-backend = "hatchling.build"
+
+[tool.flake8]
+select = ["CAR", "TXB"]
+extend_exclude = ["migrations/", ".venv/", "examples/"]
+require_plugins = ["flake8-carrot"]
 
 [tool.hatch.build]
 only-packages = true
