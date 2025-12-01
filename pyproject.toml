@@ -51,7 +51,7 @@ requires = ["Pydowndoc[bin]>=2.1.1", "hatch-vcs", "hatchling"]
 build-backend = "hatchling.build"
 
 [tool.flake8]
-select = ["CAR", "TXB"]
+select = ["CAR"]
 extend_exclude = ["migrations/", ".venv/", "examples/"]
 require_plugins = ["flake8-carrot"]
 
