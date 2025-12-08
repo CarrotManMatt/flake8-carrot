@@ -167,7 +167,7 @@ jobs:
             - name: Run pre-commit
               run: uv run -- pre-commit run --all-files --hook-stage manual  # TODO: Add GitHub workflows output format
 
-            - if: ${{!cancelled()}}
+            - if: "!cancelled()"
               uses: pre-commit-ci/lite-action@v1.1.0
 
     # yamllint disable-line rule:key-ordering
@@ -315,9 +315,8 @@ jobs:
     test-publish:
         environment: test-publish
 
-        if: |
-            (github.event_name != 'push' || github.ref_type != 'tag') &&
-            (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'CarrotManMatt/flake8-carrot')
+        if: (github.event_name != 'push' || github.ref_type != 'tag') && (github.event_name != 'pull_request'
+            || github.event.pull_request.head.repo.full_name == 'CarrotManMatt/flake8-carrot')
 
         needs: [build]
         permissions:

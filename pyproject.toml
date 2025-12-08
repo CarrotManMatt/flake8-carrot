@@ -11,7 +11,6 @@ classifiers = [
     "Environment :: Console",
     "Framework :: Flake8",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
@@ -42,7 +41,12 @@ dev = [
     { include-group = "type-check" }
 ]
 lint-format = ["flake8", "flake8-pyproject>=1.2", "ruff>=0.14"]
-pre-commit = ["pre-commit", { include-group = "lint-format" }]
+package-analysis = ["pyroma>=5.0"]
+pre-commit = [
+    "pre-commit",
+    { include-group = "lint-format" },
+    { include-group = "package-analysis" }
+]
 test = ["pytest>=9"]
 type-check = ["mypy>=1.18.1"]
 
