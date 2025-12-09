@@ -84,20 +84,20 @@ jobs:
             - name: Install mypy From Locked Dependencies
               run: |
                 if [ "${{matrix.component}}" == "package" ]; then
-                  ARGS=""
+                  ARGS=()
                 elif [ "${{matrix.component}}" == "tests" ]; then
-                  ARGS="--group test"
+                  ARGS=("--group" "test")
                 else
                   echo "Error: Unknown matrix.component value: '${{matrix.component}}'" >&2
                   exit 1
                 fi
 
-                uv sync --no-group dev --group type-check $ARGS
+                uv sync --no-group dev --group type-check "${ARGS[@]}"
 
             - id: store-hashed-python-version
               name: Store Hashed Python Version
               run: echo "hashed_python_version=$(uv run -- python -VV | sha256sum | cut -d' ' -f1)"
-                >> $GITHUB_OUTPUT
+                >> "$GITHUB_OUTPUT"
 
             - uses: actions/cache@v4
               with:
@@ -151,7 +151,7 @@ jobs:
             - id: store-hashed-python-version
               name: Store Hashed Python Version
               run: echo "hashed_python_version=$(uv run -- python -VV | sha256sum | cut -d' ' -f1)"
-                >> $GITHUB_OUTPUT
+                >> "$GITHUB_OUTPUT"
 
             - uses: actions/cache@v4
               with:
@@ -162,7 +162,7 @@ jobs:
               run: uv run -- pre-commit install-hooks
 
             - name: Store pre-commit Checks Which Require Skipping
-              run: echo "SKIP=check-github-workflows,ruff-check,uv-lock,flake8" >> $GITHUB_ENV
+              run: echo "SKIP=check-github-workflows,ruff-check,uv-lock,flake8" >> "$GITHUB_ENV"
 
             - name: Run pre-commit
               run: |
@@ -208,7 +208,7 @@ jobs:
             - id: store-hashed-python-version
               name: Store Hashed Python Version
               run: echo "hashed_python_version=$(uv run -- python -VV | sha256sum | cut -d' ' -f1)"
-                >> $GITHUB_OUTPUT
+                >> "$GITHUB_OUTPUT"
 
             - uses: actions/cache@v4
               with:
@@ -245,7 +245,7 @@ jobs:
             - id: store-hashed-python-version
               name: Store Hashed Python Version
               run: echo "hashed_python_version=$(uv run -- python -VV | sha256sum | cut -d' ' -f1)"
-                >> $GITHUB_OUTPUT
+                >> "$GITHUB_OUTPUT"
 
             - uses: actions/cache@v4
               with:
