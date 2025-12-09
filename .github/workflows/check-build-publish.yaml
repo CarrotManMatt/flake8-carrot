@@ -84,12 +84,12 @@ jobs:
             - name: Install mypy From Locked Dependencies
               run: |
                 if [ "${{matrix.component}}" == "package" ]; then
-                  ARGS=()
+                    ARGS=()
                 elif [ "${{matrix.component}}" == "tests" ]; then
-                  ARGS=("--group" "test")
+                    ARGS=("--group" "test")
                 else
-                  echo "Error: Unknown matrix.component value: '${{matrix.component}}'" >&2
-                  exit 1
+                    echo "Error: Unknown matrix.component value: '${{matrix.component}}'" >&2
+                    exit 1
                 fi
 
                 uv sync --no-group dev --group type-check "${ARGS[@]}"
@@ -107,12 +107,12 @@ jobs:
             - name: Run mypy  # TODO: Add GitHub workflows output format
               run: |
                 if [ "${{matrix.component}}" == "package" ]; then
-                  ARGS="flake8_carrot/"
+                    ARGS="flake8_carrot/"
                 elif [ "${{matrix.component}}" == "tests" ]; then
-                  ARGS="tests/"
+                    ARGS="tests/"
                 else
-                  echo "Error: Unknown matrix.component value: '${{matrix.component}}'" >&2
-                  exit 1
+                    echo "Error: Unknown matrix.component value: '${{matrix.component}}'" >&2
+                    exit 1
                 fi
 
                 uv run -- mypy $ARGS
