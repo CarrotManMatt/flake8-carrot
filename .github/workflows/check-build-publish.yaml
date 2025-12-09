@@ -165,7 +165,9 @@ jobs:
               run: echo "SKIP=check-github-workflows,ruff-check,uv-lock,flake8" >> $GITHUB_ENV
 
             - name: Run pre-commit
-              run: uv run -- pre-commit run --all-files --hook-stage manual | tee /tmp/pre-commit.log  # TODO: Add GitHub workflows output format
+              run: |
+                set -o pipefail
+                uv run -- pre-commit run --all-files --hook-stage manual | tee /tmp/pre-commit.log  # TODO: Add GitHub workflows output format
 
             - name: Ensure No Warnings
               run: if grep -q "\[WARNING\]" /tmp/pre-commit.log; then exit 1; fi
