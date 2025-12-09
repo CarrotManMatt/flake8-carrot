@@ -167,7 +167,7 @@ jobs:
             - name: Run pre-commit
               run: |
                 set -o pipefail
-                uv run -- pre-commit run --all-files --hook-stage manual | tee /tmp/pre-commit.log  # TODO: Add GitHub workflows output format
+                uv run -- pre-commit run --all-files --hook-stage manual | tee /tmp/pre-commit.log
 
             - name: Ensure No Warnings
               run: if grep -q "\[WARNING\]" /tmp/pre-commit.log; then exit 1; fi
