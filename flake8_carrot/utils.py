@@ -397,7 +397,7 @@ def function_call_is_any_pycord_decorator(node: ast.Call) -> bool:
 def generic_visit_before_return[T_Visitor: ast.NodeVisitor, T_Node: ast.AST](
     func: Callable[[T_Visitor, T_Node], None],
 ) -> Callable[[T_Visitor, T_Node], None]:
-    """Ensure a NodeVisitor overriden method calls generic_visit() before returning."""
+    """Ensure a NodeVisitor overridden method calls generic_visit() before returning."""
 
     @functools.wraps(func)
     def wrapper(self: T_Visitor, node: T_Node) -> None:
