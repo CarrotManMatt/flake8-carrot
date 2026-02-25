@@ -107,15 +107,17 @@ jobs:
             - name: Run mypy  # TODO: Add GitHub workflows output format
               run: |
                 if [ "${{matrix.component}}" == "package" ]; then
-                    ARGS="flake8_carrot/"
+                    FILES=("flake8_carrot/")
                 elif [ "${{matrix.component}}" == "tests" ]; then
-                    ARGS="tests/"
+                    FILES=("tests/")
                 else
                     echo "Error: Unknown matrix.component value: '${{matrix.component}}'" >&2
                     exit 1
                 fi
 
-                uv run -- mypy $ARGS
+                for FILE in "${FILES[@]}"; do
+                  uv run -- mypy "$FILE"
+                done
 
     # yamllint disable-line rule:key-ordering
     pre-commit:
