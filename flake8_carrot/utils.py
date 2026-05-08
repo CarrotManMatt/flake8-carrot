@@ -5,7 +5,7 @@ import ast
 import functools
 import re
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, final, override
+from typing import TYPE_CHECKING, cast, final, override
 
 from typed_classproperties import classproperty
 
@@ -169,21 +169,23 @@ class ProblemsContainer(dict["_ProblemsContainerKey", "_ProblemsContainerValue"]
         /,
         **kwargs: _ProblemsContainerValue,  # noqa: CAR150
     ) -> None:
-        mapping = (
+        _mapping: dict[_ProblemsContainerKey, _ProblemsContainerValue] = (
             {}
             if mapping is None
             else {
                 self.clean_key(key): value
-                for key, value in (
-                    mapping.items() if isinstance(mapping, Mapping) else mapping
+                for key, value in cast(
+                    "Iterable[tuple[_ProblemsContainerKey, _ProblemsContainerValue]]",
+                    mapping.items() if isinstance(mapping, Mapping) else mapping,
                 )
             }
         )
+        del mapping
 
         if kwargs:
-            mapping.update({self.clean_key(key): value for key, value in kwargs.items()})
+            _mapping.update({self.clean_key(key): value for key, value in kwargs.items()})
 
-        super().__init__(mapping)
+        super().__init__(_mapping)
 
     @override
     def __setitem__(
