@@ -15,7 +15,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
               with:
                 fetch-depth: 0
 
@@ -37,7 +37,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
 
             - name: Set Up Python
               uses: actions/setup-python@v6
@@ -71,7 +71,7 @@ jobs:
                 python-version: ["3.14"]
 
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
 
             - name: Set Up Python
               uses: actions/setup-python@v6
@@ -163,7 +163,7 @@ jobs:
                 python-version: ["3.14"]
 
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
 
             - name: Set Up Python
               uses: actions/setup-python@v6
@@ -201,7 +201,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
 
             - name: Set Up Python
               uses: actions/setup-python@v6
@@ -250,7 +250,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
               with:
                 fetch-depth: 0
 
@@ -285,7 +285,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
 
             - name: Install uv
               uses: astral-sh/setup-uv@v8.2.0
@@ -317,7 +317,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
 
             - name: Install uv
               uses: astral-sh/setup-uv@v8.2.0
