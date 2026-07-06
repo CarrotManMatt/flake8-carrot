@@ -1,13 +1,13 @@
 [project]
 name = "flake8-carrot"
-description = "A plugin for Flake8; Ensuring that your Python code adheres to CarrotManMatt's opinionated style guide."
+description = "ARCHIVED | A plugin for Flake8; Ensuring that your Python code adheres to CarrotManMatt's opinionated style guide"
 requires-python = ">=3.14"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 authors = [{ name = "Matt Norton", email = "matt@carrotmanmatt.com" }]
 keywords = ["flake8", "flake8-plugin", "linter", "python", "static analysis"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 7 - Inactive",
     "Environment :: Console",
     "Framework :: Flake8",
     "Intended Audience :: Developers",

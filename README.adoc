@@ -37,7 +37,7 @@
 :labelled-url-pycord: {url-flake8}[Pycord]
 
 image:https://img.shields.io/badge/%F0%9F%A5%95-flake8-%2Dcarrot-blue[flake8-carrot,link={url-project-repository}]
-image:https://img.shields.io/pypi/v/flake8-carrot[PyPI Version,link={url-project-pypi}]
+image:https://img.shields.io/pypi/status/flake8-carrot[PyPI Status,link={url-project-pypi}]
 image:https://img.shields.io/pypi/pyversions/flake8-carrot?logo=Python&logoColor=white&label=Python[Python Version,link={url-python-download}]
 image:https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftoml-version-finder.carrotmanmatt.com%2Flock%2FCarrotManMatt%2Fflake8-carrot%2Fflake8&query=%24.package_version&label=flake8[flake8 Version,link={url-flake8}]
 image:{url-project-repository}/actions/workflows/check-build-publish.yaml/badge.svg[Tests Status,link={url-project-repository}/actions/workflows/check-build-publish.yaml]
@@ -50,6 +50,11 @@ image:https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astr
 A {url-flake8-wiki-plugins}[plugin] for {labelled-url-flake8};
 Ensuring that your {labelled-url-python} code adheres to https://carrotmanmatt.com[CarrotManMatt]'s opinionated style guide
 ****
+
+== ⚠️ PROJECT STATUS ⚠️
+
+This project is now archived and deprecated.
+Use https://github.com/CarrotManMatt/fixit-carrot instead.
 
 == Rules
 
